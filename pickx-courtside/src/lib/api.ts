@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Court, Match, Player } from "./types";
 import { toast } from "sonner";
 
-const API_URL = "https://treatment-referring-rose-salad.trycloudflare.com/api";
+const API_URL = "https://pickx-porject.onrender.com/api";
 
 export function usePlayers() {
   return useQuery({
