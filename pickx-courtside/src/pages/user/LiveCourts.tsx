@@ -31,35 +31,40 @@ export default function LiveCourts() {
 
       {/* Global Empty State */}
       {activeCourts.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-12 text-center animate-slide-up">
-          <div className="relative mb-6">
-            <div className="absolute inset-0 bg-primary/10 blur-[100px] rounded-full" />
-            <img 
-              src="/mascot.png" 
-              alt="Mascot" 
-              className="relative w-48 h-48 object-contain drop-shadow-2xl animate-float"
-            />
-            <div className="absolute -right-4 top-4 bg-surface-elevated border border-border/60 rounded-2xl p-3 shadow-xl max-w-[160px] animate-bounce-in">
-              <p className="text-[10px] font-bold leading-tight text-foreground">
-                {(() => {
+        <div className="flex flex-col items-center justify-center py-8 text-center animate-slide-up">
+          <div className="relative mb-2 flex flex-col items-center">
+            {/* Mascot Container */}
+            <div className="relative z-10 size-40 overflow-hidden rounded-full border border-primary/10 bg-primary/5 shadow-inner">
+               <img 
+                src="/mascot.png" 
+                alt="Mascot" 
+                className="size-full object-contain p-2 animate-float"
+              />
+            </div>
+            
+            {/* Integrated Speech Bubble */}
+            <div className="relative -mt-4 z-20 rounded-2xl bg-surface-elevated border border-border/60 px-5 py-3 shadow-xl max-w-[220px] animate-bounce-in">
+              <p className="text-[11px] font-bold leading-relaxed text-foreground italic">
+                "{(() => {
                   const msgs = [
                     "Đang lựa đối thủ 'vừa miếng' cho bạn đây...",
                     "Uống miếng nước, lau mồ hôi rồi chuẩn bị 'vụt' tiếp nào!",
                     "Vợt đã sẵn sàng, chỉ chờ lệnh từ BTC thôi!",
                     "Đừng nhìn điện thoại nữa, khởi động cổ tay đi kìa!",
-                    "Tranh thủ làm vài ván khởi động trong lúc chờ sân nhé!",
-                    "Nghe nói ai kiên nhẫn chờ đợi sẽ được xếp sân đẹp?"
+                    "Tranh thủ làm vài ván khởi động trong lúc chờ sân nhé!"
                   ];
-                  return msgs[Math.floor(Date.now() / 10000) % msgs.length];
-                })()}
+                  return msgs[Math.floor(Date.now() / 15000) % msgs.length];
+                })()}"
               </p>
-              <div className="absolute -left-1.5 top-4 size-3 bg-surface-elevated border-l border-t border-border/60 rotate-45" />
+              {/* Bubble Tail (Centered) */}
+              <div className="absolute -top-1 left-1/2 size-2.5 -translate-x-1/2 rotate-45 border-l border-t border-border/60 bg-surface-elevated" />
             </div>
           </div>
-          <div className="space-y-1">
-            <h3 className="font-display text-xl font-bold tracking-tight">Hiện không có trận nào</h3>
-            <p className="text-xs text-muted-foreground max-w-[200px] mx-auto opacity-70">
-              BTC đang sắp xếp lượt thi đấu tiếp theo. Hãy nạp năng lượng nhé!
+
+          <div className="mt-6 space-y-1 opacity-80">
+            <h3 className="font-display text-base font-bold uppercase tracking-widest text-primary/80">Nghỉ giữa hiệp</h3>
+            <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-tighter">
+              BTC đang sắp xếp lượt thi đấu tiếp theo
             </p>
           </div>
         </div>
