@@ -10,16 +10,16 @@ import { cn } from "@/lib/utils";
 
 const MASCOT_COUNT = 5;
 const QUOTES = [
-  "Picklebee đang đi tìm đối thủ 'vừa miếng' cho bạn, đừng sốt ruột nha!",
-  "Vợt của bạn đang 'ngứa ngáy' lắm rồi đúng không? Picklebee cũng vậy!",
-  "5 phút chờ đợi là 5 phút tích tụ 'nội công' cho cú smash tiếp theo đó!",
-  "Nghe nói ai cười với Picklebee sẽ được xếp vào sân có gió mát nhất đấy!",
-  "Chờ đợi là hạnh phúc, nhất là khi sắp được 'vụt' cháy sân cùng đồng đội!",
-  "Picklebee vừa thấy bạn đánh một quả đỉnh cao luôn, trận tới làm lại nhé?",
-  "Đừng quên hít thở, Picklebee không muốn bạn 'hết hơi' giữa chừng đâu!",
-  "Sân đang nóng, nhưng lòng bạn còn nóng hơn đúng không? Chờ xíu nha!",
-  "Tranh thủ làm vài đường khởi động đi, Picklebee đang quan sát bạn đấy!",
-  "Chờ tí nha, Picklebee đang đi... giải quyết 'nỗi buồn' một xíu 🚽",
+  "Đừng nhìn màn hình mãi thế, Picklebee muốn thấy bạn khởi động cổ tay ngay đi!",
+  "Sân sắp trống rồi, cất điện thoại và làm vài đường cơ bản cùng Picklebee nào!",
+  "Ngồi lâu quá là 'cứng' người đấy, đứng lên xoay người vài vòng đi nào!",
+  "Vợt của bạn đang 'khóc' vì nhớ sân đấy, cất điện thoại và sẵn sàng nhé!",
+  "Picklebee đang theo dõi bạn đấy... khởi động xong chưa nào? 💪",
+  "Đừng để Picklebee phải nhắc, uống nước xong thì đứng lên tập vài quả smash đi!",
+  "Trận tới cần rất nhiều năng lượng, đừng phí nó vào việc lướt điện thoại nữa nha!",
+  "Nghe nói ai chăm khởi động sẽ được Picklebee 'độ' cho những cú bỏ nhỏ thần sầu!",
+  "Cất điện thoại vào túi thôi, sân đấu đang gọi tên bạn kìa!",
+  "Chờ tí nha, Picklebee đang đi... giải quyết 'nỗi buồn' một xíu rồi ra khởi động cùng bạn! 🚽",
 ];
 
 function useRotatingContent() {
