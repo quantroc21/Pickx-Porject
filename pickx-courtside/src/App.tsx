@@ -14,6 +14,7 @@ import LiveCourts from "./pages/user/LiveCourts";
 import SearchPlayer from "./pages/user/SearchPlayer";
 import PlayerProfile from "./pages/user/PlayerProfile";
 import UserLogin from "./pages/user/UserLogin";
+import UserSignup from "./pages/user/UserSignup";
 
 import PinGate from "./pages/admin/PinGate";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -52,6 +53,7 @@ const App = () => (
               <Route path="/search" element={<SearchPlayer />} />
               <Route path="/player/:id" element={<PlayerProfile />} />
               <Route path="/login" element={<UserLogin />} />
+              <Route path="/signup" element={<UserSignup />} />
               <Route path="/me" element={<MeRedirect />} />
             </Route>
 

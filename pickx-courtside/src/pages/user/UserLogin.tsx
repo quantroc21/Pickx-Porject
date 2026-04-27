@@ -40,13 +40,13 @@ export default function UserLogin() {
       </header>
 
       <p className="text-sm text-muted-foreground border border-dashed border-primary/30 p-4 rounded-xl bg-primary/5">
-        Xin chào! Tính năng thẻ tên cá nhân hóa bắt buộc xác thực bảo mật. Hãy sử dụng Username (hoặc họ tên viết liền) và mật khẩu mà BTC đã cấp. Các tài khoản cũ dùng mật khẩu mặc định <b>123456</b>.
+        Xin chào! Hãy sử dụng Username và mật khẩu của bạn để đăng nhập. Nếu bạn là người mới, hãy nhấn <b>Đăng ký ngay</b> để bắt đầu hành trình chinh phục bảng xếp hạng PickX!
       </p>
 
       <form onSubmit={submit} className="space-y-4">
         <div>
           <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            Tài khoản (Username)
+            Username (Họ tên viết liền)
           </label>
           <input
             autoFocus
@@ -83,6 +83,15 @@ export default function UserLogin() {
           {loginMutation.isPending ? <Loader2 className="size-4 animate-spin" /> : <LogIn className="size-4" />}
           {loginMutation.isPending ? "Đang xác thực…" : "Đăng nhập"}
         </button>
+
+        <div className="pt-2 text-center">
+          <p className="text-xs text-muted-foreground">
+            Chưa có tài khoản?{" "}
+            <Link to="/signup" className="font-bold text-primary hover:underline">
+              Đăng ký ngay
+            </Link>
+          </p>
+        </div>
       </form>
     </div>
   );
