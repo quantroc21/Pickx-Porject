@@ -102,7 +102,10 @@ def save_db(data):
         try:
             db = client["pickx_db"]
             collection = db["state"]
-            collection.replace_one({"_id": "main_state"}, data, upsert=True)
+            # Ensure _id is present for replacement
+            save_data = data.copy()
+            save_data["_id"] = "main_state"
+            collection.replace_one({"_id": "main_state"}, save_data, upsert=True)
             client.close()
             return
         except Exception as e:
