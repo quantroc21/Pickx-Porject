@@ -67,9 +67,20 @@ export default function UserLogin() {
         </div>
 
         <div>
-          <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            Mật khẩu
-          </label>
+          <div className="mb-1.5 flex items-center justify-between">
+            <label className="block text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              Mật khẩu
+            </label>
+            <button 
+              type="button" 
+              onClick={() => {
+                setErrorMsg("Quên mật khẩu? Vui lòng liên hệ trực tiếp với Host/Admin tại sân để được cấp lại mật khẩu mới nhé!");
+              }}
+              className="text-[11px] font-semibold text-primary hover:underline"
+            >
+              Quên mật khẩu?
+            </button>
+          </div>
           <input
             type="password"
             value={password}
