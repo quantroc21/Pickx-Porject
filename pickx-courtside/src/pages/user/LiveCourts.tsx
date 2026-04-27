@@ -8,7 +8,7 @@ import { PlayerAvatar } from "@/components/pickx/PlayerAvatar";
 import { TierBadge } from "@/components/pickx/TierBadge";
 import { cn } from "@/lib/utils";
 
-const MASCOT_COUNT = 3;
+const MASCOT_COUNT = 5;
 const QUOTES = [
   "Mọi người đang nghỉ ngơi hoặc BTC đang sắp xếp lượt thi đấu tiếp theo.",
   "Đang lựa đối thủ 'vừa miếng' cho bạn đây...",
@@ -18,6 +18,8 @@ const QUOTES = [
   "Tranh thủ làm vài ván khởi động trong lúc chờ sân nhé!",
   "Ai thua không nản mới là tay vợt thứ thiệt!",
   "Hít thở sâu, giữ vững tinh thần, trận sau sẽ khác!",
+  "Cố lên nào! Picklebee tin bạn sẽ 'vụt' cháy sân!",
+  "Chờ tí nha, Picklebee đang đi... giải quyết nhu cầu cá nhân 🚽",
 ];
 
 function useRotatingContent() {
