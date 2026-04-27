@@ -43,7 +43,7 @@ function useRotatingContent() {
         setIndex((prev) => prev + 1);
         setVisible(true);
       }, 400);
-    }, 8000);
+    }, 10000);
     return () => clearInterval(timer);
   }, []);
 
