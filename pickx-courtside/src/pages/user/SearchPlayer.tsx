@@ -11,7 +11,9 @@ export default function SearchPlayer() {
   const { data: rawPlayers = [], isLoading } = usePlayers();
 
   const ranked = useMemo(() => {
-    return [...rawPlayers].sort((a,b) => b.elo - a.elo);
+    return (rawPlayers || [])
+      .filter((p: any) => p && typeof p === "object" && "elo" in p)
+      .sort((a,b) => b.elo - a.elo);
   }, [rawPlayers]);
 
   const results = useMemo(() => {

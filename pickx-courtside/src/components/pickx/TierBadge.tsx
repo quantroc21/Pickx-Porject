@@ -28,7 +28,7 @@ export function TierBadge({ elo, tier, size = "sm", showLabel = true, className 
   };
   const resolved = tier
     ? { key: tier, label: VN_LABEL[tier] }
-    : getTier(elo ?? 0);
+    : getTier(elo ?? 1000);
 
   const sizeClasses = {
     sm: "px-2 py-0.5 text-[10px] gap-1",

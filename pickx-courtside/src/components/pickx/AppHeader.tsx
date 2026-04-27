@@ -13,7 +13,7 @@ interface AppHeaderProps {
 export function AppHeader({ title = "PickX", subtitle, showAdminLink = true }: AppHeaderProps) {
   const { userId } = useUserAuth();
   const { data: players = [] } = usePlayers();
-  const me = players.find(p => p.id === userId);
+  const me = players.find(p => p && p.id === userId);
 
   return (
     <header className="sticky top-0 z-30 liquid-glass border-b-0 border-x-0 border-t-0 rounded-b-3xl">
