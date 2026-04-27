@@ -23,13 +23,15 @@ const SIZE = {
 };
 
 export function PlayerAvatar({ player, size = "md", ring = false, className }: PlayerAvatarProps) {
+  if (!player || !player.name) return <div className={cn("rounded-full bg-muted", SIZE[size])} />;
+  
   const initials = player.name
     .split(" ")
     .map((n) => n[0])
     .slice(0, 2)
     .join("")
     .toUpperCase();
-  const tier = getTier(player.elo);
+  const tier = getTier(player.elo ?? 1000);
     const streak = player.streak || 0;
     const isOnFire = streak >= 3;
     const isBruised = streak <= -3;

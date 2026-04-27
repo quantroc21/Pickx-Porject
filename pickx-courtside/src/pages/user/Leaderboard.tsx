@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Crown, Flame, Snowflake, TrendingUp, Trophy } from "lucide-react";
+import { Crown, Flame, Snowflake, TrendingUp, Trophy, Zap, Skull } from "lucide-react";
 import { usePlayers } from "@/lib/api";
 import { TIER_HEX, getTier } from "@/lib/tiers";
 import { TierBadge } from "@/components/pickx/TierBadge";
@@ -138,6 +138,7 @@ interface PodiumSpotProps {
 }
 
 function PodiumSpot({ player, place, heightCls, highlight }: PodiumSpotProps) {
+  if (!player) return null;
   const tier = getTier(player.elo);
   const placeColor =
     place === 1
