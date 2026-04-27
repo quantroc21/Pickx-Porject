@@ -22,10 +22,25 @@ const QUOTES = [
 
 function useRotatingContent() {
   const [index, setIndex] = useState(() => Math.floor(Math.random() * 1000));
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    // Preload all mascot images on mount
+    for (let i = 1; i <= MASCOT_COUNT; i++) {
+      const img = new Image();
+      img.src = `/mascot${i}.png`;
+    }
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setIndex((prev) => prev + 1);
+      // Fade out first
+      setVisible(false);
+      // After fade-out completes, change content and fade back in
+      setTimeout(() => {
+        setIndex((prev) => prev + 1);
+        setVisible(true);
+      }, 400);
     }, 8000);
     return () => clearInterval(timer);
   }, []);
@@ -33,6 +48,7 @@ function useRotatingContent() {
   return {
     mascotSrc: `/mascot${(index % MASCOT_COUNT) + 1}.png`,
     quote: QUOTES[index % QUOTES.length],
+    visible,
   };
 }
 
@@ -40,7 +56,7 @@ export default function LiveCourts() {
   const { data: { courts = [], bench = [] } = {}, isLoading: courtsLoading } = useLiveCourts();
   const { data: players = [], isLoading: pLoading } = usePlayers();
   const { userId } = useUserAuth();
-  const { mascotSrc, quote } = useRotatingContent();
+  const { mascotSrc, quote, visible } = useRotatingContent();
 
   if (courtsLoading || pLoading)
     return <div className="p-8 text-center text-muted-foreground animate-pulse">Đang kiểm tra lịch sân…</div>;
@@ -71,7 +87,7 @@ export default function LiveCourts() {
               <img 
                 src={mascotSrc}
                 alt="Picklebee Mascot" 
-                className="w-72 h-72 object-contain drop-shadow-2xl animate-float transition-opacity duration-700"
+                className={cn("w-72 h-72 object-contain drop-shadow-2xl animate-float transition-opacity duration-500", visible ? "opacity-100" : "opacity-0")}
               />
             </div>
           </div>
@@ -80,7 +96,7 @@ export default function LiveCourts() {
             <h3 className="font-display text-2xl font-black tracking-tight text-foreground/90 uppercase">Hiện không có trận nào</h3>
             
             <div className="mx-auto flex max-w-[320px] flex-col items-center gap-2">
-              <p className="text-base font-medium text-muted-foreground leading-relaxed italic transition-opacity duration-500">
+              <p className={cn("text-base font-medium text-muted-foreground leading-relaxed italic transition-opacity duration-500", visible ? "opacity-100" : "opacity-0")}>
                 "{quote}"
               </p>
               <span className="text-xs font-semibold tracking-[0.15em] text-primary">
