@@ -19,8 +19,8 @@ export function AppHeader({ title = "PickX", subtitle, showAdminLink = true }: A
     <header className="sticky top-0 z-30 liquid-glass border-b-0 border-x-0 border-t-0 rounded-b-3xl">
       <div className="mx-auto flex max-w-md items-center justify-between px-5 py-3.5">
         <Link to="/" className="flex items-center gap-2.5">
-          <span className="grid size-9 place-items-center rounded-lg bg-gradient-primary text-primary-foreground shadow-glow">
-            <span className="font-display text-lg font-bold leading-none">X</span>
+          <span className="grid size-9 place-items-center rounded-lg bg-[#1a3a2a] shadow-glow overflow-hidden">
+            <img src="/logo.png" alt="X" className="size-full object-cover scale-110" />
           </span>
           <div className="leading-tight">
             <p className="font-display text-base font-bold tracking-tight">PickX</p>
