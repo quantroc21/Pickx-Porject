@@ -10,8 +10,29 @@ export default function Leaderboard() {
   const { data: rawPlayers = [], isLoading } = usePlayers();
   if (isLoading) return <div className="p-8 text-center text-muted-foreground animate-pulse">Đang nạp dữ liệu máy chủ...</div>;
   const players = [...rawPlayers].sort((a,b) => b.elo - a.elo);
-  const [first, second, third, ...rest] = players;
+  
+  if (players.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center space-y-4 py-20 text-center">
+        <div className="relative">
+          <div className="absolute inset-0 size-24 animate-pulse rounded-full bg-primary/20 blur-2xl" />
+          <Trophy className="relative size-16 text-muted-foreground opacity-20" />
+        </div>
+        <div className="space-y-1">
+          <h2 className="font-display text-lg font-bold">Chưa có tay vợt nào</h2>
+          <p className="text-xs text-muted-foreground">Hãy đăng ký ngay để trở thành người đứng đầu!</p>
+        </div>
+        <Link to="/signup" className="rounded-full bg-surface px-6 py-2 text-xs font-bold uppercase tracking-wider text-primary ring-1 ring-border/60 hover:bg-primary/10 transition-colors">
+          Đăng ký ngay
+        </Link>
+      </div>
+    );
+  }
 
+  const first = players[0];
+  const second = players[1];
+  const third = players[2];
+  const rest = players.slice(3);
 
   return (
     <div className="space-y-6">
@@ -31,10 +52,10 @@ export default function Leaderboard() {
           </div>
 
           {/* Podium */}
-          <div className="mt-6 grid grid-cols-3 items-end gap-3">
-            <PodiumSpot player={second} place={2} heightCls="h-24" />
-            <PodiumSpot player={first}  place={1} heightCls="h-32" highlight />
-            <PodiumSpot player={third}  place={3} heightCls="h-20" />
+          <div className="mt-6 grid grid-cols-3 items-end gap-3 min-h-[200px]">
+            {second ? <PodiumSpot player={second} place={2} heightCls="h-24" /> : <div className="h-24" />}
+            {first ? <PodiumSpot player={first}  place={1} heightCls="h-32" highlight /> : <div className="h-32" />}
+            {third ? <PodiumSpot player={third}  place={3} heightCls="h-20" /> : <div className="h-20" />}
           </div>
         </div>
       </section>

@@ -22,9 +22,17 @@ export default function Matchmaker() {
   const matchmakerMutation = useMatchmaker();
   const assignMutation = useAssignCourt();
   
+  const [selectedCourts, setSelectedCourts] = useState<number[]>([1, 2]); // Default to court 1 & 2
   const [active, setActive] = useState<Set<string>>(() => new Set());
   const [generating, setGenerating] = useState(false);
   const [proposed, setProposed] = useState<ProposedMatch[] | null>(null);
+
+  function toggleCourt(n: number) {
+    setSelectedCourts(prev => 
+      prev.includes(n) ? prev.filter(x => x !== n) : [...prev, n].sort()
+    );
+    setProposed(null);
+  }
 
   function toggle(id: string) {
     setActive((prev) => {
@@ -40,17 +48,24 @@ export default function Matchmaker() {
       toast.error("Cần ít nhất 4 tay vợt có mặt để ghép trận.");
       return;
     }
+    if (selectedCourts.length === 0) {
+      toast.error("Vui lòng chọn ít nhất 1 sân đấu.");
+      return;
+    }
+
     setGenerating(true);
     setProposed(null);
     matchmakerMutation.mutate(Array.from(active), {
       onSuccess: (data) => {
         setGenerating(false);
-        const matches: ProposedMatch[] = data.courts.map((c: any, i: number) => {
+        // Map the generated matches to our SELECTED court numbers
+        const matches: ProposedMatch[] = data.courts.slice(0, selectedCourts.length).map((c: any, i: number) => {
            const t1Avg = c.team1.reduce((sum: number, id: string) => sum + (players.find((p) => p.id === id)?.elo || 1000), 0) / 2;
            const t2Avg = c.team2.reduce((sum: number, id: string) => sum + (players.find((p) => p.id === id)?.elo || 1000), 0) / 2;
+           const courtNum = selectedCourts[i];
            return {
-             court: i + 1,
-             courtName: c.name || `Sân ${i + 1}`,
+             court: courtNum,
+             courtName: `Sân ${courtNum}`,
              team1: c.team1,
              team2: c.team2,
              delta: Math.round(Math.abs(t1Avg - t2Avg))
@@ -63,8 +78,6 @@ export default function Matchmaker() {
       }
     });
   }
-
-  // Zalo sharing removed to transition to PWA
 
   return (
     <div className="space-y-6">
@@ -83,8 +96,38 @@ export default function Matchmaker() {
         </div>
       </header>
 
+      {/* Court Selection Config */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between px-1">
+          <h2 className="font-display text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+            Cấu hình sân Social (Cụm 6 sân)
+          </h2>
+          <span className="text-[10px] text-primary/60 font-bold uppercase tracking-tight">{selectedCourts.length} sân đang dùng</span>
+        </div>
+        <div className="grid grid-cols-6 gap-2">
+          {[1, 2, 3, 4, 5, 6].map((n) => {
+            const isSel = selectedCourts.includes(n);
+            return (
+              <button
+                key={n}
+                onClick={() => toggleCourt(n)}
+                className={cn(
+                  "flex flex-col items-center justify-center rounded-xl py-3 border transition-all",
+                  isSel 
+                    ? "bg-primary/20 border-primary text-primary shadow-[0_0_10px_rgba(193,255,114,0.1)]" 
+                    : "bg-surface border-border/40 text-muted-foreground opacity-50"
+                )}
+              >
+                <span className="text-[10px] font-bold uppercase tracking-tighter opacity-70">Sân</span>
+                <span className="font-display text-lg font-black leading-none">{n}</span>
+              </button>
+            )
+          })}
+        </div>
+      </section>
+
       <section className="rounded-2xl border border-border/60 bg-surface/70 p-3">
-        <ul className="divide-y divide-border/40">
+        <ul className="divide-y divide-border/40 max-h-[300px] overflow-y-auto pr-1">
           {players.map((p) => {
             const isOn = active.has(p.id);
             return (
@@ -101,29 +144,22 @@ export default function Matchmaker() {
               </li>
             );
           })}
+          {players.length === 0 && (
+            <li className="py-8 text-center text-xs text-muted-foreground">Chưa có người chơi nào đăng ký.</li>
+          )}
         </ul>
       </section>
 
       <button
-        type="button"
         onClick={generate}
-        disabled={generating || active.size < 4}
+        disabled={generating || active.size < 4 || selectedCourts.length === 0}
         className={cn(
-          "sticky bottom-24 z-10 flex h-14 w-full items-center justify-center gap-2 rounded-2xl font-display text-base font-bold uppercase tracking-wider transition-all",
-          active.size < 4
-            ? "cursor-not-allowed bg-muted text-muted-foreground"
-            : "bg-gradient-primary text-primary-foreground shadow-glow hover:scale-[1.01] active:scale-[0.99]",
+          "h-14 w-full rounded-2xl font-display text-sm font-bold uppercase tracking-[0.1em] transition-all flex items-center justify-center gap-2",
+          active.size >= 4 && selectedCourts.length > 0
+            ? "bg-gradient-primary text-primary-foreground shadow-glow active:scale-95"
+            : "bg-muted text-muted-foreground opacity-50 cursor-not-allowed"
         )}
       >
-        {generating ? (
-          <>
-            <Loader2 className="size-5 animate-spin" />
-            Đang tính cặp đấu…
-          </>
-        ) : (
-          <>
-            <Shuffle className="size-5" />
-            Tạo cặp đấu
           </>
         )}
       </button>

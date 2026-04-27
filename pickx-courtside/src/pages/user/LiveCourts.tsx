@@ -8,7 +8,7 @@ import { TierBadge } from "@/components/pickx/TierBadge";
 import { cn } from "@/lib/utils";
 
 export default function LiveCourts() {
-  const { data: { courts = [] } = {}, isLoading: courtsLoading } = useLiveCourts();
+  const { data: { courts = [], bench = [] } = {}, isLoading: courtsLoading } = useLiveCourts();
   const { data: players = [], isLoading: pLoading } = usePlayers();
   const { userId } = useUserAuth();
 
@@ -26,10 +26,23 @@ export default function LiveCourts() {
     <div className="space-y-6">
       <header>
         <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">Trận đấu</p>
-        <h1 className="font-display text-2xl font-bold">Sân Đấu Của Bạn</h1>
+        <h1 className="font-display text-2xl font-bold">Sân Đấu Trực Tiếp</h1>
       </header>
 
-      {!userId && (
+      {/* Global Empty State */}
+      {activeCourts.length === 0 && (
+        <div className="rounded-2xl border border-dashed border-border/60 bg-surface/30 p-12 text-center space-y-4">
+          <div className="mx-auto size-16 rounded-full bg-primary/5 flex items-center justify-center">
+            <Radio className="size-8 text-primary/20 animate-pulse" />
+          </div>
+          <div className="space-y-1">
+            <h3 className="font-display text-lg font-bold">Hiện không có trận nào</h3>
+            <p className="text-xs text-muted-foreground max-w-[200px] mx-auto">Mọi người đang nghỉ ngơi hoặc BTC đang sắp xếp lượt tiếp theo.</p>
+          </div>
+        </div>
+      )}
+
+      {!userId && activeCourts.length > 0 && (
         <div className="rounded-xl border border-dashed border-primary/30 bg-primary/5 p-6 text-center space-y-2">
           <p className="text-sm text-muted-foreground">Bạn chưa đăng nhập. Hãy đăng nhập để xem lịch thi đấu cá nhân.</p>
           <Link to="/login" className="inline-block rounded-lg bg-primary/15 px-4 py-2 text-xs font-bold text-primary ring-1 ring-primary/30 hover:bg-primary/25 transition-colors">
@@ -38,7 +51,7 @@ export default function LiveCourts() {
         </div>
       )}
 
-      {userId && !myCourt && (
+      {userId && !myCourt && activeCourts.length > 0 && (
         <div className="rounded-2xl border border-border/60 bg-surface/70 p-8 text-center space-y-3">
           <Clock className="mx-auto size-10 text-muted-foreground opacity-40" />
           <p className="font-display text-lg font-bold">Chưa có trận nào cho bạn</p>
@@ -50,6 +63,25 @@ export default function LiveCourts() {
 
       {userId && myCourt && (
         <MyCourtHero court={myCourt} players={players} userId={userId} />
+      )}
+
+      {/* Bench / Waiting List */}
+      {bench.length > 0 && (
+        <section className="space-y-3">
+          <h2 className="px-1 font-display text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Đang chờ lượt (Bench)</h2>
+          <div className="flex flex-wrap gap-2">
+            {bench.map(id => {
+              const p = players.find(x => x.id === id);
+              if (!p) return null;
+              return (
+                <div key={id} className="flex items-center gap-2 rounded-full bg-surface/50 border border-border/40 py-1.5 pl-1.5 pr-3 ring-1 ring-inset ring-border/20">
+                  <PlayerAvatar player={p} size="xs" />
+                  <span className="text-[10px] font-bold">{p.name.split(' ')[0]}</span>
+                </div>
+              )
+            })}
+          </div>
+        </section>
       )}
     </div>
   );

@@ -231,11 +231,11 @@ export function useTestPushNotification(playerId: string) {
 export function useAssignCourt() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ courtIdx, team1Ids, team2Ids }: { courtIdx: number; team1Ids: string[]; team2Ids: string[] }) => {
+    mutationFn: async ({ courtIdx, team1Ids, team2Ids, courtName }: { courtIdx: number; team1Ids: string[]; team2Ids: string[]; courtName?: string }) => {
       const res = await fetch(`${API_URL}/live_courts/${courtIdx}/assign`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ team1Ids, team2Ids, score1: 0, score2: 0 })
+        body: JSON.stringify({ team1Ids, team2Ids, score1: 0, score2: 0, court_name: courtName })
       });
       if (!res.ok) throw new Error("Assign failed");
       return await res.json();

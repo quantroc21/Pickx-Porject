@@ -400,6 +400,7 @@ class RecordMatchParams(BaseModel):
     score1: int
     score2: int
     targetScore: int = 11
+    court_name: Optional[str] = None
 
 @app.post("/api/matches")
 def record_match(req: RecordMatchParams):
@@ -640,10 +641,12 @@ def assign_court(court_idx: int, req: RecordMatchParams):
             data["live_schedule"].append(new_entry)
             save_db(data)
 
-        # Notify players via Web Push
+        # Notify players via Web Push with EMPHASIZED Court Name
+        court_label = req.court_name if hasattr(req, 'court_name') and req.court_name else f"Sân {court_idx + 1}"
+        
         msg = {
-            "title": "⚽ Trận đấu sẵn sàng!",
-            "body": f"Trận mới: {' + '.join(t1_names)} vs {' + '.join(t2_names)}",
+            "title": "🎾 VÀO SÂN NGAY!",
+            "body": f"Mời bạn vào {court_label.upper()} để thi đấu trận: {' + '.join(t1_names)} vs {' + '.join(t2_names)}",
             "url": "/"
         }
         for pid in (req.team1Ids + req.team2Ids):
