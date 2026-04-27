@@ -9,25 +9,53 @@ import { TierBadge } from "@/components/pickx/TierBadge";
 import { cn } from "@/lib/utils";
 
 const MASCOT_COUNT = 5;
-const QUOTES = [
-  "Đừng nhìn màn hình mãi thế, Picklebee muốn thấy bạn khởi động cổ tay ngay đi!",
-  "Đang lựa đối thủ 'vừa miếng' cho bạn đây, chuẩn bị tinh thần 'vụt' cháy sân nhé!",
-  "Vợt của bạn đang 'khóc' vì nhớ sân đấy, cất điện thoại và sẵn sàng nhé!",
-  "Nghe nói ai cười với Picklebee sẽ được 'độ' cho những cú bỏ nhỏ thần sầu!",
-  "Ăn miếng bánh, uống miếng nước rồi quay lại 'chiến' tiếp cùng Picklebee nha!",
-  "Picklebee vừa thấy bạn đánh một quả đỉnh cao luôn, trận tới làm lại nhé? 😉",
-  "Trận đấu sắp tới cần rất nhiều năng lượng, đừng phí nó vào việc lướt TikTok nữa nha!",
-  "Picklebee đang đi kiểm tra xem sân nào đẹp nhất để xếp cho bạn đây!",
-  "Hít thở sâu, giữ vững tinh thần... Picklebee tin bạn sẽ làm nên chuyện!",
-  "Chờ tí nha, Picklebee đang đi... giải quyết 'nỗi buồn' một xíu rồi quay lại ngay! 🚽",
+const MASCOT_CONTENT = [
+  {
+    src: "/mascot1.png",
+    quotes: [
+      "Picklebee đang đi kiểm tra xem sân nào đẹp nhất để xếp cho bạn đây!",
+      "Ăn miếng bánh, uống miếng nước rồi quay lại 'chiến' tiếp cùng Picklebee nha!",
+      "Vợt của bạn đang 'khóc' vì nhớ sân đấy, cất điện thoại và sẵn sàng nhé!"
+    ]
+  },
+  {
+    src: "/mascot2.png",
+    quotes: [
+      "Đang lựa đối thủ 'vừa miếng' cho bạn đây, chuẩn bị tinh thần 'vụt' cháy sân nhé!",
+      "Đừng nhìn màn hình mãi thế, Picklebee muốn thấy bạn khởi động cổ tay ngay đi!"
+    ]
+  },
+  {
+    src: "/mascot3.png",
+    quotes: [
+      "Trận tới cần rất nhiều năng lượng, đừng phí nó vào việc lướt TikTok nữa nha!",
+      "Hít thở sâu, giữ vững tinh thần... Picklebee tin bạn sẽ làm nên chuyện!"
+    ]
+  },
+  {
+    src: "/mascot4.png", // Cheerleading
+    quotes: [
+      "Cố lên nào! Picklebee tin bạn sẽ 'vụt' cháy sân trong trận tới! 🔥",
+      "Hít thở sâu, giữ vững tinh thần... Picklebee luôn ở đây cổ vũ cho bạn!",
+      "Nghe nói ai cười với Picklebee sẽ được 'độ' cho những cú bỏ nhỏ thần sầu!"
+    ]
+  },
+  {
+    src: "/mascot5.png", // Toilet
+    quotes: [
+      "Chờ tí nha, Picklebee đang đi... giải quyết 'nỗi buồn' một xíu rồi quay lại ngay! 🚽",
+      "Tranh thủ nghỉ ngơi xíu đi, Picklebee cũng đang bận... 'nghỉ ngơi' một chỗ riêng tư tí! 😉"
+    ]
+  }
 ];
 
 function useRotatingContent() {
   const [index, setIndex] = useState(() => Math.floor(Math.random() * 1000));
+  const [quoteIndex, setQuoteIndex] = useState(0);
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
-    // Preload all mascot images on mount
+    // Preload
     for (let i = 1; i <= MASCOT_COUNT; i++) {
       const img = new Image();
       img.src = `/mascot${i}.png`;
@@ -36,20 +64,22 @@ function useRotatingContent() {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      // Fade out first
       setVisible(false);
-      // After fade-out completes, change content and fade back in
       setTimeout(() => {
         setIndex((prev) => prev + 1);
+        setQuoteIndex((prev) => prev + 1);
         setVisible(true);
       }, 400);
     }, 10000);
     return () => clearInterval(timer);
   }, []);
 
+  const currentMascot = MASCOT_CONTENT[index % MASCOT_COUNT];
+  const currentQuote = currentMascot.quotes[quoteIndex % currentMascot.quotes.length];
+
   return {
-    mascotSrc: `/mascot${(index % MASCOT_COUNT) + 1}.png`,
-    quote: QUOTES[index % QUOTES.length],
+    mascotSrc: currentMascot.src,
+    quote: currentQuote,
     visible,
   };
 }
