@@ -88,7 +88,7 @@ export default function LiveCourts() {
             <div className="relative">
               <img 
                 src={mascotSrc}
-                alt="Picklebee Mascot" 
+                alt="Picklebee" 
                 className={cn("w-72 h-72 object-contain drop-shadow-2xl animate-float transition-opacity duration-500", visible ? "opacity-100" : "opacity-0")}
               />
             </div>
