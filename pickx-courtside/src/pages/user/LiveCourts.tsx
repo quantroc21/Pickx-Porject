@@ -11,15 +11,15 @@ import { cn } from "@/lib/utils";
 const MASCOT_COUNT = 5;
 const QUOTES = [
   "Đừng nhìn màn hình mãi thế, Picklebee muốn thấy bạn khởi động cổ tay ngay đi!",
-  "Sân sắp trống rồi, cất điện thoại và làm vài đường cơ bản cùng Picklebee nào!",
-  "Ngồi lâu quá là 'cứng' người đấy, đứng lên xoay người vài vòng đi nào!",
+  "Đang lựa đối thủ 'vừa miếng' cho bạn đây, chuẩn bị tinh thần 'vụt' cháy sân nhé!",
   "Vợt của bạn đang 'khóc' vì nhớ sân đấy, cất điện thoại và sẵn sàng nhé!",
-  "Picklebee đang theo dõi bạn đấy... khởi động xong chưa nào? 💪",
-  "Đừng để Picklebee phải nhắc, uống nước xong thì đứng lên tập vài quả smash đi!",
-  "Trận tới cần rất nhiều năng lượng, đừng phí nó vào việc lướt điện thoại nữa nha!",
-  "Nghe nói ai chăm khởi động sẽ được Picklebee 'độ' cho những cú bỏ nhỏ thần sầu!",
-  "Cất điện thoại vào túi thôi, sân đấu đang gọi tên bạn kìa!",
-  "Chờ tí nha, Picklebee đang đi... giải quyết 'nỗi buồn' một xíu rồi ra khởi động cùng bạn! 🚽",
+  "Nghe nói ai cười với Picklebee sẽ được 'độ' cho những cú bỏ nhỏ thần sầu!",
+  "Ăn miếng bánh, uống miếng nước rồi quay lại 'chiến' tiếp cùng Picklebee nha!",
+  "Picklebee vừa thấy bạn đánh một quả đỉnh cao luôn, trận tới làm lại nhé? 😉",
+  "Trận đấu sắp tới cần rất nhiều năng lượng, đừng phí nó vào việc lướt TikTok nữa nha!",
+  "Picklebee đang đi kiểm tra xem sân nào đẹp nhất để xếp cho bạn đây!",
+  "Hít thở sâu, giữ vững tinh thần... Picklebee tin bạn sẽ làm nên chuyện!",
+  "Chờ tí nha, Picklebee đang đi... giải quyết 'nỗi buồn' một xíu rồi quay lại ngay! 🚽",
 ];
 
 function useRotatingContent() {
