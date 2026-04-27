@@ -39,28 +39,34 @@ export default function LiveCourts() {
             {/* Mascot Container */}
             <div className="relative">
               <img 
-                src="/mascot.png" 
-                alt="Mascot" 
-                className="w-72 h-72 object-contain drop-shadow-2xl animate-float"
+                src={`/mascot${(Math.floor(Date.now() / 15000) % 3) + 1}.png`} 
+                alt="Picklebee Mascot" 
+                className="w-72 h-72 object-contain drop-shadow-2xl animate-float transition-all duration-500"
               />
             </div>
           </div>
 
-          <div className="mt-6 space-y-1.5 opacity-90">
+          <div className="mt-6 space-y-3 opacity-90">
             <h3 className="font-display text-2xl font-black tracking-tight text-foreground/90 uppercase">Hiện không có trận nào</h3>
-            <p className="text-sm text-muted-foreground max-w-[280px] mx-auto leading-relaxed">
-              {(() => {
-                const msgs = [
-                  "Mọi người đang nghỉ ngơi hoặc BTC đang sắp xếp lượt thi đấu tiếp theo.",
-                  "Đang lựa đối thủ 'vừa miếng' cho bạn đây...",
-                  "Uống miếng nước, lau mồ hôi rồi chuẩn bị 'vụt' tiếp nào!",
-                  "Vợt đã sẵn sàng, chỉ chờ lệnh từ BTC thôi!",
-                  "Đừng nhìn điện thoại nữa, khởi động cổ tay đi kìa!",
-                  "Tranh thủ làm vài ván khởi động trong lúc chờ sân nhé!"
-                ];
-                return msgs[Math.floor(Date.now() / 15000) % msgs.length];
-              })()}
-            </p>
+            
+            <div className="mx-auto flex max-w-[320px] flex-col items-center gap-1.5">
+              <p className="text-sm font-medium text-muted-foreground leading-relaxed italic">
+                "{(() => {
+                  const msgs = [
+                    "Mọi người đang nghỉ ngơi hoặc BTC đang sắp xếp lượt thi đấu tiếp theo.",
+                    "Đang lựa đối thủ 'vừa miếng' cho bạn đây...",
+                    "Uống miếng nước, lau mồ hôi rồi chuẩn bị 'vụt' tiếp nào!",
+                    "Vợt đã sẵn sàng, chỉ chờ lệnh từ BTC thôi!",
+                    "Đừng nhìn điện thoại nữa, khởi động cổ tay đi kìa!",
+                    "Tranh thủ làm vài ván khởi động trong lúc chờ sân nhé!"
+                  ];
+                  return msgs[Math.floor(Date.now() / 15000) % msgs.length];
+                })()}"
+              </p>
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-primary/70">
+                — Picklebee
+              </span>
+            </div>
           </div>
         </div>
       )}
