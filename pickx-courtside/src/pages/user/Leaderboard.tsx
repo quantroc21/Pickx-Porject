@@ -9,7 +9,9 @@ import { cn } from "@/lib/utils";
 export default function Leaderboard() {
   const { data: rawPlayers = [], isLoading } = usePlayers();
   if (isLoading) return <div className="p-8 text-center text-muted-foreground animate-pulse">Đang nạp dữ liệu máy chủ...</div>;
-  const players = [...rawPlayers].sort((a,b) => b.elo - a.elo);
+  const players = (rawPlayers || [])
+    .filter((p: any) => p && typeof p === "object" && "elo" in p)
+    .sort((a,b) => b.elo - a.elo);
   
   if (players.length === 0) {
     return (

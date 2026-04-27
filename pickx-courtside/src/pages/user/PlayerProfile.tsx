@@ -65,7 +65,9 @@ export default function PlayerProfile() {
     );
   }
 
-  const matches = allMatches.filter(m => m.team1.playerIds.includes(player.id) || m.team2.playerIds.includes(player.id)).sort((a,b) => +new Date(b.playedAt) - +new Date(a.playedAt));
+  const matches = allMatches
+    .filter(m => m && m.team1 && m.team2 && (m.team1.playerIds?.includes(player.id) || m.team2.playerIds?.includes(player.id)))
+    .sort((a,b) => +new Date(b.playedAt) - +new Date(a.playedAt));
   const tier = getTier(player.elo);
   const { percent, pointsToNext, nextLabel } = tierProgress(player.elo);
   const winRate = Math.round((player.wins / Math.max(1, player.wins + player.losses)) * 100);
