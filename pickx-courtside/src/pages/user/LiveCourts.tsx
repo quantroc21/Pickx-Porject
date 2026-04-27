@@ -31,22 +31,22 @@ export default function LiveCourts() {
 
       {/* Global Empty State */}
       {activeCourts.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-12 text-center animate-slide-up">
+        <div className="flex flex-col items-center justify-center py-10 text-center animate-slide-up">
           <div className="relative flex items-center justify-center">
             {/* Background Glow */}
-            <div className="absolute inset-0 bg-primary/10 blur-[100px] rounded-full scale-150" />
+            <div className="absolute inset-0 bg-primary/10 blur-[100px] rounded-full scale-125" />
             
             {/* Mascot Container */}
             <div className="relative">
               <img 
                 src="/mascot.png" 
                 alt="Mascot" 
-                className="w-72 h-72 object-contain drop-shadow-2xl translate-x-8"
+                className="w-72 h-72 object-contain drop-shadow-2xl"
               />
               
-              {/* Speech Bubble - Moved much closer and integrated */}
-              <div className="absolute -left-16 top-1/3 z-20 -translate-y-1/2 rounded-3xl bg-surface-elevated border border-border/60 px-6 py-4 shadow-[0_20px_50px_rgba(0,0,0,0.3)] max-w-[200px] animate-bounce-in">
-                <p className="text-xs font-bold leading-relaxed text-foreground">
+              {/* Speech Bubble - Precisely aligned with the new mascot's mouth */}
+              <div className="absolute -right-24 top-[55%] z-20 -translate-y-1/2 rounded-[2rem] bg-surface-elevated border border-border/60 px-6 py-4 shadow-card max-w-[200px] animate-bounce-in">
+                <p className="text-xs font-bold leading-relaxed text-foreground italic">
                   {(() => {
                     const msgs = [
                       "Đang lựa đối thủ 'vừa miếng' cho bạn đây...",
@@ -58,14 +58,14 @@ export default function LiveCourts() {
                     return msgs[Math.floor(Date.now() / 15000) % msgs.length];
                   })()}
                 </p>
-                {/* Tail pointing directly at the mouth area */}
-                <div className="absolute -right-2 top-1/2 size-4 -translate-y-1/2 rotate-45 border-r border-t border-border/60 bg-surface-elevated" />
+                {/* Tail pointing to mouth */}
+                <div className="absolute -left-2 top-1/2 size-4 -translate-y-1/2 rotate-45 border-l border-b border-border/60 bg-surface-elevated" />
               </div>
             </div>
           </div>
 
-          <div className="mt-8 space-y-1.5">
-            <h3 className="font-display text-2xl font-black tracking-tight text-foreground/90">Hiện không có trận nào</h3>
+          <div className="mt-6 space-y-1.5 opacity-90">
+            <h3 className="font-display text-2xl font-black tracking-tight text-foreground/90 uppercase">Hiện không có trận nào</h3>
             <p className="text-sm text-muted-foreground max-w-[240px] mx-auto leading-relaxed">
               Mọi người đang nghỉ ngơi hoặc BTC đang sắp xếp lượt thi đấu tiếp theo.
             </p>
