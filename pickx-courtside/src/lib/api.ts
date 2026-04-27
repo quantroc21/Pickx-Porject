@@ -127,6 +127,44 @@ export function useDeletePlayer() {
   });
 }
 
+export function useResetPassword() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (playerId: string) => {
+      const res = await fetch(`${API_URL}/players/${playerId}/reset-password`, {
+        method: "POST",
+      });
+      if (!res.ok) throw new Error("Reset password failed");
+      return await res.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["players"] });
+      toast.success(data.message || "Đã đặt lại mật khẩu về 123456.");
+    },
+    onError: () => {
+      toast.error("Không thể đặt lại mật khẩu.");
+    }
+  });
+}
+
+export function useChangePassword() {
+  return useMutation({
+    mutationFn: async (params: { playerId: string; data: any }) => {
+      const res = await fetch(`${API_URL}/players/${params.playerId}/change-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(params.data),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Đổi mật khẩu thất bại");
+      return data;
+    },
+    onSuccess: (data) => {
+      toast.success(data.message || "Đổi mật khẩu thành công!");
+    },
+  });
+}
+
 export function useUserLogin() {
   return useMutation({
     mutationFn: async (credentials: { username: string; password: string }) => {

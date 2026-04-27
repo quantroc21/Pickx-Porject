@@ -1,6 +1,6 @@
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Calendar, Flame, Trophy, LogOut, Sword, Shield, Zap, Skull, Users, TrendingUp, Wand2, Bell, BellOff, Check, Radio } from "lucide-react";
-import { usePlayers, useMatches, usePushSubscribe, useTestPushNotification } from "@/lib/api";
+import { usePlayers, useMatches, usePushSubscribe, useTestPushNotification, useChangePassword } from "@/lib/api";
 import { TIER_HEX, getTier, tierProgress } from "@/lib/tiers";
 import { TierBadge } from "@/components/pickx/TierBadge";
 import { PlayerAvatar } from "@/components/pickx/PlayerAvatar";
@@ -25,6 +25,12 @@ export default function PlayerProfile() {
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const subscribeMutation = usePushSubscribe(id);
   const testPushMutation = useTestPushNotification(id);
+  
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const changePasswordMutation = useChangePassword();
+
   const [pushStatus, setPushStatus] = useState<"default" | "granted" | "denied">(
     typeof Notification !== "undefined" ? Notification.permission : "denied"
   );
@@ -263,6 +269,65 @@ export default function PlayerProfile() {
       </section>
 
       <section className="mt-8 space-y-3">
+        {isMe && (
+          <div className="space-y-3 rounded-xl border border-border/60 bg-surface/30 p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm font-bold text-foreground/80">
+                <Shield className="size-4" /> Bảo mật tài khoản
+              </div>
+              <button 
+                onClick={() => {
+                  setIsChangingPassword(!isChangingPassword);
+                  setOldPassword("");
+                  setNewPassword("");
+                }} 
+                className="text-[11px] font-semibold text-primary uppercase tracking-wider"
+              >
+                {isChangingPassword ? "Huỷ" : "Đổi mật khẩu"}
+              </button>
+            </div>
+            
+            {isChangingPassword && (
+               <form onSubmit={(e) => {
+                 e.preventDefault();
+                 if (!oldPassword || newPassword.length < 4) {
+                   toast.error("Mật khẩu mới phải từ 4 ký tự trở lên.");
+                   return;
+                 }
+                 changePasswordMutation.mutate({ playerId: player.id, data: { oldPassword, newPassword } }, {
+                    onSuccess: () => {
+                      setIsChangingPassword(false);
+                      setOldPassword("");
+                      setNewPassword("");
+                    }
+                 });
+               }} className="space-y-3 pt-2 animate-in fade-in zoom-in-95">
+                 <input 
+                   type="password" 
+                   value={oldPassword} 
+                   onChange={e => setOldPassword(e.target.value)} 
+                   placeholder="Mật khẩu hiện tại" 
+                   className="h-10 w-full rounded-lg border border-border/60 bg-background px-3 text-sm focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/30" 
+                 />
+                 <input 
+                   type="password" 
+                   value={newPassword} 
+                   onChange={e => setNewPassword(e.target.value)} 
+                   placeholder="Mật khẩu mới (tối thiểu 4 ký tự)" 
+                   className="h-10 w-full rounded-lg border border-border/60 bg-background px-3 text-sm focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/30" 
+                 />
+                 <button 
+                   type="submit" 
+                   disabled={changePasswordMutation.isPending || !oldPassword || !newPassword} 
+                   className="w-full rounded-lg bg-primary/10 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-primary transition-all hover:bg-primary/20 disabled:opacity-50"
+                 >
+                   {changePasswordMutation.isPending ? "Đang xử lý..." : "Xác nhận đổi"}
+                 </button>
+               </form>
+            )}
+          </div>
+        )}
+
         {isMe && (
           <div className="space-y-2">
             <button

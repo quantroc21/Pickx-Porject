@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { ArrowLeft, UserPlus, Trash2, Search, Loader2 } from "lucide-react";
+import { ArrowLeft, UserPlus, Trash2, Search, Loader2, Key } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { useAddPlayer, usePlayers, useDeletePlayer } from "@/lib/api";
+import { useAddPlayer, usePlayers, useDeletePlayer, useResetPassword } from "@/lib/api";
 import { PlayerAvatar } from "@/components/pickx/PlayerAvatar";
 import { TierBadge } from "@/components/pickx/TierBadge";
 
@@ -16,6 +16,7 @@ export default function AddPlayer() {
   const { data: players = [], isLoading } = usePlayers();
   const addPlayerMutation = useAddPlayer();
   const deleteMutation = useDeletePlayer();
+  const resetPasswordMutation = useResetPassword();
 
   const ready = name.trim().length >= 2 && password.trim().length > 0;
 
@@ -34,6 +35,12 @@ export default function AddPlayer() {
   function handleDelete(id: string, name: string) {
     if (window.confirm(`Bạn có chắc muốn xoá tay vợt "${name}"? Hành động này không thể hoàn tác.`)) {
       deleteMutation.mutate(id);
+    }
+  }
+
+  function handleResetPassword(id: string, name: string) {
+    if (window.confirm(`Bạn có chắc muốn đặt lại mật khẩu của "${name}" về mặc định là '123456' không?`)) {
+      resetPasswordMutation.mutate(id);
     }
   }
 
@@ -134,13 +141,22 @@ export default function AddPlayer() {
                       <span className="text-[10px] text-muted-foreground font-mono-stat">{p.elo} DH</span>
                     </div>
                   </div>
-                  <button
-                    onClick={() => handleDelete(p.id, p.name)}
-                    className="grid size-8 place-items-center rounded-lg bg-background text-muted-foreground ring-1 ring-border/60 hover:bg-danger/10 hover:text-danger hover:ring-danger/30 transition-all"
-                    title="Xoá tay vợt"
-                  >
-                    <Trash2 className="size-4" />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleResetPassword(p.id, p.name)}
+                      className="grid size-8 place-items-center rounded-lg bg-background text-muted-foreground ring-1 ring-border/60 hover:bg-warning/10 hover:text-warning hover:ring-warning/30 transition-all"
+                      title="Khôi phục mật khẩu (123456)"
+                    >
+                      <Key className="size-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(p.id, p.name)}
+                      className="grid size-8 place-items-center rounded-lg bg-background text-muted-foreground ring-1 ring-border/60 hover:bg-danger/10 hover:text-danger hover:ring-danger/30 transition-all"
+                      title="Xoá tay vợt"
+                    >
+                      <Trash2 className="size-4" />
+                    </button>
+                  </div>
                 </li>
               ))}
               {filtered.length === 0 && (
