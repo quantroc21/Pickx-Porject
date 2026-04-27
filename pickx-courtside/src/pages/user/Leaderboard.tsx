@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Crown, Flame, Snowflake, TrendingUp } from "lucide-react";
+import { Crown, Flame, Snowflake, TrendingUp, Trophy } from "lucide-react";
 import { usePlayers } from "@/lib/api";
 import { TIER_HEX, getTier } from "@/lib/tiers";
 import { TierBadge } from "@/components/pickx/TierBadge";
