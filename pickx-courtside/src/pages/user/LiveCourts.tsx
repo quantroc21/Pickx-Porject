@@ -41,33 +41,25 @@ export default function LiveCourts() {
               <img 
                 src="/mascot.png" 
                 alt="Mascot" 
-                className="w-72 h-72 object-contain drop-shadow-2xl"
+                className="w-72 h-72 object-contain drop-shadow-2xl animate-float"
               />
-              
-              {/* Speech Bubble - Precisely aligned with the new mascot's mouth */}
-              <div className="absolute -right-24 top-[55%] z-20 -translate-y-1/2 rounded-[2rem] bg-surface-elevated border border-border/60 px-6 py-4 shadow-card max-w-[200px] animate-bounce-in">
-                <p className="text-xs font-bold leading-relaxed text-foreground italic">
-                  {(() => {
-                    const msgs = [
-                      "Đang lựa đối thủ 'vừa miếng' cho bạn đây...",
-                      "Uống miếng nước, lau mồ hôi rồi chuẩn bị 'vụt' tiếp nào!",
-                      "Vợt đã sẵn sàng, chỉ chờ lệnh từ BTC thôi!",
-                      "Đừng nhìn điện thoại nữa, khởi động cổ tay đi kìa!",
-                      "Tranh thủ làm vài ván khởi động trong lúc chờ sân nhé!"
-                    ];
-                    return msgs[Math.floor(Date.now() / 15000) % msgs.length];
-                  })()}
-                </p>
-                {/* Tail pointing to mouth */}
-                <div className="absolute -left-2 top-1/2 size-4 -translate-y-1/2 rotate-45 border-l border-b border-border/60 bg-surface-elevated" />
-              </div>
             </div>
           </div>
 
           <div className="mt-6 space-y-1.5 opacity-90">
             <h3 className="font-display text-2xl font-black tracking-tight text-foreground/90 uppercase">Hiện không có trận nào</h3>
-            <p className="text-sm text-muted-foreground max-w-[240px] mx-auto leading-relaxed">
-              Mọi người đang nghỉ ngơi hoặc BTC đang sắp xếp lượt thi đấu tiếp theo.
+            <p className="text-sm text-muted-foreground max-w-[280px] mx-auto leading-relaxed">
+              {(() => {
+                const msgs = [
+                  "Mọi người đang nghỉ ngơi hoặc BTC đang sắp xếp lượt thi đấu tiếp theo.",
+                  "Đang lựa đối thủ 'vừa miếng' cho bạn đây...",
+                  "Uống miếng nước, lau mồ hôi rồi chuẩn bị 'vụt' tiếp nào!",
+                  "Vợt đã sẵn sàng, chỉ chờ lệnh từ BTC thôi!",
+                  "Đừng nhìn điện thoại nữa, khởi động cổ tay đi kìa!",
+                  "Tranh thủ làm vài ván khởi động trong lúc chờ sân nhé!"
+                ];
+                return msgs[Math.floor(Date.now() / 15000) % msgs.length];
+              })()}
             </p>
           </div>
         </div>
