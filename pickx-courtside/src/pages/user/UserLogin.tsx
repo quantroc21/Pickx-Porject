@@ -4,10 +4,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { useUserLogin } from "@/lib/api";
 import { useUserAuth } from "@/hooks/useUserAuth";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 export default function UserLogin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
   const loginMutation = useUserLogin();
   const { login } = useUserAuth();
   const navigate = useNavigate();
@@ -17,12 +19,19 @@ export default function UserLogin() {
   function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!ready) return;
+    setErrorMsg("");
     loginMutation.mutate(
       { username: username.trim(), password: password.trim() },
       {
         onSuccess: (data) => {
           login(data.player_id);
+          toast.success("Đăng nhập thành công!");
           navigate("/");
+        },
+        onError: (err: any) => {
+          const msg = err?.message || "Sai username hoặc mật khẩu";
+          setErrorMsg(msg);
+          toast.error(msg);
         },
       }
     );
@@ -84,6 +93,11 @@ export default function UserLogin() {
           {loginMutation.isPending ? "Đang xác thực…" : "Đăng nhập"}
         </button>
 
+        {errorMsg && (
+          <div className="mt-2 rounded-xl bg-destructive/10 border border-destructive/30 px-4 py-3 text-center">
+            <p className="text-sm font-semibold text-destructive">{errorMsg}</p>
+          </div>
+        )}
         <div className="pt-2 text-center">
           <p className="text-xs text-muted-foreground">
             Chưa có tài khoản?{" "}

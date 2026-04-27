@@ -160,8 +160,8 @@ export default function Matchmaker() {
             : "bg-muted text-muted-foreground opacity-50 cursor-not-allowed"
         )}
       >
-          </>
-        )}
+        {generating ? <Loader2 className="size-5 animate-spin" /> : <Shuffle className="size-5" />}
+        Xếp Trận Thông Minh
       </button>
 
       {generating && (
