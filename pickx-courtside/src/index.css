@@ -94,10 +94,13 @@
 
   html, body, #root {
     @apply min-h-screen;
+    background-color: #0a0a0a;
   }
 
   body {
     @apply bg-background text-foreground antialiased;
+    overscroll-behavior-y: none;
+    -webkit-overflow-scrolling: touch;
     font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
     font-feature-settings: "cv11", "ss01";
   }
