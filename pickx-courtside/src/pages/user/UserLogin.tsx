@@ -98,13 +98,14 @@ export default function UserLogin() {
             <p className="text-sm font-semibold text-destructive">{errorMsg}</p>
           </div>
         )}
-        <div className="pt-2 text-center">
-          <p className="text-xs text-muted-foreground">
-            Chưa có tài khoản?{" "}
-            <Link to="/signup" className="font-bold text-primary hover:underline">
-              Đăng ký ngay
-            </Link>
-          </p>
+        <div className="pt-4 text-center space-y-2">
+          <p className="text-sm text-muted-foreground">Chưa có tài khoản?</p>
+          <Link 
+            to="/signup" 
+            className="inline-block rounded-xl bg-primary/10 px-6 py-3 font-display text-base font-bold text-primary ring-1 ring-primary/30 transition-all hover:bg-primary/20 hover:scale-[1.02]"
+          >
+            Đăng ký tham gia ngay
+          </Link>
         </div>
       </form>
     </div>
