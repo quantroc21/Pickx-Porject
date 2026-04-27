@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <title>PickX — Bảng xếp hạng & Ghép trận Pickleball 2v2</title>
+    <meta name="description" content="PickX: theo dõi sân trực tiếp, bảng xếp hạng Elo và ghép trận thông minh cho Pickleball đôi." />
+    <meta name="author" content="PickX" />
+
+    <meta property="og:title" content="PickX — Bảng xếp hạng Pickleball 2v2" />
+    <meta property="og:description" content="Sân trực tiếp, bảng xếp hạng Elo và ghép trận thông minh cho Pickleball đôi." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@Lovable" />
+    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="manifest" href="/manifest.json" />
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('SW Registered!', reg))
+            .catch(err => console.log('SW Reg failed:', err));
+        });
+      }
+    </script>
+  </body>
+</html>

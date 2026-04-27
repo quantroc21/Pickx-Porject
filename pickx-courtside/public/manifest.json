@@ -1,0 +1,23 @@
+{
+  "name": "PickX Matchmaker",
+  "short_name": "PickX",
+  "description": "Hệ thống xếp trận Pickleball thông minh",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#c1ff72",
+  "icons": [
+    {
+      "src": "https://api.dicebear.com/7.x/avataaars/svg?seed=pickx_logo",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://api.dicebear.com/7.x/avataaars/svg?seed=pickx_logo",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

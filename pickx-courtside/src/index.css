@@ -1,0 +1,231 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* PickX — Athletic-Tech design system. HSL only. */
+
+@layer base {
+  :root {
+    /* Core surfaces — Premium Dark Slate/Zinc (Clean & Professional) */
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+
+    --surface: 240 5.9% 10%;
+    --surface-elevated: 240 5.9% 15%;
+
+    --card: 240 5.2% 10%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 240 5.9% 10%;
+    --popover-foreground: 0 0% 98%;
+
+    /* Primary — Light Pastel Green (matching the court) */
+    --primary: 145 45% 65%;
+    --primary-foreground: 145 50% 10%;
+    --primary-glow: 145 45% 65%;
+
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+
+    --accent: 145 45% 65%;
+    --accent-foreground: 145 50% 10%;
+
+    --success: 145 45% 55%;
+    --success-foreground: 0 0% 100%;
+    --danger: 0 84.2% 60.2%;
+    --danger-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 0%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 145 45% 65%;
+
+    --radius: 0.6rem;
+
+    /* Tier palette — Integrated with Court Green */
+    --tier-bronze: 24 45% 50%;
+    --tier-silver: 215 12% 75%;
+    --tier-gold: 48 95% 48%;
+    --tier-platinum: 192 45% 65%;
+    --tier-pro: 260 45% 70%;
+
+    /* Clean Design Effects — Court Themed */
+    --gradient-primary: linear-gradient(135deg, hsl(145 45% 65%) 0%, hsl(145 45% 75%) 100%);
+    --gradient-podium: linear-gradient(180deg, hsl(240 5.9% 12%) 0%, hsl(240 10% 4%) 100%);
+    --gradient-court: linear-gradient(135deg, hsl(240 5% 10%) 0%, hsl(240 5% 7%) 100%);
+    --gradient-assign: linear-gradient(135deg, hsl(45 75% 50%) 0%, hsl(35 75% 45%) 100%);
+    --gradient-pro: linear-gradient(135deg, hsl(260 45% 70%) 0%, hsl(145 45% 65%) 100%);
+    --gradient-radial-glow: radial-gradient(ellipse at top, hsl(145 45% 65% / 0.1), transparent 60%);
+
+    /* Shadows — Muted for Pastel Tone */
+    --shadow-elevated: 0 20px 40px -15px rgba(0, 0, 0, 0.6);
+    --shadow-glow: 0 0 30px hsl(145 45% 65% / 0.15);
+    --shadow-card: 0 1px 0 hsl(0 0% 100% / 0.05) inset, 0 8px 16px -10px rgba(0, 0, 0, 0.4);
+
+    /* Motion */
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --transition-base: all 200ms cubic-bezier(0.16, 1, 0.3, 1);
+
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 145 45% 65%;
+    --sidebar-primary-foreground: 145 50% 10%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 145 45% 65%;
+  }
+
+  /* PickX is dark-by-default. .dark mirrors :root for shadcn compatibility. */
+  .dark { color-scheme: dark; }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html, body, #root {
+    @apply min-h-screen;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    font-feature-settings: "cv11", "ss01";
+  }
+
+  h1, h2, h3, h4, .font-display {
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .font-mono-stat {
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-surface/80 backdrop-blur-xl border border-border/60;
+    box-shadow: var(--shadow-card);
+  }
+
+  .stat-number {
+    font-family: 'Inter', sans-serif;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+  }
+
+  .safe-bottom {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.5rem);
+  }
+
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+}
+
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+  
+  @keyframes bounce-in {
+    0% { opacity: 0; transform: translate(-50%, 10px) scale(0.8); }
+    50% { opacity: 1; transform: translate(-50%, -5px) scale(1.05); }
+    70% { transform: translate(-50%, 2px) scale(0.95); }
+    100% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  }
+  .animate-bounce-in {
+    animation: bounce-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  @keyframes pulse-ring {
+    0% { box-shadow: 0 0 0 0 hsl(var(--danger) / 0.55); }
+    70% { box-shadow: 0 0 0 12px hsl(var(--danger) / 0); }
+    100% { box-shadow: 0 0 0 0 hsl(var(--danger) / 0); }
+  }
+  .animate-pulse-ring { animation: pulse-ring 1.8s var(--ease-out-expo) infinite; }
+
+  @keyframes burning-aura {
+    0%, 100% { box-shadow: 0 0 12px 1px rgba(255, 69, 0, 0.2), 0 0 20px 2px rgba(255, 140, 0, 0.1); filter: brightness(1.05); }
+    50% { box-shadow: 0 0 18px 4px rgba(255, 69, 0, 0.4), 0 0 30px 6px rgba(255, 140, 0, 0.2); filter: brightness(1.15); }
+  }
+  .animate-burning-aura { animation: burning-aura 3s ease-in-out infinite; }
+
+  @keyframes fire-flicker {
+    0%, 100% { transform: scale(1) translateY(0) rotate(-1deg); opacity: 0.7; }
+    50% { transform: scale(1.05) translateY(-1px) rotate(1deg); opacity: 0.9; }
+  }
+  .animate-fire-flicker { animation: fire-flicker 1.2s ease-in-out infinite; }
+
+  @keyframes fast-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.85; transform: scale(0.98); }
+  }
+  .animate-fast-pulse { animation: fast-pulse 1.5s ease-in-out infinite; }
+
+  @keyframes ring-of-fire {
+    0% { border-color: rgba(255, 69, 0, 0.5); box-shadow: 0 0 8px rgba(255, 69, 0, 0.3), inset 0 0 6px rgba(255, 69, 0, 0.2); }
+    50% { border-color: rgba(255, 140, 0, 0.8); box-shadow: 0 0 15px rgba(255, 140, 0, 0.5), inset 0 0 10px rgba(255, 140, 0, 0.3); }
+    100% { border-color: rgba(255, 69, 0, 0.5); box-shadow: 0 0 8px rgba(255, 69, 0, 0.3), inset 0 0 6px rgba(255, 69, 0, 0.2); }
+  }
+  .animate-ring-of-fire { animation: ring-of-fire 1.5s ease-in-out infinite; }
+
+  @keyframes tag-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  .animate-tag-shimmer { animation: tag-shimmer 2.5s ease-in-out infinite; }
+
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-slide-up { animation: slide-up 420ms var(--ease-out-expo) both; }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .animate-shimmer {
+    background: linear-gradient(90deg, transparent, hsl(var(--foreground) / 0.06), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 1.6s linear infinite;
+  }
+
+  .liquid-glass {
+    @apply relative overflow-hidden backdrop-blur-[24px] border border-white/10;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.03) 0%,
+      rgba(255, 255, 255, 0.01) 100%
+    );
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  }
+
+  .liquid-glass::after {
+    content: '';
+    @apply absolute -top-1/2 -left-1/2 w-[200%] h-[200%] opacity-20 pointer-events-none;
+    background: radial-gradient(
+      circle at 50% 50%,
+      hsl(var(--primary) / 0.15),
+      transparent 50%
+    );
+    animation: liquid-flow 12s linear infinite;
+  }
+
+  @keyframes liquid-flow {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    33% { transform: translate(5%, 10%) rotate(120deg); }
+    66% { transform: translate(-5%, 5%) rotate(240deg); }
+    100% { transform: translate(0, 0) rotate(360deg); }
+  }
+}

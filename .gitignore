@@ -1,0 +1,13 @@
+# Project level gitignore
+.DS_Store
+node_modules/
+dist/
+venv/
+__pycache__/
+*.pyc
+.env
+pickx_database.db
+backend.log
+server.log
+tunnel_backend.log
+debug_error.log
