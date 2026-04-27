@@ -10,16 +10,16 @@ import { cn } from "@/lib/utils";
 
 const MASCOT_COUNT = 5;
 const QUOTES = [
-  "Mọi người đang nghỉ ngơi hoặc BTC đang sắp xếp lượt thi đấu tiếp theo.",
-  "Đang lựa đối thủ 'vừa miếng' cho bạn đây...",
-  "Uống miếng nước, lau mồ hôi rồi chuẩn bị 'vụt' tiếp nào!",
-  "Vợt đã sẵn sàng, chỉ chờ lệnh từ BTC thôi!",
-  "Đừng nhìn điện thoại nữa, khởi động cổ tay đi kìa!",
-  "Tranh thủ làm vài ván khởi động trong lúc chờ sân nhé!",
-  "Ai thua không nản mới là tay vợt thứ thiệt!",
-  "Hít thở sâu, giữ vững tinh thần, trận sau sẽ khác!",
-  "Cố lên nào! Picklebee tin bạn sẽ 'vụt' cháy sân!",
-  "Chờ tí nha, Picklebee đang đi... giải quyết nhu cầu cá nhân 🚽",
+  "Picklebee đang đi tìm đối thủ 'vừa miếng' cho bạn, đừng sốt ruột nha!",
+  "Vợt của bạn đang 'ngứa ngáy' lắm rồi đúng không? Picklebee cũng vậy!",
+  "5 phút chờ đợi là 5 phút tích tụ 'nội công' cho cú smash tiếp theo đó!",
+  "Nghe nói ai cười với Picklebee sẽ được xếp vào sân có gió mát nhất đấy!",
+  "Chờ đợi là hạnh phúc, nhất là khi sắp được 'vụt' cháy sân cùng đồng đội!",
+  "Picklebee vừa thấy bạn đánh một quả đỉnh cao luôn, trận tới làm lại nhé?",
+  "Đừng quên hít thở, Picklebee không muốn bạn 'hết hơi' giữa chừng đâu!",
+  "Sân đang nóng, nhưng lòng bạn còn nóng hơn đúng không? Chờ xíu nha!",
+  "Tranh thủ làm vài đường khởi động đi, Picklebee đang quan sát bạn đấy!",
+  "Chờ tí nha, Picklebee đang đi... giải quyết 'nỗi buồn' một xíu 🚽",
 ];
 
 function useRotatingContent() {
