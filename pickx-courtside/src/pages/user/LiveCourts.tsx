@@ -125,7 +125,7 @@ export default function LiveCourts() {
           </div>
 
           <div className="mt-6 space-y-4 opacity-90">
-            <h3 className="font-display text-2xl font-black tracking-tight text-foreground/90 uppercase">Hiện không có trận nào</h3>
+            <h3 className="font-display text-2xl font-black tracking-tight text-foreground/90 uppercase">Host đang xếp trận...</h3>
             
             <div className="mx-auto flex max-w-[320px] flex-col items-center gap-2">
               <p className={cn("text-base font-medium text-muted-foreground leading-relaxed italic transition-opacity duration-500", visible ? "opacity-100" : "opacity-0")}>
