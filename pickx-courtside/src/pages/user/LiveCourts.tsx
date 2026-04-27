@@ -31,19 +31,11 @@ export default function LiveCourts() {
 
       {/* Global Empty State */}
       {activeCourts.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-20 text-center animate-slide-up">
-          <div className="mb-6 relative">
-            <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full" />
-            <div className="relative size-20 rounded-full bg-surface border border-primary/20 flex items-center justify-center shadow-glow">
-              <Radio className="size-10 text-primary animate-pulse" />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <h3 className="font-display text-2xl font-bold tracking-tight">Hiện không có trận nào</h3>
-            <p className="text-sm text-muted-foreground max-w-[240px] mx-auto leading-relaxed">
-              Mọi người đang nghỉ ngơi hoặc BTC đang sắp xếp lượt thi đấu tiếp theo.
-            </p>
-          </div>
+        <div className="rounded-3xl border border-border/50 bg-surface/30 p-12 text-center animate-slide-up">
+          <p className="font-display text-lg font-bold text-foreground/80">Hiện không có trận nào</p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Mọi người đang nghỉ ngơi hoặc BTC đang sắp xếp lượt tiếp theo.
+          </p>
         </div>
       )}
 
