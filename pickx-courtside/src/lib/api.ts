@@ -121,8 +121,8 @@ export function useDeletePlayer() {
       queryClient.invalidateQueries({ queryKey: ["players"] });
       toast.success("Đã xoá tay vợt khỏi danh sách.");
     },
-    onError: () => {
-      toast.error("Không thể xoá tay vợt này.");
+    onError: (error: any) => {
+      toast.error(`Lỗi: ${error.message || "Không thể xoá tay vợt này"}`);
     }
   });
 }
@@ -140,6 +140,9 @@ export function useUserLogin() {
         throw new Error(d.detail || "Sai thông tin đăng nhập");
       }
       return await res.json();
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Lỗi đăng nhập");
     }
   });
 }
