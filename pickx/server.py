@@ -590,6 +590,18 @@ def add_player(req: AddPlayerParams):
     save_db(db)
     return format_player(new_p)
 
+@app.delete("/api/players/{player_id}")
+def delete_player(player_id: str):
+    db = load_db()
+    original_len = len(db["players"])
+    db["players"] = [p for p in db["players"] if p.get("id") != player_id]
+    
+    if len(db["players"]) == original_len:
+        raise HTTPException(status_code=404, detail="Player not found")
+        
+    save_db(db)
+    return {"success": True}
+
 @app.post("/api/players/{player_id}/avatar/randomize")
 def randomize_avatar(player_id: str):
     db = load_db()

@@ -107,6 +107,26 @@ export function useAddPlayer() {
   });
 }
 
+export function useDeletePlayer() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (playerId: string) => {
+      const res = await fetch(`${API_URL}/players/${playerId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Delete failed");
+      return await res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["players"] });
+      toast.success("Đã xoá tay vợt khỏi danh sách.");
+    },
+    onError: () => {
+      toast.error("Không thể xoá tay vợt này.");
+    }
+  });
+}
+
 export function useUserLogin() {
   return useMutation({
     mutationFn: async (credentials: { username: string; password: string }) => {
