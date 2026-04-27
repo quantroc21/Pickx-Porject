@@ -564,6 +564,13 @@ def add_player(req: AddPlayerParams):
             raise HTTPException(status_code=400, detail="Name already exists")
             
     new_id = str(random.randint(1000, 9999))
+    
+    # Auto-assign a random avatar
+    styles = ["avataaars", "bottts", "pixel-art", "lorelei", "notionists", "open-peeps"]
+    style = random.choice(styles)
+    base_seed = f"{req.name.strip()}_{random.randint(100, 999)}"
+    avatar_url = f"https://api.dicebear.com/7.x/{style}/svg?seed={base_seed}"
+    
     new_p = {
         "id": new_id,
         "name": req.name.strip(),
@@ -571,6 +578,9 @@ def add_player(req: AddPlayerParams):
         "elo": 1000,
         "wins": 0,
         "losses": 0,
+        "streak": 0,
+        "avatar_url": avatar_url,
+        "badges": [],
         "joinedAt": datetime.now().strftime("%Y-%m-%d")
     }
     db["players"].append(new_p)
