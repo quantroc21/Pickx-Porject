@@ -31,11 +31,37 @@ export default function LiveCourts() {
 
       {/* Global Empty State */}
       {activeCourts.length === 0 && (
-        <div className="rounded-3xl border border-border/50 bg-surface/30 p-12 text-center animate-slide-up">
-          <p className="font-display text-lg font-bold text-foreground/80">Hiện không có trận nào</p>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Mọi người đang nghỉ ngơi hoặc BTC đang sắp xếp lượt tiếp theo.
-          </p>
+        <div className="flex flex-col items-center justify-center py-12 text-center animate-slide-up">
+          <div className="relative mb-6">
+            <div className="absolute inset-0 bg-primary/10 blur-[100px] rounded-full" />
+            <img 
+              src="/mascot.png" 
+              alt="Mascot" 
+              className="relative w-48 h-48 object-contain drop-shadow-2xl animate-float"
+            />
+            <div className="absolute -right-4 top-4 bg-surface-elevated border border-border/60 rounded-2xl p-3 shadow-xl max-w-[160px] animate-bounce-in">
+              <p className="text-[10px] font-bold leading-tight text-foreground">
+                {(() => {
+                  const msgs = [
+                    "Đang lựa đối thủ 'vừa miếng' cho bạn đây...",
+                    "Uống miếng nước, lau mồ hôi rồi chuẩn bị 'vụt' tiếp nào!",
+                    "Vợt đã sẵn sàng, chỉ chờ lệnh từ BTC thôi!",
+                    "Đừng nhìn điện thoại nữa, khởi động cổ tay đi kìa!",
+                    "Tranh thủ làm vài ván khởi động trong lúc chờ sân nhé!",
+                    "Nghe nói ai kiên nhẫn chờ đợi sẽ được xếp sân đẹp?"
+                  ];
+                  return msgs[Math.floor(Date.now() / 10000) % msgs.length];
+                })()}
+              </p>
+              <div className="absolute -left-1.5 top-4 size-3 bg-surface-elevated border-l border-t border-border/60 rotate-45" />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <h3 className="font-display text-xl font-bold tracking-tight">Hiện không có trận nào</h3>
+            <p className="text-xs text-muted-foreground max-w-[200px] mx-auto opacity-70">
+              BTC đang sắp xếp lượt thi đấu tiếp theo. Hãy nạp năng lượng nhé!
+            </p>
+          </div>
         </div>
       )}
 
