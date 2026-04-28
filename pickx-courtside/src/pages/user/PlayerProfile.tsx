@@ -195,8 +195,8 @@ export default function PlayerProfile() {
                 className="absolute inset-y-0 left-0 transition-all duration-1000 ease-out"
                 style={{ 
                   width: `${percent}%`,
-                  background: `linear-gradient(90deg, ${tierColor}44, ${tierColor})`,
-                  boxShadow: `0 0 12px ${tierColor}66`
+                  background: `linear-gradient(90deg, color-mix(in srgb, ${tierColor}, transparent 60%), ${tierColor})`,
+                  boxShadow: `0 0 15px color-mix(in srgb, ${tierColor}, transparent 40%)`
                 }}
               />
             </div>
