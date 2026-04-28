@@ -54,43 +54,46 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
       }
     }, [player.last_comment, player.last_comment_time, player.id]);
 
-    // Helper to calculate flame positions
+    // Enhanced flame renderer to ensure no overlapping
     const renderFlames = () => {
       if (!isOnFire) return null;
       
-      const flameCount = Math.min(streak, 12); // Cap at 12 visual flames for performance/UX
+      const flameCount = Math.min(streak, 15); // Increased cap
       const flames = [];
       
+      // Use a wider arc as count increases
+      const arcRange = Math.min(180 + flameCount * 5, 260); 
+      const startAngle = -arcRange / 2;
+      
       for (let i = 0; i < flameCount; i++) {
-        // Distribute flames in an arc from -130deg to 130deg
-        const startAngle = -130;
-        const endAngle = 130;
         const angle = flameCount > 1 
-          ? startAngle + (i * (endAngle - startAngle)) / (flameCount - 1)
+          ? startAngle + (i * arcRange) / (flameCount - 1)
           : 0;
         
-        // Use sine/cosine for circular positioning
-        const radius = 55; // % of container size
-        const x = Math.sin((angle * Math.PI) / 180) * radius;
-        const y = -Math.cos((angle * Math.PI) / 180) * radius;
+        // Add a slight jitter to radius and angle to prevent perfect overlap
+        const jitterAngle = angle + (Math.sin(i * 1.5) * 5);
+        const dynamicRadius = 55 + (i % 2 === 0 ? 5 : 0); // Alternate heights
+        
+        const x = Math.sin((jitterAngle * Math.PI) / 180) * dynamicRadius;
+        const y = -Math.cos((jitterAngle * Math.PI) / 180) * dynamicRadius;
         
         flames.push(
           <div 
-            key={i}
+            key={`${player.id}-flame-${i}`}
             className="absolute z-20 animate-fire-flicker pointer-events-none"
             style={{
               left: `calc(50% + ${x}%)`,
               top: `calc(50% + ${y}%)`,
-              transform: `translate(-50%, -50%) rotate(${angle}deg)`,
-              animationDelay: `${i * 0.1}s`,
+              transform: `translate(-50%, -50%) rotate(${jitterAngle}deg)`,
+              animationDelay: `${i * 0.15}s`,
             }}
           >
             <Flame 
               className={cn(
-                "fill-current",
-                i % 2 === 0 ? "text-orange-500" : "text-orange-400",
-                isInferno ? "size-5" : "size-4",
-                "drop-shadow-[0_0_5px_rgba(255,100,0,0.6)]"
+                "fill-current transition-all duration-500",
+                i % 3 === 0 ? "text-orange-500" : i % 3 === 1 ? "text-orange-400" : "text-yellow-500",
+                flameCount > 8 ? "size-3" : flameCount > 5 ? "size-4" : "size-5",
+                "drop-shadow-[0_0_6px_rgba(255,100,0,0.7)]"
               )} 
             />
           </div>
@@ -101,14 +104,14 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
 
     return (
       <div className="relative inline-flex shrink-0">
-        {/* HEAT GLOW BACKGROUND - Grows with streak */}
+        {/* HEAT GLOW BACKGROUND */}
         {isOnFire && (
           <div className={cn(
-              "absolute rounded-full blur-xl animate-pulse pointer-events-none z-0",
+              "absolute rounded-full blur-xl animate-pulse pointer-events-none z-0 transition-all duration-700",
               isInferno ? "bg-orange-600/50" : "bg-orange-500/30"
           )} 
           style={{ 
-            inset: `-${8 + Math.min(streak, 10)}px`,
+            inset: `-${10 + Math.min(streak * 2, 20)}px`,
           }} />
         )}
 
@@ -144,13 +147,13 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
         {/* === DYNAMIC FLAME STREAK SYSTEM === */}
         {renderFlames()}
 
-        {/* Rising Sparks (Only for high streaks) */}
+        {/* Rising Sparks */}
         {isInferno && (
           <>
-            <div className="absolute -top-6 left-1/4 animate-fire-particles">
+            <div className="absolute -top-10 left-1/4 animate-fire-particles">
               <div className="size-1 rounded-full bg-yellow-400 shadow-[0_0_4px_yellow]" />
             </div>
-            <div className="absolute -top-8 right-1/3 animate-fire-particles [animation-delay:0.5s]">
+            <div className="absolute -top-12 right-1/3 animate-fire-particles [animation-delay:0.5s]">
               <div className="size-1.5 rounded-full bg-orange-400 shadow-[0_0_4px_orange]" />
             </div>
           </>
