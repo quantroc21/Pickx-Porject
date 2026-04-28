@@ -182,6 +182,30 @@ export default function PlayerProfile() {
           <CompactBox label="Thắng" value={`${winRate}%`} />
           <CompactBox label="Trận" value={player.wins + player.losses} />
         </div>
+
+        {/* Rank Progress Bar */}
+        {nextLabel && (
+          <div className="relative mt-6 px-2">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">Tiến trình hạng</span>
+              <span className="text-[10px] font-bold text-foreground/60">Còn {pointsToNext} điểm tới {nextLabel}</span>
+            </div>
+            <div className="relative h-2 w-full overflow-hidden rounded-full bg-background/40 ring-1 ring-border/20">
+              <div 
+                className="absolute inset-y-0 left-0 transition-all duration-1000 ease-out"
+                style={{ 
+                  width: `${percent}%`,
+                  background: `linear-gradient(90deg, ${tierColor}44, ${tierColor})`,
+                  boxShadow: `0 0 12px ${tierColor}66`
+                }}
+              />
+            </div>
+            <div className="mt-2 flex justify-between px-0.5">
+               <span className="text-[9px] font-black text-muted-foreground uppercase">{tier.label}</span>
+               <span className="text-[9px] font-black text-primary uppercase">{nextLabel}</span>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Achievement Showcase - Ultra Rounded & Clean */}
