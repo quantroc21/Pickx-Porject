@@ -15,9 +15,9 @@ export function BottomNav() {
   const { userId } = useUserAuth();
 
   return (
-    <div className="fixed inset-x-0 bottom-6 z-40 px-8 flex justify-center safe-bottom">
+    <div className="fixed inset-x-0 bottom-8 z-40 px-8 flex justify-center safe-bottom">
       <nav
-        className="flex w-full max-w-[280px] items-center justify-around rounded-full liquid-glass p-1.5 shadow-elevated overflow-hidden"
+        className="flex w-full max-w-[320px] items-center justify-around rounded-full liquid-glass p-2 shadow-elevated overflow-hidden"
         aria-label="Primary"
       >
         {NAV_ITEMS.map((item) => {
@@ -39,11 +39,11 @@ export function BottomNav() {
               key={item.path}
               to={item.path}
               className={cn(
-                "relative flex flex-1 items-center justify-center py-3 transition-colors duration-300",
-                isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                "relative flex flex-1 items-center justify-center py-4 transition-all duration-300",
+                isActive ? "text-primary scale-110" : "text-muted-foreground hover:text-foreground"
               )}
             >
-              <item.icon className="relative z-10 size-5" strokeWidth={2.5} />
+              <item.icon className="relative z-10 size-6" strokeWidth={2.2} />
               
               {isActive && (
                 <motion.div
