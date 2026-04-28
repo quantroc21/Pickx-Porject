@@ -54,14 +54,62 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
       }
     }, [player.last_comment, player.last_comment_time, player.id]);
 
+    // Helper to calculate flame positions
+    const renderFlames = () => {
+      if (!isOnFire) return null;
+      
+      const flameCount = Math.min(streak, 12); // Cap at 12 visual flames for performance/UX
+      const flames = [];
+      
+      for (let i = 0; i < flameCount; i++) {
+        // Distribute flames in an arc from -130deg to 130deg
+        const startAngle = -130;
+        const endAngle = 130;
+        const angle = flameCount > 1 
+          ? startAngle + (i * (endAngle - startAngle)) / (flameCount - 1)
+          : 0;
+        
+        // Use sine/cosine for circular positioning
+        const radius = 55; // % of container size
+        const x = Math.sin((angle * Math.PI) / 180) * radius;
+        const y = -Math.cos((angle * Math.PI) / 180) * radius;
+        
+        flames.push(
+          <div 
+            key={i}
+            className="absolute z-20 animate-fire-flicker pointer-events-none"
+            style={{
+              left: `calc(50% + ${x}%)`,
+              top: `calc(50% + ${y}%)`,
+              transform: `translate(-50%, -50%) rotate(${angle}deg)`,
+              animationDelay: `${i * 0.1}s`,
+            }}
+          >
+            <Flame 
+              className={cn(
+                "fill-current",
+                i % 2 === 0 ? "text-orange-500" : "text-orange-400",
+                isInferno ? "size-5" : "size-4",
+                "drop-shadow-[0_0_5px_rgba(255,100,0,0.6)]"
+              )} 
+            />
+          </div>
+        );
+      }
+      return flames;
+    };
+
     return (
       <div className="relative inline-flex shrink-0">
-        {/* HEAT GLOW BACKGROUND */}
+        {/* HEAT GLOW BACKGROUND - Grows with streak */}
         {isOnFire && (
           <div className={cn(
-              "absolute inset-[-10px] rounded-full blur-xl animate-pulse pointer-events-none z-0",
+              "absolute rounded-full blur-xl animate-pulse pointer-events-none z-0",
               isInferno ? "bg-orange-600/50" : "bg-orange-500/30"
-          )} />
+          )} 
+          style={{ 
+            inset: `-${8 + Math.min(streak, 10)}px`,
+          }} />
         )}
 
         <div
@@ -88,49 +136,24 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
           <span className="leading-none text-muted-foreground">{initials}</span>
         )}
 
-        {/* === THE RING OF FIRE (STRUCTURE) === */}
+        {/* === THE RING OF FIRE === */}
         {isOnFire && (
           <div className="absolute inset-[-4px] rounded-full border-2 animate-ring-of-fire pointer-events-none z-30" />
         )}
 
-        {/* === THE ORGANIC FLAMES (DYNAMIC) === */}
-        {isOnFire && (
-          <div className="absolute inset-0 pointer-events-none z-20">
-            {/* Top flame (Always present for streak 3+) */}
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 animate-fire-flicker">
-                <Flame className={cn("text-orange-500 fill-current drop-shadow-[0_0_8px_rgba(255,100,0,0.8)]", isInferno ? "size-6" : "size-4")} />
-            </div>
-            
-            {/* Right side flame (Always present for streak 3+) */}
-            <div className="absolute top-0 -right-1 animate-fire-flicker [animation-delay:0.2s]">
-                <Flame className={cn("text-orange-600 fill-current drop-shadow-[0_0_5px_rgba(255,80,0,0.6)]", isInferno ? "size-4" : "size-3")} />
-            </div>
+        {/* === DYNAMIC FLAME STREAK SYSTEM === */}
+        {renderFlames()}
 
-            {/* Left side flame (Always present for streak 3+) */}
-            <div className="absolute top-0 -left-1 animate-fire-flicker [animation-delay:0.4s]">
-                <Flame className={cn("text-orange-400 fill-current drop-shadow-[0_0_5px_rgba(255,120,0,0.6)]", isInferno ? "size-4" : "size-3")} />
+        {/* Rising Sparks (Only for high streaks) */}
+        {isInferno && (
+          <>
+            <div className="absolute -top-6 left-1/4 animate-fire-particles">
+              <div className="size-1 rounded-full bg-yellow-400 shadow-[0_0_4px_yellow]" />
             </div>
-
-            {/* EXTRA INTENSE FLAMES FOR INFERNO (streak 5+) */}
-            {isInferno && (
-              <>
-                <div className="absolute -top-5 left-1/3 animate-fire-flicker [animation-delay:0.1s]">
-                    <Flame className="size-5 text-yellow-500 fill-current drop-shadow-[0_0_10px_yellow]" />
-                </div>
-                <div className="absolute -top-4 right-1/4 animate-fire-flicker [animation-delay:0.3s]">
-                    <Flame className="size-4 text-red-500 fill-current drop-shadow-[0_0_10px_red]" />
-                </div>
-                
-                {/* Rising Sparks */}
-                <div className="absolute -top-4 left-1/2 animate-fire-particles">
-                  <div className="size-1 rounded-full bg-yellow-400 shadow-[0_0_4px_yellow]" />
-                </div>
-                <div className="absolute -top-6 right-1/3 animate-fire-particles [animation-delay:0.4s]">
-                  <div className="size-1.5 rounded-full bg-orange-400 shadow-[0_0_4px_orange]" />
-                </div>
-              </>
-            )}
-          </div>
+            <div className="absolute -top-8 right-1/3 animate-fire-particles [animation-delay:0.5s]">
+              <div className="size-1.5 rounded-full bg-orange-400 shadow-[0_0_4px_orange]" />
+            </div>
+          </>
         )}
 
         {isBruised && (
