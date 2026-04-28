@@ -68,7 +68,17 @@ export default function RecordMatch() {
     setConfirmOpen(false);
     recordMutation.mutate(
       { team1Ids: team1, team2Ids: team2, score1, score2, targetScore },
-      { onSuccess: () => navigate("/admin") }
+      { 
+        onSuccess: () => {
+          toast.success("Đã ghi nhận kết quả trận đấu thành công!");
+          // Reset form to record next match
+          setTeam1([]);
+          setTeam2([]);
+          setScore1(0);
+          setScore2(0);
+          setSelectedCourtId(null);
+        } 
+      }
     );
   }
 

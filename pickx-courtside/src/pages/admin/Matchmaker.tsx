@@ -22,24 +22,43 @@ export default function Matchmaker() {
   const matchmakerMutation = useMatchmaker();
   const assignMutation = useAssignCourt();
   
-  const [selectedCourts, setSelectedCourts] = useState<number[]>([1, 2]); // Default to court 1 & 2
-  const [active, setActive] = useState<Set<string>>(() => new Set());
+  // Load initial states from localStorage
+  const [selectedCourts, setSelectedCourts] = useState<number[]>(() => {
+    const saved = localStorage.getItem("pickx_selected_courts");
+    return saved ? JSON.parse(saved) : [1, 2];
+  });
+
+  const [active, setActive] = useState<Set<string>>(() => {
+    const saved = localStorage.getItem("pickx_active_players");
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  });
+
   const [generating, setGenerating] = useState(false);
   const [proposed, setProposed] = useState<ProposedMatch[] | null>(null);
 
+  // Persistence Effects
+  function updateCourts(newCourts: number[]) {
+    setSelectedCourts(newCourts);
+    localStorage.setItem("pickx_selected_courts", JSON.stringify(newCourts));
+  }
+
+  function updateActive(newActive: Set<string>) {
+    setActive(newActive);
+    localStorage.setItem("pickx_active_players", JSON.stringify(Array.from(newActive)));
+  }
+
   function toggleCourt(n: number) {
-    setSelectedCourts(prev => 
-      prev.includes(n) ? prev.filter(x => x !== n) : [...prev, n].sort()
-    );
+    const next = selectedCourts.includes(n) 
+      ? selectedCourts.filter(x => x !== n) 
+      : [...selectedCourts, n].sort();
+    updateCourts(next);
     setProposed(null);
   }
 
   function toggle(id: string) {
-    setActive((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
+    const next = new Set(active);
+    next.has(id) ? next.delete(id) : next.add(id);
+    updateActive(next);
     setProposed(null);
   }
 
