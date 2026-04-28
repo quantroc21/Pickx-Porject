@@ -88,7 +88,7 @@ export function useRecordMatch() {
 export function useAddPlayer() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: { name: string; password?: string }) => {
+    mutationFn: async (payload: { name: string; password?: string; skillLevel?: string }) => {
       const res = await fetch(`${API_URL}/players`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

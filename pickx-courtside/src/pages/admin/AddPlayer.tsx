@@ -11,6 +11,7 @@ export default function AddPlayer() {
   const [name, setName] = useState("");
   const [handle, setHandle] = useState("");
   const [password, setPassword] = useState("123456");
+  const [skillLevel, setSkillLevel] = useState("intermediate");
   const [search, setSearch] = useState("");
   
   const { data: players = [], isLoading } = usePlayers();
@@ -23,11 +24,12 @@ export default function AddPlayer() {
   function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!ready) return;
-    addPlayerMutation.mutate({ name: name.trim(), password: password.trim() }, {
+    addPlayerMutation.mutate({ name: name.trim(), password: password.trim(), skillLevel }, {
       onSuccess: () => {
         setName("");
         setHandle("");
         setPassword("123456");
+        setSkillLevel("intermediate");
       }
     });
   }
@@ -48,6 +50,13 @@ export default function AddPlayer() {
     p.name.toLowerCase().includes(search.toLowerCase()) || 
     (p.handle || "").toLowerCase().includes(search.toLowerCase())
   ).sort((a, b) => a.name.localeCompare(b.name));
+
+  const SKILL_OPTIONS = [
+    { value: "beginner", label: "🌱 Mới tập chơi", desc: "Bắt đầu ở 800 Elo" },
+    { value: "intermediate", label: "🏓 Chơi được rồi", desc: "Bắt đầu ở 1000 Elo" },
+    { value: "advanced", label: "🔥 Khá / Chơi lâu", desc: "Bắt đầu ở 1200 Elo" },
+    { value: "expert", label: "👑 Rất giỏi", desc: "Bắt đầu ở 1400 Elo" },
+  ];
 
   return (
     <div className="space-y-8 pb-12">
@@ -80,6 +89,27 @@ export default function AddPlayer() {
                 placeholder="nguyenvana"
                 className="h-12 w-full rounded-xl border border-border/60 bg-background pl-7 pr-3 text-base placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
+            </div>
+          </Field>
+
+          <Field label="Trình độ ban đầu" required hint="Giúp hệ thống xếp trận cân ngay từ đầu">
+            <div className="grid grid-cols-2 gap-2">
+              {SKILL_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setSkillLevel(opt.value)}
+                  className={cn(
+                    "flex flex-col items-start rounded-xl border p-3 text-left transition-all",
+                    skillLevel === opt.value
+                      ? "border-primary bg-primary/10 ring-1 ring-primary/40"
+                      : "border-border/60 bg-background hover:bg-surface-elevated"
+                  )}
+                >
+                  <span className="text-sm font-bold">{opt.label}</span>
+                  <span className="text-[10px] text-muted-foreground">{opt.desc}</span>
+                </button>
+              ))}
             </div>
           </Field>
 
