@@ -35,8 +35,24 @@ export default function PlayerProfile() {
     typeof Notification !== "undefined" ? Notification.permission : "denied"
   );
 
+  function urlBase64ToUint8Array(base64String: string) {
+    const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  }
+
   async function handleSubscribe() {
     try {
+      if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+        toast.error("Trình duyệt này không hỗ trợ thông báo đẩy.");
+        return;
+      }
+
       const permission = await Notification.requestPermission();
       setPushStatus(permission);
       if (permission !== "granted") {
@@ -45,10 +61,17 @@ export default function PlayerProfile() {
       }
 
       const reg = await navigator.serviceWorker.ready;
-      const sub = await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: "BDm7xzKt_L1jVB6EqXehXKFJqGj93ubeCLMKzvMeSJlWDMhpZM24F1oQxQS0zVNpD4rlXcBWLgOv0KhEW-cv5Pc"
-      });
+      
+      // Check if already subscribed
+      let sub = await reg.pushManager.getSubscription();
+      
+      if (!sub) {
+        const publicVapidKey = "BDm7xzKt_L1jVB6EqXehXKFJqGj93ubeCLMKzvMeSJlWDMhpZM24F1oQxQS0zVNpD4rlXcBWLgOv0KhEW-cv5Pc";
+        sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+        });
+      }
       
       subscribeMutation.mutate(sub, {
         onSuccess: () => toast.success("Đã bật thông báo thành công!"),
