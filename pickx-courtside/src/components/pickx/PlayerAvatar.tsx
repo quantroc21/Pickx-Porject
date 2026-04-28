@@ -56,10 +56,10 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
 
     return (
       <div className="relative inline-flex shrink-0">
-        {/* Inferno outer glow ring (streak 5+) */}
+        {/* Inferno background glow */}
         {isInferno && (
-          <div className="absolute inset-[-8px] rounded-full animate-inferno-pulse pointer-events-none"
-            style={{ background: 'radial-gradient(circle, rgba(255,100,0,0.3) 0%, rgba(255,50,0,0.15) 50%, transparent 70%)' }}
+          <div className="absolute inset-[-12px] rounded-full animate-inferno-pulse pointer-events-none"
+            style={{ background: 'radial-gradient(circle, rgba(255,80,0,0.35) 0%, rgba(255,40,0,0.1) 60%, transparent 80%)' }}
           />
         )}
 
@@ -90,52 +90,45 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
           <span className="leading-none text-muted-foreground">{initials}</span>
         )}
 
-        {/* Ring of fire overlay */}
+        {/* === THE RING OF FIRE === */}
         {isOnFire && (
-          <div className="absolute inset-[-4px] rounded-full border-2 border-orange-500 animate-ring-of-fire pointer-events-none" />
+          <div className="absolute inset-[-4px] rounded-full border-[3px] animate-ring-of-fire pointer-events-none z-10" />
         )}
         
-        {/* === FLAME SYSTEM === */}
+        {/* === ORBITING FLAMES (streak 3+) === */}
         {isOnFire && (
+          <div className="absolute inset-[-8px] animate-fire-particles pointer-events-none z-20">
+             <div className="absolute top-0 left-1/2 -translate-x-1/2 animate-fire-flicker">
+                <Flame className="size-4 text-orange-500 fill-current drop-shadow-[0_0_5px_orange]" />
+             </div>
+          </div>
+        )}
+
+        {/* === EXTRA INFERNO FLAMES (streak 5+) === */}
+        {isInferno && (
           <>
-            {/* Main top flame — always present for streak 3+ */}
-            <div className="absolute -top-1.5 right-0 z-20 animate-fire-flicker">
-              <Flame className={cn("text-orange-500 fill-current drop-shadow-[0_0_4px_rgba(255,100,0,0.8)]", isInferno ? "size-4" : "size-3")} />
+            {/* Additional orbiting flame with offset delay */}
+            <div className="absolute inset-[-8px] animate-fire-particles [animation-delay:-1.5s] pointer-events-none z-20">
+               <div className="absolute top-0 left-1/2 -translate-x-1/2 animate-fire-flicker [animation-delay:0.4s]">
+                  <Flame className="size-5 text-yellow-400 fill-current drop-shadow-[0_0_8px_yellow]" />
+               </div>
             </div>
 
-            {/* Secondary flame — streak 3+ */}
-            <div className="absolute -top-0.5 -left-1 z-20 animate-fire-flicker [animation-delay:0.3s]">
-              <Flame className={cn("text-orange-400 fill-current drop-shadow-[0_0_3px_rgba(255,120,0,0.6)]", isInferno ? "size-3.5" : "size-2")} />
+            {/* Fixed position intense flames */}
+            <div className="absolute -top-2 left-0 z-20 animate-fire-flicker">
+              <Flame className="size-4 text-red-500 fill-current" />
+            </div>
+            <div className="absolute -bottom-2 right-0 z-20 animate-fire-flicker [animation-delay:0.2s]">
+              <Flame className="size-4 text-orange-600 fill-current" />
             </div>
 
-            {/* === INFERNO MODE (streak 5+) — Full raging flames === */}
-            {isInferno && (
-              <>
-                {/* Bottom-left flame */}
-                <div className="absolute -bottom-1 left-1 z-20 animate-fire-flicker [animation-delay:0.15s]">
-                  <Flame className="size-3 text-red-500 fill-current drop-shadow-[0_0_4px_rgba(255,30,0,0.7)]" />
-                </div>
-                {/* Right side flame */}
-                <div className="absolute top-1/2 -right-2 z-20 animate-fire-flicker [animation-delay:0.1s]">
-                  <Flame className="size-3 text-yellow-500 fill-current drop-shadow-[0_0_4px_rgba(255,200,0,0.7)]" />
-                </div>
-                {/* Bottom-right flame */}
-                <div className="absolute -bottom-0.5 right-0 z-20 animate-fire-flicker [animation-delay:0.45s]">
-                  <Flame className="size-2.5 text-orange-600 fill-current drop-shadow-[0_0_3px_rgba(255,80,0,0.6)]" />
-                </div>
-
-                {/* Rising ember particles */}
-                <div className="absolute -top-1 left-1/4 z-10 animate-ember">
-                  <div className="size-1 rounded-full bg-orange-400 shadow-[0_0_2px_orange]" />
-                </div>
-                <div className="absolute -top-0.5 right-1/4 z-10 animate-ember [animation-delay:0.5s]">
-                  <div className="size-1.5 rounded-full bg-yellow-400 shadow-[0_0_2px_yellow]" />
-                </div>
-                <div className="absolute top-0 left-1/2 z-10 animate-ember [animation-delay:1s]">
-                  <div className="size-1 rounded-full bg-red-400 shadow-[0_0_2px_red]" />
-                </div>
-              </>
-            )}
+            {/* Rising ember particles */}
+            <div className="absolute -top-2 left-1/4 z-10 animate-ember">
+              <div className="size-1 rounded-full bg-orange-400 shadow-[0_0_4px_orange]" />
+            </div>
+            <div className="absolute -top-1.5 right-1/4 z-10 animate-ember [animation-delay:0.7s]">
+              <div className="size-1.5 rounded-full bg-yellow-400 shadow-[0_0_4px_yellow]" />
+            </div>
           </>
         )}
 
