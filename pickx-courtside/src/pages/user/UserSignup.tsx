@@ -19,10 +19,10 @@ export default function UserSignup() {
   const navigate = useNavigate();
 
   const SKILL_OPTIONS = [
-    { value: "beginner", label: "Mới tập chơi", desc: "Bắt đầu ở 800 Elo" },
-    { value: "intermediate", label: "Chơi được rồi", desc: "Bắt đầu ở 1000 Elo" },
-    { value: "advanced", label: "Khá / Chơi lâu", desc: "Bắt đầu ở 1200 Elo" },
-    { value: "expert", label: "Rất giỏi", desc: "Bắt đầu ở 1400 Elo" },
+    { value: "beginner", label: "Mới tập chơi", desc: "Mới biết luật, đang học cơ bản" },
+    { value: "intermediate", label: "Chơi được rồi", desc: "Biết chơi, đánh vui với bạn bè" },
+    { value: "advanced", label: "Khá / Chơi lâu", desc: "Chơi thường xuyên, có kỹ thuật" },
+    { value: "expert", label: "Rất giỏi", desc: "Thi đấu nhiều, trình độ cao" },
   ];
 
   const ready = 

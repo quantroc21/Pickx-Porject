@@ -82,32 +82,31 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
 
     const theme = getFireTheme();
 
-    // Fixed 3-flame crown with adjusted radius to avoid face
+    // Fixed 3-flame crown: simple absolute positions, centered on top
     const renderFlames = () => {
       if (!isOnFire) return null;
       
-      const angles = [-40, 0, 40]; 
-      const radius = 72; // Pushed further out
+      // 3 fixed positions: top-center, top-left, top-right
+      const positions = [
+        { left: "50%", top: "-12px", rotate: "0deg", delay: "0s" },      // Center (đỉnh đầu)
+        { left: "10%", top: "-2px", rotate: "-15deg", delay: "0.2s" },   // Left
+        { left: "90%", top: "-2px", rotate: "15deg", delay: "0.4s" },    // Right
+      ];
       
-      return angles.map((angle, i) => {
-        const x = Math.sin((angle * Math.PI) / 180) * radius;
-        const y = -Math.cos((angle * Math.PI) / 180) * radius;
-        
-        return (
-          <div 
-            key={`${player.id}-flame-${i}`}
-            className="absolute z-20 animate-fire-flicker pointer-events-none"
-            style={{
-              left: `calc(50% + ${x}%)`,
-              top: `calc(50% + ${y}%)`,
-              transform: `translate(-50%, -50%) rotate(${angle}deg)`,
-              animationDelay: `${i * 0.2}s`,
-            }}
-          >
-            <Flame className={cn(theme.color, theme.fill, theme.glow, "size-3.5")} />
-          </div>
-        );
-      });
+      return positions.map((pos, i) => (
+        <div 
+          key={`${player.id}-flame-${i}`}
+          className="absolute z-20 animate-fire-flicker pointer-events-none"
+          style={{
+            left: pos.left,
+            top: pos.top,
+            transform: `translateX(-50%) rotate(${pos.rotate})`,
+            animationDelay: pos.delay,
+          }}
+        >
+          <Flame className={cn(theme.color, theme.fill, theme.glow, "size-3.5")} />
+        </div>
+      ));
     };
 
     return (
