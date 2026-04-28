@@ -33,6 +33,7 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
     const streak = player.streak || 0;
     const isOnFire = streak >= 3;
     const isInferno = streak >= 5;
+    const isGodlike = streak >= 10;
     const isBruised = streak <= -3;
     
     const [showComment, setShowComment] = useState(false);
@@ -54,29 +55,45 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
       }
     }, [player.last_comment, player.last_comment_time, player.id]);
 
-    // Clean, orderly flame crown renderer
+    // Color logic based on streak
+    const getFireTheme = () => {
+        if (isGodlike) return {
+            color: "text-cyan-400",
+            fill: "fill-cyan-400",
+            glow: "drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]",
+            bg: "bg-cyan-500/30",
+            ring: "rgba(34,211,238,0.8)"
+        };
+        if (isInferno) return {
+            color: "text-pink-500",
+            fill: "fill-pink-500",
+            glow: "drop-shadow-[0_0_8px_rgba(236,72,153,0.8)]",
+            bg: "bg-pink-500/30",
+            ring: "rgba(236,72,153,0.8)"
+        };
+        return {
+            color: "text-orange-500",
+            fill: "fill-orange-500",
+            glow: "drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]",
+            bg: "bg-orange-500/30",
+            ring: "rgba(249,115,22,0.8)"
+        };
+    };
+
+    const theme = getFireTheme();
+
+    // Fixed 3-flame crown with dynamic colors
     const renderFlames = () => {
       if (!isOnFire) return null;
       
-      const flameCount = Math.min(streak, 10); // Reasonable cap
-      const flames = [];
+      const angles = [-45, 0, 45]; // Exactly 3 flames
+      const radius = 62; 
       
-      // Orderly arc: from -100 to 100 degrees (top half crown)
-      const arcRange = 200; 
-      const startAngle = -100;
-      
-      for (let i = 0; i < flameCount; i++) {
-        const angle = flameCount > 1 
-          ? startAngle + (i * arcRange) / (flameCount - 1)
-          : 0;
-        
-        // Consistent radius to keep out of face
-        const radius = 62; 
-        
+      return angles.map((angle, i) => {
         const x = Math.sin((angle * Math.PI) / 180) * radius;
         const y = -Math.cos((angle * Math.PI) / 180) * radius;
         
-        flames.push(
+        return (
           <div 
             key={`${player.id}-flame-${i}`}
             className="absolute z-20 animate-fire-flicker pointer-events-none"
@@ -84,21 +101,13 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
               left: `calc(50% + ${x}%)`,
               top: `calc(50% + ${y}%)`,
               transform: `translate(-50%, -50%) rotate(${angle}deg)`,
-              animationDelay: `${i * 0.15}s`,
+              animationDelay: `${i * 0.2}s`,
             }}
           >
-            <Flame 
-              className={cn(
-                "fill-current transition-all duration-300",
-                i % 2 === 0 ? "text-orange-500" : "text-orange-400",
-                flameCount > 6 ? "size-3" : "size-4",
-                "drop-shadow-[0_0_5px_rgba(255,100,0,0.7)]"
-              )} 
-            />
+            <Flame className={cn(theme.color, theme.fill, theme.glow, isGodlike ? "size-5" : "size-4")} />
           </div>
         );
-      }
-      return flames;
+      });
     };
 
     return (
@@ -106,11 +115,11 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
         {/* HEAT GLOW BACKGROUND */}
         {isOnFire && (
           <div className={cn(
-              "absolute rounded-full blur-xl animate-pulse pointer-events-none z-0",
-              isInferno ? "bg-orange-600/40" : "bg-orange-500/20"
+              "absolute rounded-full blur-xl animate-pulse pointer-events-none z-0 transition-all duration-700",
+              theme.bg
           )} 
           style={{ 
-            inset: `-${8 + Math.min(streak, 10)}px`,
+            inset: "-12px",
           }} />
         )}
 
@@ -118,7 +127,8 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
           className={cn(
             "relative inline-flex shrink-0 items-center justify-center rounded-full font-display font-bold transition-all duration-500",
           SIZE[size],
-          isInferno && "scale-110 z-10",
+          isGodlike && "scale-115 z-10",
+          isInferno && !isGodlike && "scale-110 z-10",
           isOnFire && !isInferno && "scale-105",
           isBruised && "grayscale-[0.6] opacity-80 brightness-90",
           className,
@@ -140,20 +150,23 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
 
         {/* === THE RING OF FIRE === */}
         {isOnFire && (
-          <div className="absolute inset-[-4px] rounded-full border-2 animate-ring-of-fire pointer-events-none z-30" />
+          <div 
+            className="absolute inset-[-4px] rounded-full border-2 animate-ring-of-fire pointer-events-none z-30" 
+            style={{ borderColor: theme.ring }}
+          />
         )}
 
-        {/* === ORDERLY FLAME CROWN === */}
+        {/* === 3-FLAME CROWN (DYNAMIC COLOR) === */}
         {renderFlames()}
 
-        {/* Rising Sparks */}
+        {/* Rising Sparks (Only for Inferno+) */}
         {isInferno && (
           <>
             <div className="absolute -top-10 left-1/4 animate-fire-particles">
-              <div className="size-1 rounded-full bg-yellow-400 shadow-[0_0_4px_yellow]" />
+              <div className={cn("size-1 rounded-full shadow-[0_0_4px_currentColor]", theme.color)} />
             </div>
             <div className="absolute -top-12 right-1/3 animate-fire-particles [animation-delay:0.5s]">
-              <div className="size-1.5 rounded-full bg-orange-400 shadow-[0_0_4px_orange]" />
+              <div className={cn("size-1.5 rounded-full shadow-[0_0_4px_currentColor]", theme.color)} />
             </div>
           </>
         )}
