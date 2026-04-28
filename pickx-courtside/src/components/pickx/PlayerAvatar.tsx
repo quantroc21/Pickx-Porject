@@ -54,28 +54,27 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
       }
     }, [player.last_comment, player.last_comment_time, player.id]);
 
-    // Enhanced flame renderer to ensure no overlapping
+    // Clean, orderly flame crown renderer
     const renderFlames = () => {
       if (!isOnFire) return null;
       
-      const flameCount = Math.min(streak, 15); // Increased cap
+      const flameCount = Math.min(streak, 10); // Reasonable cap
       const flames = [];
       
-      // Use a wider arc as count increases
-      const arcRange = Math.min(180 + flameCount * 5, 260); 
-      const startAngle = -arcRange / 2;
+      // Orderly arc: from -100 to 100 degrees (top half crown)
+      const arcRange = 200; 
+      const startAngle = -100;
       
       for (let i = 0; i < flameCount; i++) {
         const angle = flameCount > 1 
           ? startAngle + (i * arcRange) / (flameCount - 1)
           : 0;
         
-        // Add a slight jitter to radius and angle to prevent perfect overlap
-        const jitterAngle = angle + (Math.sin(i * 1.5) * 5);
-        const dynamicRadius = 55 + (i % 2 === 0 ? 5 : 0); // Alternate heights
+        // Consistent radius to keep out of face
+        const radius = 62; 
         
-        const x = Math.sin((jitterAngle * Math.PI) / 180) * dynamicRadius;
-        const y = -Math.cos((jitterAngle * Math.PI) / 180) * dynamicRadius;
+        const x = Math.sin((angle * Math.PI) / 180) * radius;
+        const y = -Math.cos((angle * Math.PI) / 180) * radius;
         
         flames.push(
           <div 
@@ -84,16 +83,16 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
             style={{
               left: `calc(50% + ${x}%)`,
               top: `calc(50% + ${y}%)`,
-              transform: `translate(-50%, -50%) rotate(${jitterAngle}deg)`,
+              transform: `translate(-50%, -50%) rotate(${angle}deg)`,
               animationDelay: `${i * 0.15}s`,
             }}
           >
             <Flame 
               className={cn(
-                "fill-current transition-all duration-500",
-                i % 3 === 0 ? "text-orange-500" : i % 3 === 1 ? "text-orange-400" : "text-yellow-500",
-                flameCount > 8 ? "size-3" : flameCount > 5 ? "size-4" : "size-5",
-                "drop-shadow-[0_0_6px_rgba(255,100,0,0.7)]"
+                "fill-current transition-all duration-300",
+                i % 2 === 0 ? "text-orange-500" : "text-orange-400",
+                flameCount > 6 ? "size-3" : "size-4",
+                "drop-shadow-[0_0_5px_rgba(255,100,0,0.7)]"
               )} 
             />
           </div>
@@ -107,11 +106,11 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
         {/* HEAT GLOW BACKGROUND */}
         {isOnFire && (
           <div className={cn(
-              "absolute rounded-full blur-xl animate-pulse pointer-events-none z-0 transition-all duration-700",
-              isInferno ? "bg-orange-600/50" : "bg-orange-500/30"
+              "absolute rounded-full blur-xl animate-pulse pointer-events-none z-0",
+              isInferno ? "bg-orange-600/40" : "bg-orange-500/20"
           )} 
           style={{ 
-            inset: `-${10 + Math.min(streak * 2, 20)}px`,
+            inset: `-${8 + Math.min(streak, 10)}px`,
           }} />
         )}
 
@@ -144,7 +143,7 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
           <div className="absolute inset-[-4px] rounded-full border-2 animate-ring-of-fire pointer-events-none z-30" />
         )}
 
-        {/* === DYNAMIC FLAME STREAK SYSTEM === */}
+        {/* === ORDERLY FLAME CROWN === */}
         {renderFlames()}
 
         {/* Rising Sparks */}
