@@ -251,12 +251,18 @@ def login_user(req: UserLoginParams):
     u = req.username.strip().lower()
     if u.startswith("@"): u = u[1:]
     
+    user_found = False
     for p in db["players"]:
         p_handle = p["name"].lower().replace(" ", "")
-        if p_handle == u and p.get("password") == req.password:
-            return {"success": True, "player_id": p.get("id")}
+        if p_handle == u:
+            user_found = True
+            if p.get("password") == req.password:
+                return {"success": True, "player_id": p.get("id")}
             
-    raise HTTPException(status_code=401, detail="Sai username hoặc mật khẩu")
+    if not user_found:
+        raise HTTPException(status_code=404, detail="Username không tồn tại. Vui lòng Đăng ký tài khoản!")
+    else:
+        raise HTTPException(status_code=401, detail="Sai mật khẩu. Vui lòng thử lại!")
 
 class MakeMatchParams(BaseModel):
     playerIds: List[str]
@@ -438,8 +444,8 @@ def record_match(req: RecordMatchParams):
     p_t1 = 1 / (1 + 10 ** ((t2_avg_mmr - t1_avg_mmr) / 400))
     bonus_multiplier = 1.08 if req.targetScore == 15 else 1.0
     
-    # Continuous Margin of Victory (MoV) Multiplier
-    mov_mult = math.log2(score_gap + 1)
+    # Continuous Margin of Victory (MoV) Multiplier — capped at 2.5 to prevent extreme swings
+    mov_mult = min(2.5, math.log2(score_gap + 1))
     
     player_deltas = {}
     
@@ -454,8 +460,10 @@ def record_match(req: RecordMatchParams):
         w_val = 1.0 if won else 0.0
         
         # 1. Dynamic Confidence Factor (K_effective)
+        # Aggressive decay: K=80 for first match, drops to 32 by match 3
+        # Combined with Host initial skill assessment, system stabilizes in ~3 matches
         total_games = p["wins"] + p["losses"]
-        k_base = 60 if total_games < 15 else 32
+        k_base = max(32, 80 - (total_games * 16))
         k_effective = k_base * mov_mult
         
         # 2. Update Hidden MMR (60% Win Outcome, 40% Point Share)
@@ -555,9 +563,18 @@ def record_match(req: RecordMatchParams):
     save_db(db)
     return format_match(match_record)
 
+# Skill level to starting Elo mapping
+SKILL_ELO_MAP = {
+    "beginner": 800,      # Mới tập chơi
+    "intermediate": 1000, # Chơi được rồi
+    "advanced": 1200,     # Khá / Chơi lâu
+    "expert": 1400,       # Rất giỏi
+}
+
 class AddPlayerParams(BaseModel):
     name: str
     password: Optional[str] = "123456"
+    skillLevel: Optional[str] = "intermediate"  # beginner | intermediate | advanced | expert
 
 @app.post("/api/players")
 def add_player(req: AddPlayerParams):
@@ -574,11 +591,14 @@ def add_player(req: AddPlayerParams):
     base_seed = f"{req.name.strip()}_{random.randint(100, 999)}"
     avatar_url = f"https://api.dicebear.com/7.x/{style}/svg?seed={base_seed}"
     
+    starting_elo = SKILL_ELO_MAP.get(req.skillLevel, 1000)
+    
     new_p = {
         "id": new_id,
         "name": req.name.strip(),
         "password": req.password,
-        "elo": 1000,
+        "elo": starting_elo,
+        "mmr": starting_elo,
         "wins": 0,
         "losses": 0,
         "streak": 0,
@@ -589,6 +609,32 @@ def add_player(req: AddPlayerParams):
     db["players"].append(new_p)
     save_db(db)
     return format_player(new_p)
+
+class ChangePasswordParams(BaseModel):
+    oldPassword: str
+    newPassword: str
+
+@app.post("/api/players/{player_id}/reset-password")
+def reset_password(player_id: str):
+    db = load_db()
+    for p in db["players"]:
+        if p.get("id") == player_id:
+            p["password"] = "123456"
+            save_db(db)
+            return {"success": True, "message": "Mật khẩu đã được đặt lại thành 123456"}
+    raise HTTPException(status_code=404, detail="Player not found")
+
+@app.post("/api/players/{player_id}/change-password")
+def change_password(player_id: str, req: ChangePasswordParams):
+    db = load_db()
+    for p in db["players"]:
+        if p.get("id") == player_id:
+            if p.get("password") != req.oldPassword:
+                raise HTTPException(status_code=400, detail="Mật khẩu cũ không chính xác")
+            p["password"] = req.newPassword
+            save_db(db)
+            return {"success": True, "message": "Đổi mật khẩu thành công"}
+    raise HTTPException(status_code=404, detail="Player not found")
 
 @app.delete("/api/players/{player_id}")
 def delete_player(player_id: str):
