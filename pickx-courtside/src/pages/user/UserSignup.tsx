@@ -9,6 +9,7 @@ import { toast } from "sonner";
 export default function UserSignup() {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
+  const [skillLevel, setSkillLevel] = useState("intermediate");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [nameSuggestions, setNameSuggestions] = useState<string[]>([]);
@@ -16,6 +17,13 @@ export default function UserSignup() {
   const signupMutation = useAddPlayer();
   const { login } = useUserAuth();
   const navigate = useNavigate();
+
+  const SKILL_OPTIONS = [
+    { value: "beginner", label: "Mới tập chơi", desc: "Bắt đầu ở 800 Elo" },
+    { value: "intermediate", label: "Chơi được rồi", desc: "Bắt đầu ở 1000 Elo" },
+    { value: "advanced", label: "Khá / Chơi lâu", desc: "Bắt đầu ở 1200 Elo" },
+    { value: "expert", label: "Rất giỏi", desc: "Bắt đầu ở 1400 Elo" },
+  ];
 
   const ready = 
     name.trim().length >= 3 && 
@@ -36,7 +44,7 @@ export default function UserSignup() {
     setNameSuggestions([]);
 
     signupMutation.mutate(
-      { name: name.trim(), password },
+      { name: name.trim(), password, skillLevel },
       {
         onSuccess: (data) => {
           login(data.id);
@@ -126,6 +134,30 @@ export default function UserSignup() {
           {errorMsg && nameSuggestions.length === 0 && (
              <p className="mt-1.5 text-xs font-medium text-destructive">{errorMsg}</p>
           )}
+        </div>
+
+        <div>
+          <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            Trình độ hiện tại
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            {SKILL_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setSkillLevel(opt.value)}
+                className={cn(
+                  "flex flex-col items-start rounded-xl border p-3 text-left transition-all",
+                  skillLevel === opt.value
+                    ? "border-primary bg-primary/10 ring-1 ring-primary/40"
+                    : "border-border/60 bg-surface hover:bg-surface-elevated"
+                )}
+              >
+                <span className="text-xs font-bold">{opt.label}</span>
+                <span className="text-[10px] text-muted-foreground">{opt.desc}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
         <div>

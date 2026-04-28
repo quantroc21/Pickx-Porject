@@ -52,10 +52,10 @@ export default function AddPlayer() {
   ).sort((a, b) => a.name.localeCompare(b.name));
 
   const SKILL_OPTIONS = [
-    { value: "beginner", label: "🌱 Mới tập chơi", desc: "Bắt đầu ở 800 Elo" },
-    { value: "intermediate", label: "🏓 Chơi được rồi", desc: "Bắt đầu ở 1000 Elo" },
-    { value: "advanced", label: "🔥 Khá / Chơi lâu", desc: "Bắt đầu ở 1200 Elo" },
-    { value: "expert", label: "👑 Rất giỏi", desc: "Bắt đầu ở 1400 Elo" },
+    { value: "beginner", label: "Mới tập chơi", desc: "Bắt đầu ở 800 Elo" },
+    { value: "intermediate", label: "Chơi được rồi", desc: "Bắt đầu ở 1000 Elo" },
+    { value: "advanced", label: "Khá / Chơi lâu", desc: "Bắt đầu ở 1200 Elo" },
+    { value: "expert", label: "Rất giỏi", desc: "Bắt đầu ở 1400 Elo" },
   ];
 
   return (
