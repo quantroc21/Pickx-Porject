@@ -56,11 +56,11 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
 
     return (
       <div className="relative inline-flex shrink-0">
-        {/* HEAT GLOW (No hard borders) */}
+        {/* HEAT GLOW BACKGROUND */}
         {isOnFire && (
           <div className={cn(
-              "absolute inset-[-10px] rounded-full blur-xl mix-blend-screen animate-pulse pointer-events-none z-0",
-              isInferno ? "bg-orange-600/50" : "bg-orange-500/30"
+              "absolute inset-[-8px] rounded-full blur-lg animate-pulse pointer-events-none z-0",
+              isInferno ? "bg-orange-600/40" : "bg-orange-500/20"
           )} />
         )}
 
@@ -88,41 +88,35 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
           <span className="leading-none text-muted-foreground">{initials}</span>
         )}
 
-        {/* === THE RAGING FIRE (ORGANIC STYLE) === */}
+        {/* === THE RING OF FIRE (STRUCTURE) === */}
+        {isOnFire && (
+          <div className="absolute inset-[-4px] rounded-full border-2 animate-ring-of-fire pointer-events-none z-30" />
+        )}
+
+        {/* === THE ORGANIC FLAMES (DYNAMIC) === */}
         {isOnFire && (
           <div className="absolute inset-0 pointer-events-none z-20">
-            {/* Licking flames around the edges */}
+            {/* Top flame */}
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 animate-fire-flicker">
                 <Flame className={cn("text-orange-500 fill-current drop-shadow-[0_0_8px_rgba(255,100,0,0.8)]", isInferno ? "size-6" : "size-4")} />
             </div>
             
-            <div className="absolute top-0 -right-1 animate-fire-flicker [animation-delay:0.2s]">
-                <Flame className={cn("text-orange-600 fill-current drop-shadow-[0_0_5px_rgba(255,80,0,0.6)]", isInferno ? "size-4" : "size-3")} />
-            </div>
-
-            <div className="absolute top-0 -left-1 animate-fire-flicker [animation-delay:0.4s]">
-                <Flame className={cn("text-orange-400 fill-current drop-shadow-[0_0_5px_rgba(255,120,0,0.6)]", isInferno ? "size-4" : "size-3")} />
-            </div>
-
-            {/* EXTRA INTENSE FLAMES FOR INFERNO */}
+            {/* Side flames for Inferno */}
             {isInferno && (
               <>
-                <div className="absolute -top-5 left-1/3 animate-fire-flicker [animation-delay:0.1s]">
-                    <Flame className="size-5 text-yellow-500 fill-current drop-shadow-[0_0_10px_yellow]" />
+                <div className="absolute top-0 -right-1 animate-fire-flicker [animation-delay:0.2s]">
+                    <Flame className="size-4 text-orange-600 fill-current drop-shadow-[0_0_5px_rgba(255,80,0,0.6)]" />
                 </div>
-                <div className="absolute -top-4 right-1/4 animate-fire-flicker [animation-delay:0.3s]">
-                    <Flame className="size-4 text-red-500 fill-current drop-shadow-[0_0_10px_red]" />
+                <div className="absolute top-0 -left-1 animate-fire-flicker [animation-delay:0.4s]">
+                    <Flame className="size-4 text-orange-400 fill-current drop-shadow-[0_0_5px_rgba(255,120,0,0.6)]" />
                 </div>
                 
                 {/* Rising Sparks */}
                 <div className="absolute -top-4 left-1/2 animate-fire-particles">
-                  <div className="size-1 rounded-full bg-yellow-400 shadow-[0_0_5px_yellow]" />
+                  <div className="size-1 rounded-full bg-yellow-400 shadow-[0_0_4px_yellow]" />
                 </div>
                 <div className="absolute -top-6 right-1/3 animate-fire-particles [animation-delay:0.4s]">
-                  <div className="size-1.5 rounded-full bg-orange-400 shadow-[0_0_5px_orange]" />
-                </div>
-                <div className="absolute -top-2 left-1/4 animate-fire-particles [animation-delay:0.8s]">
-                  <div className="size-1 rounded-full bg-red-400 shadow-[0_0_5px_red]" />
+                  <div className="size-1.5 rounded-full bg-orange-400 shadow-[0_0_4px_orange]" />
                 </div>
               </>
             )}
