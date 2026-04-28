@@ -82,32 +82,35 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
 
     const theme = getFireTheme();
 
-    // Fixed 3-flame crown: Wide distribution, perfectly centered
+    // Fixed 3-flame crown: Fixed pixels for absolute reliability
     const renderFlames = () => {
       if (!isOnFire) return null;
       
-      const angles = [-50, 0, 50]; 
-      const radius = 75; 
-      
       return (
         <div className="absolute inset-0 z-20 pointer-events-none">
-          {angles.map((angle, i) => {
-            const x = Math.sin((angle * Math.PI) / 180) * radius;
-            const y = -Math.cos((angle * Math.PI) / 180) * radius;
-            
-            return (
-              <div 
-                key={`${player.id}-flame-${i}`}
-                className="absolute left-1/2 top-1/2 animate-fire-flicker"
-                style={{
-                  transform: `translate(calc(-50% + ${x}%), calc(-50% + ${y}%)) rotate(${angle}deg)`,
-                  animationDelay: `${i * 0.2}s`,
-                }}
-              >
-                <Flame className={cn(theme.color, theme.fill, theme.glow, i === 1 ? "size-4" : "size-3.5")} />
-              </div>
-            );
-          })}
+          {/* Center Flame - Highest point */}
+          <div 
+            className="absolute left-1/2 -top-4 -translate-x-1/2 animate-fire-flicker"
+            style={{ animationDelay: "0s" }}
+          >
+            <Flame className={cn(theme.color, theme.fill, theme.glow, "size-4")} />
+          </div>
+
+          {/* Left Flame - Wide spread */}
+          <div 
+            className="absolute -left-2 top-0 -translate-x-1/2 -rotate-[25deg] animate-fire-flicker"
+            style={{ animationDelay: "0.2s" }}
+          >
+            <Flame className={cn(theme.color, theme.fill, theme.glow, "size-3.5")} />
+          </div>
+
+          {/* Right Flame - Wide spread */}
+          <div 
+            className="absolute -right-2 top-0 translate-x-1/2 rotate-[25deg] animate-fire-flicker"
+            style={{ animationDelay: "0.4s" }}
+          >
+            <Flame className={cn(theme.color, theme.fill, theme.glow, "size-3.5")} />
+          </div>
         </div>
       );
     };
