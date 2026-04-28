@@ -82,31 +82,37 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
 
     const theme = getFireTheme();
 
-    // Fixed 3-flame crown: simple absolute positions, centered on top
+    // Fixed 3-flame crown: Guaranteed centering and symmetry
     const renderFlames = () => {
       if (!isOnFire) return null;
       
-      // 3 fixed positions: top-center, top-left, top-right
-      const positions = [
-        { left: "50%", top: "-12px", rotate: "0deg", delay: "0s" },      // Center (đỉnh đầu)
-        { left: "10%", top: "-2px", rotate: "-15deg", delay: "0.2s" },   // Left
-        { left: "90%", top: "-2px", rotate: "15deg", delay: "0.4s" },    // Right
-      ];
-      
-      return positions.map((pos, i) => (
-        <div 
-          key={`${player.id}-flame-${i}`}
-          className="absolute z-20 animate-fire-flicker pointer-events-none"
-          style={{
-            left: pos.left,
-            top: pos.top,
-            transform: `translateX(-50%) rotate(${pos.rotate})`,
-            animationDelay: pos.delay,
-          }}
-        >
-          <Flame className={cn(theme.color, theme.fill, theme.glow, "size-3.5")} />
-        </div>
-      ));
+      return (
+        <>
+          {/* Center Flame (Đỉnh đầu) */}
+          <div 
+            className="absolute left-1/2 -top-[14px] z-20 -translate-x-1/2 animate-fire-flicker pointer-events-none"
+            style={{ animationDelay: "0s" }}
+          >
+            <Flame className={cn(theme.color, theme.fill, theme.glow, "size-3.5")} />
+          </div>
+
+          {/* Left Flame */}
+          <div 
+            className="absolute left-[12%] top-[0px] z-20 -translate-x-1/2 -rotate-[20deg] animate-fire-flicker pointer-events-none"
+            style={{ animationDelay: "0.2s" }}
+          >
+            <Flame className={cn(theme.color, theme.fill, theme.glow, "size-3")} />
+          </div>
+
+          {/* Right Flame */}
+          <div 
+            className="absolute right-[12%] top-[0px] z-20 translate-x-1/2 rotate-[20deg] animate-fire-flicker pointer-events-none"
+            style={{ animationDelay: "0.4s" }}
+          >
+            <Flame className={cn(theme.color, theme.fill, theme.glow, "size-3")} />
+          </div>
+        </>
+      );
     };
 
     return (
