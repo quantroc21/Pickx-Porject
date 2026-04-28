@@ -56,24 +56,25 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
 
     return (
       <div className="relative inline-flex shrink-0">
-        {/* Inferno background glow */}
-        {isInferno && (
-          <div className="absolute inset-[-12px] rounded-full animate-inferno-pulse pointer-events-none"
-            style={{ background: 'radial-gradient(circle, rgba(255,80,0,0.35) 0%, rgba(255,40,0,0.1) 60%, transparent 80%)' }}
-          />
+        {/* HEAT GLOW (No hard borders) */}
+        {isOnFire && (
+          <div className={cn(
+              "absolute inset-[-10px] rounded-full blur-xl mix-blend-screen animate-pulse pointer-events-none z-0",
+              isInferno ? "bg-orange-600/50" : "bg-orange-500/30"
+          )} />
         )}
 
         <div
           className={cn(
-            "relative inline-flex shrink-0 items-center justify-center rounded-full font-display font-bold border-2 transition-all duration-500",
+            "relative inline-flex shrink-0 items-center justify-center rounded-full font-display font-bold transition-all duration-500",
           SIZE[size],
-          isInferno && "animate-burning-aura border-orange-500 scale-110 z-10",
-          isOnFire && !isInferno && "ring-4 ring-warning/40 shadow-glow scale-105",
+          isInferno && "scale-110 z-10",
+          isOnFire && !isInferno && "scale-105",
           isBruised && "grayscale-[0.6] opacity-80 brightness-90",
           className,
         )}
         style={{ 
-          borderColor: ring ? `hsl(var(--${tier.color}))` : 'transparent',
+          border: ring ? `2px solid hsl(var(--${tier.color}))` : 'none',
           backgroundColor: 'hsl(var(--surface-elevated))'
         }}
       >
@@ -81,55 +82,51 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
           <img 
             src={player.avatar_url} 
             alt={player.name} 
-            className={cn(
-                "size-full rounded-full object-cover transition-all",
-                isOnFire && "animate-fast-pulse"
-            )} 
+            className="size-full rounded-full object-cover transition-all"
           />
         ) : (
           <span className="leading-none text-muted-foreground">{initials}</span>
         )}
 
-        {/* === THE RING OF FIRE === */}
+        {/* === THE RAGING FIRE (ORGANIC STYLE) === */}
         {isOnFire && (
-          <div className="absolute inset-[-4px] rounded-full border-[3px] animate-ring-of-fire pointer-events-none z-10" />
-        )}
-        
-        {/* === ORBITING FLAMES (streak 3+) === */}
-        {isOnFire && (
-          <div className="absolute inset-[-8px] animate-fire-particles pointer-events-none z-20">
-             <div className="absolute top-0 left-1/2 -translate-x-1/2 animate-fire-flicker">
-                <Flame className="size-4 text-orange-500 fill-current drop-shadow-[0_0_5px_orange]" />
-             </div>
+          <div className="absolute inset-0 pointer-events-none z-20">
+            {/* Licking flames around the edges */}
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 animate-fire-flicker">
+                <Flame className={cn("text-orange-500 fill-current drop-shadow-[0_0_8px_rgba(255,100,0,0.8)]", isInferno ? "size-6" : "size-4")} />
+            </div>
+            
+            <div className="absolute top-0 -right-1 animate-fire-flicker [animation-delay:0.2s]">
+                <Flame className={cn("text-orange-600 fill-current drop-shadow-[0_0_5px_rgba(255,80,0,0.6)]", isInferno ? "size-4" : "size-3")} />
+            </div>
+
+            <div className="absolute top-0 -left-1 animate-fire-flicker [animation-delay:0.4s]">
+                <Flame className={cn("text-orange-400 fill-current drop-shadow-[0_0_5px_rgba(255,120,0,0.6)]", isInferno ? "size-4" : "size-3")} />
+            </div>
+
+            {/* EXTRA INTENSE FLAMES FOR INFERNO */}
+            {isInferno && (
+              <>
+                <div className="absolute -top-5 left-1/3 animate-fire-flicker [animation-delay:0.1s]">
+                    <Flame className="size-5 text-yellow-500 fill-current drop-shadow-[0_0_10px_yellow]" />
+                </div>
+                <div className="absolute -top-4 right-1/4 animate-fire-flicker [animation-delay:0.3s]">
+                    <Flame className="size-4 text-red-500 fill-current drop-shadow-[0_0_10px_red]" />
+                </div>
+                
+                {/* Rising Sparks */}
+                <div className="absolute -top-4 left-1/2 animate-fire-particles">
+                  <div className="size-1 rounded-full bg-yellow-400 shadow-[0_0_5px_yellow]" />
+                </div>
+                <div className="absolute -top-6 right-1/3 animate-fire-particles [animation-delay:0.4s]">
+                  <div className="size-1.5 rounded-full bg-orange-400 shadow-[0_0_5px_orange]" />
+                </div>
+                <div className="absolute -top-2 left-1/4 animate-fire-particles [animation-delay:0.8s]">
+                  <div className="size-1 rounded-full bg-red-400 shadow-[0_0_5px_red]" />
+                </div>
+              </>
+            )}
           </div>
-        )}
-
-        {/* === EXTRA INFERNO FLAMES (streak 5+) === */}
-        {isInferno && (
-          <>
-            {/* Additional orbiting flame with offset delay */}
-            <div className="absolute inset-[-8px] animate-fire-particles [animation-delay:-1.5s] pointer-events-none z-20">
-               <div className="absolute top-0 left-1/2 -translate-x-1/2 animate-fire-flicker [animation-delay:0.4s]">
-                  <Flame className="size-5 text-yellow-400 fill-current drop-shadow-[0_0_8px_yellow]" />
-               </div>
-            </div>
-
-            {/* Fixed position intense flames */}
-            <div className="absolute -top-2 left-0 z-20 animate-fire-flicker">
-              <Flame className="size-4 text-red-500 fill-current" />
-            </div>
-            <div className="absolute -bottom-2 right-0 z-20 animate-fire-flicker [animation-delay:0.2s]">
-              <Flame className="size-4 text-orange-600 fill-current" />
-            </div>
-
-            {/* Rising ember particles */}
-            <div className="absolute -top-2 left-1/4 z-10 animate-ember">
-              <div className="size-1 rounded-full bg-orange-400 shadow-[0_0_4px_orange]" />
-            </div>
-            <div className="absolute -top-1.5 right-1/4 z-10 animate-ember [animation-delay:0.7s]">
-              <div className="size-1.5 rounded-full bg-yellow-400 shadow-[0_0_4px_yellow]" />
-            </div>
-          </>
         )}
 
         {isBruised && (
