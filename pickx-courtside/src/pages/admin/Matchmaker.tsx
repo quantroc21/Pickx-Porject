@@ -34,7 +34,10 @@ export default function Matchmaker() {
   });
 
   const [generating, setGenerating] = useState(false);
-  const [proposed, setProposed] = useState<ProposedMatch[] | null>(null);
+  const [proposed, setProposed] = useState<ProposedMatch[] | null>(() => {
+    const saved = localStorage.getItem("pickx_proposed_matches");
+    return saved ? JSON.parse(saved) : null;
+  });
 
   // Persistence Effects
   function updateCourts(newCourts: number[]) {
@@ -47,19 +50,28 @@ export default function Matchmaker() {
     localStorage.setItem("pickx_active_players", JSON.stringify(Array.from(newActive)));
   }
 
+  function updateProposed(newProposed: ProposedMatch[] | null) {
+    setProposed(newProposed);
+    if (newProposed) {
+      localStorage.setItem("pickx_proposed_matches", JSON.stringify(newProposed));
+    } else {
+      localStorage.removeItem("pickx_proposed_matches");
+    }
+  }
+
   function toggleCourt(n: number) {
     const next = selectedCourts.includes(n) 
       ? selectedCourts.filter(x => x !== n) 
       : [...selectedCourts, n].sort();
     updateCourts(next);
-    setProposed(null);
+    updateProposed(null);
   }
 
   function toggle(id: string) {
     const next = new Set(active);
     next.has(id) ? next.delete(id) : next.add(id);
     updateActive(next);
-    setProposed(null);
+    updateProposed(null);
   }
 
   function generate() {
@@ -73,7 +85,7 @@ export default function Matchmaker() {
     }
 
     setGenerating(true);
-    setProposed(null);
+    updateProposed(null);
     matchmakerMutation.mutate(Array.from(active), {
       onSuccess: (data) => {
         setGenerating(false);
@@ -90,7 +102,7 @@ export default function Matchmaker() {
              delta: Math.round(Math.abs(t1Avg - t2Avg))
            };
         });
-        setProposed(matches);
+        updateProposed(matches);
       },
       onError: () => {
         setGenerating(false);
