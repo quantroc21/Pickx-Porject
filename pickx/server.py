@@ -564,11 +564,13 @@ def record_match(req: RecordMatchParams):
     return format_match(match_record)
 
 # Skill level to starting Elo mapping
+# Narrowed range (950-1050) to prevent rank jumping.
+# K-factor decay (K=80 for first 3 games) handles fast convergence to true skill.
 SKILL_ELO_MAP = {
-    "beginner": 800,      # Mới tập chơi
+    "beginner": 950,      # Mới tập chơi
     "intermediate": 1000, # Chơi được rồi
-    "advanced": 1200,     # Khá / Chơi lâu
-    "expert": 1400,       # Rất giỏi
+    "advanced": 1025,     # Khá / Chơi lâu
+    "expert": 1050,       # Rất giỏi
 }
 
 class AddPlayerParams(BaseModel):
