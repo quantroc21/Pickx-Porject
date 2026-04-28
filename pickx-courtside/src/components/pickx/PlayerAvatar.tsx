@@ -82,36 +82,33 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
 
     const theme = getFireTheme();
 
-    // Fixed 3-flame crown: Guaranteed centering and symmetry
+    // Fixed 3-flame crown: Wide distribution, perfectly centered
     const renderFlames = () => {
       if (!isOnFire) return null;
       
+      const angles = [-50, 0, 50]; 
+      const radius = 75; 
+      
       return (
-        <>
-          {/* Center Flame (Đỉnh đầu) */}
-          <div 
-            className="absolute left-1/2 -top-[14px] z-20 -translate-x-1/2 animate-fire-flicker pointer-events-none"
-            style={{ animationDelay: "0s" }}
-          >
-            <Flame className={cn(theme.color, theme.fill, theme.glow, "size-3.5")} />
-          </div>
-
-          {/* Left Flame */}
-          <div 
-            className="absolute left-[12%] top-[0px] z-20 -translate-x-1/2 -rotate-[20deg] animate-fire-flicker pointer-events-none"
-            style={{ animationDelay: "0.2s" }}
-          >
-            <Flame className={cn(theme.color, theme.fill, theme.glow, "size-3")} />
-          </div>
-
-          {/* Right Flame */}
-          <div 
-            className="absolute right-[12%] top-[0px] z-20 translate-x-1/2 rotate-[20deg] animate-fire-flicker pointer-events-none"
-            style={{ animationDelay: "0.4s" }}
-          >
-            <Flame className={cn(theme.color, theme.fill, theme.glow, "size-3")} />
-          </div>
-        </>
+        <div className="absolute inset-0 z-20 pointer-events-none">
+          {angles.map((angle, i) => {
+            const x = Math.sin((angle * Math.PI) / 180) * radius;
+            const y = -Math.cos((angle * Math.PI) / 180) * radius;
+            
+            return (
+              <div 
+                key={`${player.id}-flame-${i}`}
+                className="absolute left-1/2 top-1/2 animate-fire-flicker"
+                style={{
+                  transform: `translate(calc(-50% + ${x}%), calc(-50% + ${y}%)) rotate(${angle}deg)`,
+                  animationDelay: `${i * 0.2}s`,
+                }}
+              >
+                <Flame className={cn(theme.color, theme.fill, theme.glow, i === 1 ? "size-4" : "size-3.5")} />
+              </div>
+            );
+          })}
+        </div>
       );
     };
 
