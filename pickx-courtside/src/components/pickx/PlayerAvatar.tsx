@@ -59,8 +59,8 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
         {/* HEAT GLOW BACKGROUND */}
         {isOnFire && (
           <div className={cn(
-              "absolute inset-[-8px] rounded-full blur-lg animate-pulse pointer-events-none z-0",
-              isInferno ? "bg-orange-600/40" : "bg-orange-500/20"
+              "absolute inset-[-10px] rounded-full blur-xl animate-pulse pointer-events-none z-0",
+              isInferno ? "bg-orange-600/50" : "bg-orange-500/30"
           )} />
         )}
 
@@ -96,19 +96,29 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
         {/* === THE ORGANIC FLAMES (DYNAMIC) === */}
         {isOnFire && (
           <div className="absolute inset-0 pointer-events-none z-20">
-            {/* Top flame */}
+            {/* Top flame (Always present for streak 3+) */}
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 animate-fire-flicker">
                 <Flame className={cn("text-orange-500 fill-current drop-shadow-[0_0_8px_rgba(255,100,0,0.8)]", isInferno ? "size-6" : "size-4")} />
             </div>
             
-            {/* Side flames for Inferno */}
+            {/* Right side flame (Always present for streak 3+) */}
+            <div className="absolute top-0 -right-1 animate-fire-flicker [animation-delay:0.2s]">
+                <Flame className={cn("text-orange-600 fill-current drop-shadow-[0_0_5px_rgba(255,80,0,0.6)]", isInferno ? "size-4" : "size-3")} />
+            </div>
+
+            {/* Left side flame (Always present for streak 3+) */}
+            <div className="absolute top-0 -left-1 animate-fire-flicker [animation-delay:0.4s]">
+                <Flame className={cn("text-orange-400 fill-current drop-shadow-[0_0_5px_rgba(255,120,0,0.6)]", isInferno ? "size-4" : "size-3")} />
+            </div>
+
+            {/* EXTRA INTENSE FLAMES FOR INFERNO (streak 5+) */}
             {isInferno && (
               <>
-                <div className="absolute top-0 -right-1 animate-fire-flicker [animation-delay:0.2s]">
-                    <Flame className="size-4 text-orange-600 fill-current drop-shadow-[0_0_5px_rgba(255,80,0,0.6)]" />
+                <div className="absolute -top-5 left-1/3 animate-fire-flicker [animation-delay:0.1s]">
+                    <Flame className="size-5 text-yellow-500 fill-current drop-shadow-[0_0_10px_yellow]" />
                 </div>
-                <div className="absolute top-0 -left-1 animate-fire-flicker [animation-delay:0.4s]">
-                    <Flame className="size-4 text-orange-400 fill-current drop-shadow-[0_0_5px_rgba(255,120,0,0.6)]" />
+                <div className="absolute -top-4 right-1/4 animate-fire-flicker [animation-delay:0.3s]">
+                    <Flame className="size-4 text-red-500 fill-current drop-shadow-[0_0_10px_red]" />
                 </div>
                 
                 {/* Rising Sparks */}
