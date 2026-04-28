@@ -461,10 +461,21 @@ def record_match(req: RecordMatchParams):
         
         # 1. Dynamic Confidence Factor (K_effective)
         # Aggressive decay: K=80 for first match, drops to 32 by match 3
-        # Combined with Host initial skill assessment, system stabilizes in ~3 matches
         total_games = p["wins"] + p["losses"]
         k_base = max(32, 80 - (total_games * 16))
-        k_effective = k_base * mov_mult
+        
+        # --- Asymmetric Sensitivity for New Players (First 3 games) ---
+        # If they claim to be an expert but lose, punish them more to drop them faster.
+        # If they claim to be a beginner but win big, push them up faster.
+        sensitivity_mult = 1.0
+        if total_games < 3:
+            initial_skill = p.get("initialSkill", "intermediate")
+            if initial_skill in ["expert", "advanced"] and not won:
+                sensitivity_mult = 1.5  # Heavy penalty for "bragging" but losing
+            elif initial_skill == "beginner" and won and score_gap >= 5:
+                sensitivity_mult = 1.5  # Fast climb for "understated" players who are good
+        
+        k_effective = k_base * mov_mult * sensitivity_mult
         
         # 2. Update Hidden MMR (60% Win Outcome, 40% Point Share)
         mmr_change = k_effective * bonus_multiplier * (0.6 * (w_val - p_win) + 0.4 * (aps - p_win))
@@ -599,6 +610,7 @@ def add_player(req: AddPlayerParams):
         "id": new_id,
         "name": req.name.strip(),
         "password": req.password,
+        "initialSkill": req.skillLevel, # Store for scoring sensitivity
         "elo": starting_elo,
         "mmr": starting_elo,
         "wins": 0,
