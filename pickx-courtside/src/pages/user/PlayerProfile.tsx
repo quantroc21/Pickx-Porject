@@ -1,5 +1,5 @@
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Calendar, Flame, Trophy, LogOut, Sword, Shield, Zap, Skull, Users, TrendingUp, Wand2, Bell, BellOff, Check, Radio } from "lucide-react";
+import { ArrowLeft, Calendar, Flame, Trophy, LogOut, Sword, Shield, Zap, Skull, Users, TrendingUp, Wand2, Bell, BellOff, Check, Radio, AlertTriangle } from "lucide-react";
 import { usePlayers, useMatches, usePushSubscribe, useTestPushNotification, useChangePassword } from "@/lib/api";
 import { TIER_HEX, getTier, tierProgress } from "@/lib/tiers";
 import { TierBadge } from "@/components/pickx/TierBadge";
@@ -177,10 +177,22 @@ export default function PlayerProfile() {
           </div>
         </div>
 
-        <div className="relative mt-8 grid grid-cols-3 gap-3 px-2">
+        {/* Calibration Warning */}
+        {isCalibrating && (
+          <div className="mt-6 rounded-2xl border border-warning/30 bg-warning/10 p-3 flex items-start gap-3">
+             <div className="rounded-full bg-warning/20 p-2 text-warning"><AlertTriangle className="size-4" /></div>
+             <div>
+                <p className="text-xs font-bold text-warning uppercase tracking-wider">Đang định chuẩn DUPR</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed">Hệ thống đang theo dõi. Cần thi đấu thêm <strong className="text-foreground">{matchesToUnlock} trận</strong> để xác định trình độ thực.</p>
+             </div>
+          </div>
+        )}
+
+        <div className="relative mt-8 grid grid-cols-4 gap-3 px-2">
           <CompactBox label="Elo" value={player.elo} accent={tierColor} />
+          <CompactBox label="DUPR" value={duprScore} accent="hsl(var(--primary))" />
           <CompactBox label="Thắng" value={`${winRate}%`} />
-          <CompactBox label="Trận" value={player.wins + player.losses} />
+          <CompactBox label="Trận" value={totalMatches} />
         </div>
 
         {/* Rank Progress Bar */}
