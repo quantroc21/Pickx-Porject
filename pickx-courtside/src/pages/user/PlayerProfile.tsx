@@ -487,7 +487,7 @@ function CompactBox({
 }) {
   return (
     <div className="relative rounded-[1.5rem] border border-border/40 bg-background/30 px-1 py-4 text-center transition-transform active:scale-95 hover:bg-background/40">
-      <p className={cn("font-bold uppercase tracking-[0.2em] text-muted-foreground", isLargeText ? "text-[11px]" : "text-[9px]")}>{label}</p>
+      <p className={cn("compact-box-label font-bold uppercase tracking-[0.2em] text-muted-foreground", isLargeText ? "text-[11px]" : "text-[9px]")}>{label}</p>
       <div className="mt-1 flex items-center justify-center gap-1">
         {icon && icon}
         <p className={cn("stat-number font-bold", isLargeText ? "text-2xl" : "text-lg")} style={accent ? { color: accent } : undefined}>
