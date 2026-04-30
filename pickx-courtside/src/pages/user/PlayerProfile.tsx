@@ -117,18 +117,18 @@ export default function PlayerProfile() {
     <div className="pb-24 pt-8">
       {/* Main Profile Card */}
       <section className="relative z-10 mx-4 rounded-[2rem] border border-border/40 bg-surface/70 p-5 shadow-2xl backdrop-blur-xl">
-        {/* Floating Global Accessibility Toggle */}
+        {/* Global Accessibility Toggle with Label */}
         <button
           onClick={() => setIsLargeText(!isLargeText)}
           className={cn(
-            "absolute right-4 top-4 z-20 flex size-9 items-center justify-center rounded-full border transition-all active:scale-90",
+            "absolute right-4 top-4 z-20 flex items-center gap-2 rounded-full border px-3 py-1.5 transition-all active:scale-95",
             isLargeText 
-              ? "bg-primary border-primary text-primary-foreground shadow-[0_0_15px_rgba(var(--primary),0.3)]" 
+              ? "bg-primary border-primary text-primary-foreground shadow-[0_0_15px_rgba(var(--primary),0.4)]" 
               : "bg-background/40 border-border/40 text-muted-foreground hover:bg-background/60"
           )}
-          title="Chế độ dễ nhìn"
         >
           <ALargeSmall className="size-4" />
+          <span className="text-[10px] font-bold uppercase tracking-tight">Cỡ chữ</span>
         </button>
 
         <div
