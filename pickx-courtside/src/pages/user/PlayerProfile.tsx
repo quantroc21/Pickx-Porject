@@ -194,7 +194,13 @@ export default function PlayerProfile() {
 
         <div className="relative mt-8 grid grid-cols-4 gap-3 px-2">
           <CompactBox label="Elo" value={player.elo} accent={tierColor} />
-          <CompactBox label="DUPR" value={duprScore} accent="hsl(var(--primary))" />
+          <CompactBox 
+            label="DUPR" 
+            value={isCalibrating ? "??" : duprScore} 
+            accent={isCalibrating ? "hsl(var(--muted-foreground))" : "hsl(var(--primary))"}
+            icon={isCalibrating ? <Lock className="size-3 mb-1 opacity-50" /> : undefined}
+            subLabel={isCalibrating ? "Chưa mở khóa" : "Hệ số chuẩn"}
+          />
           <CompactBox label="Thắng" value={`${winRate}%`} />
           <CompactBox label="Trận" value={totalMatches} />
         </div>
@@ -456,13 +462,29 @@ export default function PlayerProfile() {
   );
 }
 
-function CompactBox({ label, value, accent }: { label: string; value: string | number; accent?: string }) {
+function CompactBox({ 
+  label, 
+  value, 
+  accent, 
+  icon, 
+  subLabel 
+}: { 
+  label: string; 
+  value: string | number; 
+  accent?: string;
+  icon?: React.ReactNode;
+  subLabel?: string;
+}) {
   return (
-    <div className="rounded-[1.5rem] border border-border/40 bg-background/30 px-3 py-4 text-center transition-transform active:scale-95 hover:bg-background/40">
+    <div className="rounded-[1.5rem] border border-border/40 bg-background/30 px-2 py-4 text-center transition-transform active:scale-95 hover:bg-background/40">
       <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{label}</p>
-      <p className="stat-number mt-1.5 text-lg font-bold" style={accent ? { color: accent } : undefined}>
-        {value}
-      </p>
+      <div className="mt-1.5 flex flex-col items-center justify-center">
+        {icon && icon}
+        <p className="stat-number text-lg font-bold" style={accent ? { color: accent } : undefined}>
+          {value}
+        </p>
+        {subLabel && <p className="mt-0.5 text-[8px] font-medium text-muted-foreground/60">{subLabel}</p>}
+      </div>
     </div>
   );
 }
