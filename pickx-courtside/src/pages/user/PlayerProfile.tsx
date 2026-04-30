@@ -1,5 +1,5 @@
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Calendar, Flame, Trophy, LogOut, Sword, Shield, Zap, Skull, Users, TrendingUp, Wand2, Bell, BellOff, Check, Radio, TriangleAlert, Lock } from "lucide-react";
+import { ArrowLeft, Calendar, Flame, Trophy, LogOut, Sword, Shield, Zap, Skull, Users, TrendingUp, Wand2, Bell, BellOff, Check, Radio, TriangleAlert, Lock, ALargeSmall } from "lucide-react";
 import { usePlayers, useMatches, usePushSubscribe, useTestPushNotification, useChangePassword } from "@/lib/api";
 import { TIER_HEX, getTier, tierProgress } from "@/lib/tiers";
 import { TierBadge } from "@/components/pickx/TierBadge";
@@ -7,7 +7,7 @@ import { PlayerAvatar } from "@/components/pickx/PlayerAvatar";
 import { EloDelta } from "@/components/pickx/EloDelta";
 import { useUserAuth } from "@/hooks/useUserAuth";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AvatarPicker } from "@/components/pickx/AvatarPicker";
 import { toast } from "sonner";
 
@@ -17,6 +17,12 @@ export default function PlayerProfile() {
   const { userId, logout } = useUserAuth();
   const navigate = useNavigate();
   const isMe = userId === id;
+
+  const [isLargeText, setIsLargeText] = useState(() => localStorage.getItem("pickx-accessibility") === "true");
+
+  useEffect(() => {
+    localStorage.setItem("pickx-accessibility", isLargeText.toString());
+  }, [isLargeText]);
 
   const { data: players = [], isLoading: pLoading } = usePlayers();
   const { data: allMatches = [], isLoading: mLoading } = useMatches();
@@ -107,27 +113,33 @@ export default function PlayerProfile() {
   const isCalibrating = matchesToUnlock > 0;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className={cn("pb-24 transition-all duration-300", isLargeText && "scale-[1.01] origin-top")}>
+      {/* Premium Header */}
+      <header className="relative flex items-center justify-between px-4 pb-6 pt-12">
+        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-primary/10 to-transparent" />
         <Link
           to="/"
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
+          className="group flex size-10 items-center justify-center rounded-full bg-surface/50 text-foreground ring-1 ring-border/50 backdrop-blur-md transition-all hover:bg-surface-elevated"
         >
-          <ArrowLeft className="size-4" /> Bảng xếp hạng
+          <ArrowLeft className="size-5 transition-transform group-hover:-translate-x-0.5" />
         </Link>
-        {isMe && (
-          <button
-            type="button"
-            onClick={() => {
-              logout();
-              navigate("/");
-            }}
-            className="inline-flex items-center gap-1.5 rounded-full bg-danger/10 px-3 py-1 text-xs font-semibold text-danger transition-colors hover:bg-danger/20"
-          >
-            Đăng xuất <LogOut className="size-3" />
-          </button>
-        )}
-      </div>
+        <p className="font-display text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">
+          Hồ sơ Vận động viên
+        </p>
+        
+        <button
+          onClick={() => setIsLargeText(!isLargeText)}
+          className={cn(
+            "flex size-10 items-center justify-center rounded-full border transition-all active:scale-90",
+            isLargeText 
+              ? "bg-primary/20 border-primary text-primary shadow-[0_0_15px_rgba(var(--primary),0.3)]" 
+              : "bg-surface/50 border-border/50 text-muted-foreground"
+          )}
+          title="Chế độ dễ nhìn"
+        >
+          <ALargeSmall className={cn("transition-transform", isLargeText ? "size-6" : "size-5")} />
+        </button>
+      </header>
 
       {/* Hero card */}
       <section className="relative overflow-hidden rounded-[2.5rem] border border-border/60 liquid-glass p-5">
@@ -140,7 +152,7 @@ export default function PlayerProfile() {
 
         <div className="relative flex items-start gap-4">
           <div className="relative group">
-            <PlayerAvatar player={player} size="xl" ring />
+            <PlayerAvatar player={player} size={isLargeText ? "xl" : "lg"} ring />
             {isMe && (
               <button
                 type="button"
@@ -154,12 +166,12 @@ export default function PlayerProfile() {
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+              <p className={cn("uppercase tracking-[0.22em] text-muted-foreground", isLargeText ? "text-[12px]" : "text-[11px]")}>
                 @{player.handle}
               </p>
               {isMe && <span className="inline-block rounded bg-primary/20 px-1 py-0.5 text-[9px] font-bold text-primary ring-1 ring-primary/40">BẠN</span>}
             </div>
-            <h1 className="truncate font-display text-2xl font-bold leading-tight">{player.name}</h1>
+            <h1 className={cn("truncate font-display font-bold leading-tight", isLargeText ? "text-3xl" : "text-2xl")}>{player.name}</h1>
             <div className="mt-2 flex flex-wrap items-center gap-2">
               <TierBadge elo={player.elo} size="md" />
               {player.streak >= 3 && (
@@ -202,16 +214,17 @@ export default function PlayerProfile() {
         )}
 
         {/* Stats Grid */}
-        <div className="relative mt-6 grid grid-cols-4 gap-2">
-          <CompactBox label="Elo" value={player.elo} accent={tierColor} />
+        <div className={cn("relative grid grid-cols-4 gap-2", isLargeText ? "mt-8" : "mt-6")}>
+          <CompactBox label="Elo" value={player.elo} accent={tierColor} isLargeText={isLargeText} />
           <CompactBox 
             label="DUPR" 
             value={isCalibrating ? "---" : duprScore} 
             accent={isCalibrating ? "hsl(var(--muted-foreground)/0.5)" : "hsl(var(--primary))"}
-            icon={isCalibrating ? <Lock className="size-3 opacity-40" /> : undefined}
+            icon={isCalibrating ? <Lock className={cn("opacity-40", isLargeText ? "size-4" : "size-3")} /> : undefined}
+            isLargeText={isLargeText}
           />
-          <CompactBox label="Thắng" value={`${winRate}%`} />
-          <CompactBox label="Trận" value={totalMatches} />
+          <CompactBox label="Thắng" value={`${winRate}%`} isLargeText={isLargeText} />
+          <CompactBox label="Trận" value={totalMatches} isLargeText={isLargeText} />
         </div>
 
         {/* Rank Progress Bar */}
@@ -475,19 +488,21 @@ function CompactBox({
   label, 
   value, 
   accent, 
-  icon 
+  icon,
+  isLargeText
 }: { 
   label: string; 
   value: string | number; 
   accent?: string;
   icon?: React.ReactNode;
+  isLargeText?: boolean;
 }) {
   return (
     <div className="relative rounded-[1.5rem] border border-border/40 bg-background/30 px-1 py-4 text-center transition-transform active:scale-95 hover:bg-background/40">
-      <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{label}</p>
+      <p className={cn("font-bold uppercase tracking-[0.2em] text-muted-foreground", isLargeText ? "text-[11px]" : "text-[9px]")}>{label}</p>
       <div className="mt-1 flex items-center justify-center gap-1">
         {icon && icon}
-        <p className="stat-number text-lg font-bold" style={accent ? { color: accent } : undefined}>
+        <p className={cn("stat-number font-bold", isLargeText ? "text-2xl" : "text-lg")} style={accent ? { color: accent } : undefined}>
           {value}
         </p>
       </div>
