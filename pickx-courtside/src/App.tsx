@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -37,49 +38,56 @@ function MeRedirect() {
   return <Navigate to="/login" replace />;
 }
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner position="top-center" theme="dark" richColors />
-      <BrowserRouter>
-        <UserAuthProvider>
-          <AdminAuthProvider>
-            <Routes>
-            {/* User (public) */}
-            <Route element={<UserLayout />}>
-              <Route path="/" element={<LiveCourts />} />
-              <Route path="/ranking" element={<Leaderboard />} />
-              <Route path="/search" element={<SearchPlayer />} />
-              <Route path="/player/:id" element={<PlayerProfile />} />
-              <Route path="/login" element={<UserLogin />} />
-              <Route path="/signup" element={<UserSignup />} />
-              <Route path="/me" element={<MeRedirect />} />
-            </Route>
+const App = () => {
+  useEffect(() => {
+    const isAccessibility = localStorage.getItem("pickx-accessibility") === "true";
+    document.documentElement.classList.toggle("accessibility-mode", isAccessibility);
+  }, []);
 
-            {/* Admin */}
-            <Route path="/admin/login" element={<PinGate />} />
-            <Route
-              element={
-                <AdminGuard>
-                  <AdminLayout />
-                </AdminGuard>
-              }
-            >
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/record" element={<RecordMatch />} />
-              <Route path="/admin/matchmaker" element={<Matchmaker />} />
-              <Route path="/admin/players" element={<AddPlayer />} />
-            </Route>
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner position="top-center" theme="dark" richColors />
+        <BrowserRouter>
+          <UserAuthProvider>
+            <AdminAuthProvider>
+              <Routes>
+                {/* User (public) */}
+                <Route element={<UserLayout />}>
+                  <Route path="/" element={<LiveCourts />} />
+                  <Route path="/ranking" element={<Leaderboard />} />
+                  <Route path="/search" element={<SearchPlayer />} />
+                  <Route path="/player/:id" element={<PlayerProfile />} />
+                  <Route path="/login" element={<UserLogin />} />
+                  <Route path="/signup" element={<UserSignup />} />
+                  <Route path="/me" element={<MeRedirect />} />
+                </Route>
 
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          </AdminAuthProvider>
-        </UserAuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+                {/* Admin */}
+                <Route path="/admin/login" element={<PinGate />} />
+                <Route
+                  element={
+                    <AdminGuard>
+                      <AdminLayout />
+                    </AdminGuard>
+                  }
+                >
+                  <Route path="/admin" element={<AdminDashboard />} />
+                  <Route path="/admin/record" element={<RecordMatch />} />
+                  <Route path="/admin/matchmaker" element={<Matchmaker />} />
+                  <Route path="/admin/players" element={<AddPlayer />} />
+                </Route>
+
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </AdminAuthProvider>
+          </UserAuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;

@@ -22,6 +22,7 @@ export default function PlayerProfile() {
 
   useEffect(() => {
     localStorage.setItem("pickx-accessibility", isLargeText.toString());
+    document.documentElement.classList.toggle("accessibility-mode", isLargeText);
   }, [isLargeText]);
 
   const { data: players = [], isLoading: pLoading } = usePlayers();
@@ -113,7 +114,7 @@ export default function PlayerProfile() {
   const isCalibrating = matchesToUnlock > 0;
 
   return (
-    <div className={cn("pb-24 transition-all duration-300", isLargeText && "scale-[1.01] origin-top")}>
+    <div className="pb-24">
       {/* Premium Header */}
       <header className="relative flex items-center justify-between px-4 pb-6 pt-12">
         <div className="absolute inset-0 -z-10 bg-gradient-to-b from-primary/10 to-transparent" />
@@ -132,12 +133,12 @@ export default function PlayerProfile() {
           className={cn(
             "flex size-10 items-center justify-center rounded-full border transition-all active:scale-90",
             isLargeText 
-              ? "bg-primary/20 border-primary text-primary shadow-[0_0_15px_rgba(var(--primary),0.3)]" 
+              ? "bg-primary border-primary text-primary-foreground shadow-[0_0_20px_rgba(var(--primary),0.4)]" 
               : "bg-surface/50 border-border/50 text-muted-foreground"
           )}
           title="Chế độ dễ nhìn"
         >
-          <ALargeSmall className={cn("transition-transform", isLargeText ? "size-6" : "size-5")} />
+          <ALargeSmall className="size-5" />
         </button>
       </header>
 

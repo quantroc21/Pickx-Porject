@@ -287,3 +287,33 @@
   }
   .animate-float { animation: float 3s ease-in-out infinite; }
 }
+
+/* Global Accessibility Mode - Refined Zoom */
+.accessibility-mode {
+  --base-scale: 1.15;
+}
+
+.accessibility-mode body {
+  font-size: 1.1rem;
+}
+
+.accessibility-mode h1 { font-size: 1.25em !important; }
+.accessibility-mode h2 { font-size: 1.2em !important; }
+
+.accessibility-mode .stat-number {
+  font-size: 1.4em !important;
+  letter-spacing: -0.02em;
+}
+
+.accessibility-mode button, 
+.accessibility-mode a.group {
+  transform: scale(1.02);
+}
+
+.accessibility-mode .compact-box-label {
+  font-size: 11px !important;
+}
+
+.accessibility-mode .player-name {
+  font-size: 1.5rem !important;
+}
