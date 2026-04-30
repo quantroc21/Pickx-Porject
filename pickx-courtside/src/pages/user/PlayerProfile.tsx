@@ -121,7 +121,7 @@ export default function PlayerProfile() {
         <button
           onClick={() => setIsLargeText(!isLargeText)}
           className={cn(
-            "absolute right-4 top-4 flex size-9 items-center justify-center rounded-full border transition-all active:scale-90",
+            "absolute right-4 top-4 z-20 flex size-9 items-center justify-center rounded-full border transition-all active:scale-90",
             isLargeText 
               ? "bg-primary border-primary text-primary-foreground shadow-[0_0_15px_rgba(var(--primary),0.3)]" 
               : "bg-background/40 border-border/40 text-muted-foreground hover:bg-background/60"
