@@ -114,36 +114,23 @@ export default function PlayerProfile() {
   const isCalibrating = matchesToUnlock > 0;
 
   return (
-    <div className="pb-24">
-      {/* Premium Header */}
-      <header className="relative flex items-center justify-between px-4 pb-6 pt-12">
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-primary/10 to-transparent" />
-        <Link
-          to="/"
-          className="group flex size-10 items-center justify-center rounded-full bg-surface/50 text-foreground ring-1 ring-border/50 backdrop-blur-md transition-all hover:bg-surface-elevated"
-        >
-          <ArrowLeft className="size-5 transition-transform group-hover:-translate-x-0.5" />
-        </Link>
-        <p className="font-display text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">
-          Hồ sơ Vận động viên
-        </p>
-        
+    <div className="pb-24 pt-8">
+      {/* Main Profile Card */}
+      <section className="relative z-10 mx-4 rounded-[2rem] border border-border/40 bg-surface/70 p-5 shadow-2xl backdrop-blur-xl">
+        {/* Floating Global Accessibility Toggle */}
         <button
           onClick={() => setIsLargeText(!isLargeText)}
           className={cn(
-            "flex size-10 items-center justify-center rounded-full border transition-all active:scale-90",
+            "absolute right-4 top-4 flex size-9 items-center justify-center rounded-full border transition-all active:scale-90",
             isLargeText 
-              ? "bg-primary border-primary text-primary-foreground shadow-[0_0_20px_rgba(var(--primary),0.4)]" 
-              : "bg-surface/50 border-border/50 text-muted-foreground"
+              ? "bg-primary border-primary text-primary-foreground shadow-[0_0_15px_rgba(var(--primary),0.3)]" 
+              : "bg-background/40 border-border/40 text-muted-foreground hover:bg-background/60"
           )}
           title="Chế độ dễ nhìn"
         >
-          <ALargeSmall className="size-5" />
+          <ALargeSmall className="size-4" />
         </button>
-      </header>
 
-      {/* Hero card */}
-      <section className="relative overflow-hidden rounded-[2.5rem] border border-border/60 liquid-glass p-5">
         <div
           className="absolute inset-x-0 top-0 h-32 opacity-40 blur-2xl"
           style={{ background: `radial-gradient(60% 100% at 50% 0%, ${tierColor}, transparent)` }}
