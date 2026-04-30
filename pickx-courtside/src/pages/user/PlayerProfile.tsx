@@ -181,24 +181,34 @@ export default function PlayerProfile() {
           </div>
         </div>
 
-        {/* Calibration Warning */}
+        {/* Calibration Banner - Ultra Clean Glassmorphism */}
         {isCalibrating && (
-          <div className="mt-6 rounded-2xl border border-warning/30 bg-warning/10 p-3 flex items-start gap-3">
-             <div className="rounded-full bg-warning/20 p-2 text-warning"><TriangleAlert className="size-4" /></div>
-             <div>
-                <p className="text-xs font-bold text-warning uppercase tracking-wider">Đang định chuẩn DUPR</p>
-                <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed">Hệ thống đang theo dõi. Cần thi đấu thêm <strong className="text-foreground">{matchesToUnlock} trận</strong> để xác định trình độ thực.</p>
-             </div>
+          <div className="relative mt-6 overflow-hidden rounded-2xl border border-warning/20 bg-warning/5 px-4 py-3 backdrop-blur-sm">
+            <div className="absolute inset-0 bg-gradient-to-r from-warning/10 to-transparent" />
+            <div className="relative flex items-center gap-3">
+              <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-warning/20 text-warning">
+                <TriangleAlert className="size-4 animate-pulse" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[11px] font-black uppercase tracking-wider text-warning/90">
+                  Đang định chuẩn DUPR
+                </p>
+                <p className="text-[10px] leading-relaxed text-muted-foreground/80">
+                  Cần thêm <span className="font-bold text-foreground">{matchesToUnlock} trận đấu</span> để xác thực trình độ thực tế của bạn.
+                </p>
+              </div>
+            </div>
           </div>
         )}
 
-        <div className="relative mt-8 grid grid-cols-4 gap-2">
+        {/* Stats Grid */}
+        <div className="relative mt-6 grid grid-cols-4 gap-2">
           <CompactBox label="Elo" value={player.elo} accent={tierColor} />
           <CompactBox 
             label="DUPR" 
-            value={isCalibrating ? "??" : duprScore} 
-            accent={isCalibrating ? "hsl(var(--muted-foreground))" : "hsl(var(--primary))"}
-            icon={isCalibrating ? <Lock className="size-3 opacity-50" /> : undefined}
+            value={isCalibrating ? "---" : duprScore} 
+            accent={isCalibrating ? "hsl(var(--muted-foreground)/0.5)" : "hsl(var(--primary))"}
+            icon={isCalibrating ? <Lock className="size-3 opacity-40" /> : undefined}
           />
           <CompactBox label="Thắng" value={`${winRate}%`} />
           <CompactBox label="Trận" value={totalMatches} />
