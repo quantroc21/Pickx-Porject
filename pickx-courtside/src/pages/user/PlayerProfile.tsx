@@ -1,5 +1,5 @@
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Calendar, Flame, Trophy, LogOut, Sword, Shield, Zap, Skull, Users, TrendingUp, Wand2, Bell, BellOff, Check, Radio, TriangleAlert, Lock, ALargeSmall } from "lucide-react";
+import { ArrowLeft, Calendar, Flame, Trophy, LogOut, Sword, Shield, Zap, Skull, Users, TrendingUp, Wand2, Bell, BellOff, Check, Radio, TriangleAlert, Lock } from "lucide-react";
 import { usePlayers, useMatches, usePushSubscribe, useTestPushNotification, useChangePassword } from "@/lib/api";
 import { TIER_HEX, getTier, tierProgress } from "@/lib/tiers";
 import { TierBadge } from "@/components/pickx/TierBadge";
@@ -7,23 +7,52 @@ import { PlayerAvatar } from "@/components/pickx/PlayerAvatar";
 import { EloDelta } from "@/components/pickx/EloDelta";
 import { useUserAuth } from "@/hooks/useUserAuth";
 import { cn } from "@/lib/utils";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { AvatarPicker } from "@/components/pickx/AvatarPicker";
 import { toast } from "sonner";
 
+function CompactBox({ 
+  label, 
+  value, 
+  accent, 
+  icon 
+}: { 
+  label: string; 
+  value: string | number; 
+  accent?: string;
+  icon?: React.ReactNode;
+}) {
+  return (
+    <div className="relative rounded-[1.5rem] border border-border/40 bg-background/30 px-1 py-4 text-center transition-transform active:scale-95 hover:bg-background/40">
+      <p className="font-bold uppercase tracking-[0.2em] text-muted-foreground text-[9px]">{label}</p>
+      <div className="mt-1 flex items-center justify-center gap-1">
+        {icon && icon}
+        <p className="stat-number font-bold text-lg" style={accent ? { color: accent } : undefined}>
+          {value}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function BadgeImage({ name, className }: { name: string; className?: string }) {
+  let src = "";
+  switch (name) {
+    case "Lật Đổ Kèo Trên": src = "/badges/lat_do_new.png"; break;
+    case "Độc Cô Cầu Bại": src = "/badges/doc_co.png"; break;
+    case "Gánh Đội Thần Thánh": src = "/badges/ganh_doi.png"; break;
+    case "Kẻ Ngắt Chuỗi": src = "/badges/ngat_chuoi.png"; break;
+    case "Vua Kết Nối": src = "/badges/vua_ket_noi.png"; break;
+    default: src = "/badges/lat_do_new.png";
+  }
+  return <img src={src} alt={name} className={cn("object-contain", className || "size-5")} />;
+}
 
 export default function PlayerProfile() {
   const { id = "" } = useParams();
   const { userId, logout } = useUserAuth();
   const navigate = useNavigate();
   const isMe = userId === id;
-
-  const [isLargeText, setIsLargeText] = useState(() => localStorage.getItem("pickx-accessibility") === "true");
-
-  useEffect(() => {
-    localStorage.setItem("pickx-accessibility", isLargeText.toString());
-    document.documentElement.classList.toggle("accessibility-mode", isLargeText);
-  }, [isLargeText]);
 
   const { data: players = [], isLoading: pLoading } = usePlayers();
   const { data: allMatches = [], isLoading: mLoading } = useMatches();
@@ -67,8 +96,6 @@ export default function PlayerProfile() {
       }
 
       const reg = await navigator.serviceWorker.ready;
-      
-      // Check if already subscribed
       let sub = await reg.pushManager.getSubscription();
       
       if (!sub) {
@@ -103,13 +130,13 @@ export default function PlayerProfile() {
   const matches = allMatches
     .filter(m => m && m.team1 && m.team2 && (m.team1.playerIds?.includes(player.id) || m.team2.playerIds?.includes(player.id)))
     .sort((a,b) => +new Date(b.playedAt) - +new Date(a.playedAt));
-  const tier = getTier(player.elo);
-  const { percent, pointsToNext, nextLabel } = tierProgress(player.elo);
-  const totalMatches = player.wins + player.losses;
-  const winRate = Math.round((player.wins / Math.max(1, totalMatches)) * 100);
-  const tierColor = TIER_HEX[tier.key];
   
   const duprScore = (2.0 + (player.elo - 700) / 200).toFixed(2);
+  const totalMatches = player.wins + player.losses;
+  const winRate = Math.round((player.wins / Math.max(1, totalMatches)) * 100);
+  const tier = getTier(player.elo);
+  const { percent, pointsToNext, nextLabel } = tierProgress(player.elo);
+  const tierColor = TIER_HEX[tier.key];
   const matchesToUnlock = Math.max(0, 5 - totalMatches);
   const isCalibrating = matchesToUnlock > 0;
 
@@ -117,30 +144,14 @@ export default function PlayerProfile() {
     <div className="pb-24 pt-8">
       {/* Main Profile Card */}
       <section className="relative z-10 mx-4 rounded-[2rem] border border-border/40 bg-surface/70 p-5 shadow-2xl backdrop-blur-xl">
-        {/* Global Accessibility Toggle with Label */}
-        <button
-          onClick={() => setIsLargeText(!isLargeText)}
-          className={cn(
-            "absolute right-4 top-4 z-20 flex items-center gap-2 rounded-full border px-3 py-1.5 transition-all active:scale-95",
-            isLargeText 
-              ? "bg-primary border-primary text-primary-foreground shadow-[0_0_15px_rgba(var(--primary),0.4)]" 
-              : "bg-background/40 border-border/40 text-muted-foreground hover:bg-background/60"
-          )}
-        >
-          <ALargeSmall className="size-4" />
-          <span className="text-[10px] font-bold uppercase tracking-tight">Cỡ chữ</span>
-        </button>
-
         <div
           className="absolute inset-x-0 top-0 h-32 opacity-40 blur-2xl"
           style={{ background: `radial-gradient(60% 100% at 50% 0%, ${tierColor}, transparent)` }}
         />
-        
-
 
         <div className="relative flex items-start gap-4">
           <div className="relative group">
-            <PlayerAvatar player={player} size={isLargeText ? "xl" : "lg"} ring />
+            <PlayerAvatar player={player} size="lg" ring />
             {isMe && (
               <button
                 type="button"
@@ -154,12 +165,12 @@ export default function PlayerProfile() {
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <p className={cn("uppercase tracking-[0.22em] text-muted-foreground", isLargeText ? "text-[12px]" : "text-[11px]")}>
+              <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
                 @{player.handle}
               </p>
               {isMe && <span className="inline-block rounded bg-primary/20 px-1 py-0.5 text-[9px] font-bold text-primary ring-1 ring-primary/40">BẠN</span>}
             </div>
-            <h1 className={cn("truncate font-display font-bold leading-tight", isLargeText ? "text-3xl" : "text-2xl")}>{player.name}</h1>
+            <h1 className="truncate font-display text-2xl font-bold leading-tight">{player.name}</h1>
             <div className="mt-2 flex flex-wrap items-center gap-2">
               <TierBadge elo={player.elo} size="md" />
               {player.streak >= 3 && (
@@ -181,7 +192,7 @@ export default function PlayerProfile() {
           </div>
         </div>
 
-        {/* Calibration Banner - Ultra Clean Glassmorphism */}
+        {/* Calibration Banner */}
         {isCalibrating && (
           <div className="relative mt-6 overflow-hidden rounded-2xl border border-warning/20 bg-warning/5 px-4 py-3 backdrop-blur-sm">
             <div className="absolute inset-0 bg-gradient-to-r from-warning/10 to-transparent" />
@@ -202,17 +213,16 @@ export default function PlayerProfile() {
         )}
 
         {/* Stats Grid */}
-        <div className={cn("relative grid grid-cols-4 gap-2", isLargeText ? "mt-8" : "mt-6")}>
-          <CompactBox label="Elo" value={player.elo} accent={tierColor} isLargeText={isLargeText} />
+        <div className="relative mt-6 grid grid-cols-4 gap-2">
+          <CompactBox label="Elo" value={player.elo} accent={tierColor} />
           <CompactBox 
             label="DUPR" 
             value={isCalibrating ? "---" : duprScore} 
             accent={isCalibrating ? "hsl(var(--muted-foreground)/0.5)" : "hsl(var(--primary))"}
-            icon={isCalibrating ? <Lock className={cn("opacity-40", isLargeText ? "size-4" : "size-3")} /> : undefined}
-            isLargeText={isLargeText}
+            icon={isCalibrating ? <Lock className="size-3 opacity-40" /> : undefined}
           />
-          <CompactBox label="Thắng" value={`${winRate}%`} isLargeText={isLargeText} />
-          <CompactBox label="Trận" value={totalMatches} isLargeText={isLargeText} />
+          <CompactBox label="Thắng" value={`${winRate}%`} />
+          <CompactBox label="Trận" value={totalMatches} />
         </div>
 
         {/* Rank Progress Bar */}
@@ -240,21 +250,19 @@ export default function PlayerProfile() {
         )}
       </section>
 
-      {/* Achievement Showcase - Ultra Rounded & Clean */}
+      {/* Achievement Showcase */}
       {player.badges && player.badges.length > 0 && (
-        <section className="space-y-3">
-          <div className="flex items-center justify-between px-1">
-            <h2 className="font-display text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground/60">
-              Thành tích nổi bật
-            </h2>
-          </div>
+        <section className="mt-8 space-y-3 px-4">
+          <h2 className="font-display text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground/60">
+            Thành tích nổi bật
+          </h2>
           <div className="grid grid-cols-2 gap-2.5">
             {player.badges.map((badge: string) => (
               <div 
                 key={badge}
-                className="group flex items-center gap-3 rounded-2xl border border-border/40 bg-surface/50 p-3 transition-all hover:bg-surface-elevated"
+                className="flex items-center gap-3 rounded-2xl border border-border/40 bg-surface/50 p-3"
               >
-                <div className="grid size-11 place-items-center rounded-xl bg-background/40 p-1.5 shadow-sm">
+                <div className="grid size-11 place-items-center rounded-xl bg-background/40 p-1.5">
                   <BadgeImage name={badge} className="size-8" />
                 </div>
                 <p className="truncate font-display text-[11px] font-bold tracking-tight text-foreground/80">
@@ -267,7 +275,7 @@ export default function PlayerProfile() {
       )}
 
       {/* Match history */}
-      <section className="space-y-2.5">
+      <section className="mt-8 space-y-4 px-4">
         <div className="flex items-center justify-between px-1">
           <h2 className="font-display text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground/50">
             Lịch sử thi đấu
@@ -309,159 +317,37 @@ export default function PlayerProfile() {
                         {won ? "T" : "B"}
                       </span>
                       <div className="leading-tight">
-                        <p className="stat-number text-lg font-bold">
+                        <p className="text-lg font-bold">
                           {myScore} <span className="text-muted-foreground">–</span> {oppScore}
                         </p>
                         <p className="text-[11px] text-muted-foreground">
-                          {date.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" })} ·{" "}
-                          {date.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
+                          {date.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" })}
                         </p>
                       </div>
                     </div>
                     <EloDelta delta={delta} />
-                  </div>
-
-                  <div className="mt-3 grid grid-cols-2 gap-2 text-[11px]">
-                    <div className="rounded-lg bg-background/50 p-2">
-                      <p className="text-muted-foreground">Đồng đội</p>
-                      <p className="mt-0.5 truncate font-display font-semibold">{partner?.name}</p>
-                    </div>
-                    <div className="rounded-lg bg-background/50 p-2">
-                      <p className="text-muted-foreground">Đối thủ</p>
-                      <p className="mt-0.5 truncate font-display font-semibold">
-                        {oppPlayers.map((o) => o.name.split(" ")[0]).join(" / ")}
-                      </p>
-                    </div>
                   </div>
                 </div>
               </li>
             );
           })}
         </ol>
-
-        {matches.length === 0 && (
-          <div className="rounded-xl border border-dashed border-border/60 p-8 text-center text-sm text-muted-foreground">
-            <Trophy className="mx-auto mb-2 size-5 opacity-50" />
-            Chưa có trận nào — vào sân thôi!
-          </div>
-        )}
       </section>
 
-      <section className="mt-8 space-y-3">
-        {isMe && (
-          <div className="space-y-3 rounded-xl border border-border/60 bg-surface/30 p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm font-bold text-foreground/80">
-                <Shield className="size-4" /> Bảo mật tài khoản
-              </div>
-              <button 
-                onClick={() => {
-                  setIsChangingPassword(!isChangingPassword);
-                  setOldPassword("");
-                  setNewPassword("");
-                }} 
-                className="text-[11px] font-semibold text-primary uppercase tracking-wider"
-              >
-                {isChangingPassword ? "Huỷ" : "Đổi mật khẩu"}
-              </button>
-            </div>
-            
-            {isChangingPassword && (
-               <form onSubmit={(e) => {
-                 e.preventDefault();
-                 if (!oldPassword || newPassword.length < 4) {
-                   toast.error("Mật khẩu mới phải từ 4 ký tự trở lên.");
-                   return;
-                 }
-                 changePasswordMutation.mutate({ playerId: player.id, data: { oldPassword, newPassword } }, {
-                    onSuccess: () => {
-                      setIsChangingPassword(false);
-                      setOldPassword("");
-                      setNewPassword("");
-                    }
-                 });
-               }} className="space-y-3 pt-2 animate-in fade-in zoom-in-95">
-                 <input 
-                   type="password" 
-                   value={oldPassword} 
-                   onChange={e => setOldPassword(e.target.value)} 
-                   placeholder="Mật khẩu hiện tại" 
-                   className="h-10 w-full rounded-lg border border-border/60 bg-background px-3 text-sm focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/30" 
-                 />
-                 <input 
-                   type="password" 
-                   value={newPassword} 
-                   onChange={e => setNewPassword(e.target.value)} 
-                   placeholder="Mật khẩu mới (tối thiểu 4 ký tự)" 
-                   className="h-10 w-full rounded-lg border border-border/60 bg-background px-3 text-sm focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/30" 
-                 />
-                 <button 
-                   type="submit" 
-                   disabled={changePasswordMutation.isPending || !oldPassword || !newPassword} 
-                   className="w-full rounded-lg bg-primary/10 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-primary transition-all hover:bg-primary/20 disabled:opacity-50"
-                 >
-                   {changePasswordMutation.isPending ? "Đang xử lý..." : "Xác nhận đổi"}
-                 </button>
-               </form>
-            )}
+      {/* Account Settings */}
+      {isMe && (
+        <section className="mt-12 space-y-4 px-4">
+          <div className="rounded-xl border border-border/60 bg-surface/30 p-4">
+             <button
+               onClick={logout}
+               className="flex w-full items-center justify-center gap-2 rounded-xl border border-danger/20 bg-danger/5 py-3.5 text-sm font-bold text-danger transition-all hover:bg-danger/10"
+             >
+               <LogOut className="size-4" />
+               Đăng xuất tài khoản
+             </button>
           </div>
-        )}
-
-        {isMe && (
-          <div className="space-y-2">
-            <button
-              onClick={handleSubscribe}
-              disabled={subscribeMutation.isPending}
-              className={cn(
-                "flex w-full items-center justify-center gap-2 rounded-xl border py-3.5 text-sm font-bold transition-all active:scale-[0.98]",
-                pushStatus === "granted" 
-                  ? "border-success/20 bg-success/5 text-success" 
-                  : "border-primary/20 bg-primary/5 text-primary hover:bg-primary/10"
-              )}
-            >
-              {subscribeMutation.isPending ? (
-                <div className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-              ) : pushStatus === "granted" ? (
-                <Check className="size-4" />
-              ) : (
-                <Bell className="size-4" />
-              )}
-              {pushStatus === "granted" ? "Đã bật thông báo" : "Nhận thông báo trận đấu"}
-            </button>
-
-            {pushStatus === "granted" && (
-              <button
-                onClick={() => testPushMutation.mutate()}
-                disabled={testPushMutation.isPending}
-                className="flex w-full items-center justify-center gap-2 rounded-xl border border-border/60 bg-surface/50 py-3 text-xs font-semibold text-muted-foreground transition-all hover:bg-surface-elevated active:scale-[0.98]"
-              >
-                {testPushMutation.isPending ? (
-                  <div className="size-3 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
-                ) : (
-                  <Radio className="size-3" />
-                )}
-                Gửi thông báo thử (Test)
-              </button>
-            )}
-            
-            {pushStatus === "denied" && (
-              <p className="px-2 text-center text-[10px] text-danger">
-                ⚠ Bạn đã chặn quyền thông báo. Hãy vào cài đặt trình duyệt để cấp lại quyền cho PickX.
-              </p>
-            )}
-          </div>
-        )}
-
-        {isMe && (
-          <button
-            onClick={logout}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border border-danger/20 bg-danger/5 py-3.5 text-sm font-bold text-danger transition-all hover:bg-danger/10 active:scale-[0.98]"
-          >
-            <LogOut className="size-4" />
-            Đăng xuất tài khoản
-          </button>
-        )}
-      </section>
+        </section>
+      )}
 
       <AvatarPicker 
         playerId={player.id} 
@@ -470,43 +356,4 @@ export default function PlayerProfile() {
       />
     </div>
   );
-}
-
-function CompactBox({ 
-  label, 
-  value, 
-  accent, 
-  icon,
-  isLargeText
-}: { 
-  label: string; 
-  value: string | number; 
-  accent?: string;
-  icon?: React.ReactNode;
-  isLargeText?: boolean;
-}) {
-  return (
-    <div className="relative rounded-[1.5rem] border border-border/40 bg-background/30 px-1 py-4 text-center transition-transform active:scale-95 hover:bg-background/40">
-      <p className={cn("compact-box-label font-bold uppercase tracking-[0.2em] text-muted-foreground", isLargeText ? "text-[11px]" : "text-[9px]")}>{label}</p>
-      <div className="mt-1 flex items-center justify-center gap-1">
-        {icon && icon}
-        <p className={cn("stat-number font-bold", isLargeText ? "text-2xl" : "text-lg")} style={accent ? { color: accent } : undefined}>
-          {value}
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function BadgeImage({ name, className }: { name: string; className?: string }) {
-  let src = "";
-  switch (name) {
-    case "Lật Đổ Kèo Trên": src = "/badges/lat_do_new.png"; break;
-    case "Độc Cô Cầu Bại": src = "/badges/doc_co.png"; break;
-    case "Gánh Đội Thần Thánh": src = "/badges/ganh_doi.png"; break;
-    case "Kẻ Ngắt Chuỗi": src = "/badges/ngat_chuoi.png"; break;
-    case "Vua Kết Nối": src = "/badges/vua_ket_noi.png"; break;
-    default: src = "/badges/lat_do_new.png";
-  }
-  return <img src={src} alt={name} className={cn("object-contain", className || "size-5")} />;
 }
