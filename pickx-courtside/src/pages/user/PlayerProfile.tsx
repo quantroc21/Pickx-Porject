@@ -1,5 +1,5 @@
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Calendar, Flame, Trophy, LogOut, Sword, Shield, Zap, Skull, Users, TrendingUp, Wand2, Bell, BellOff, Check, Radio, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Calendar, Flame, Trophy, LogOut, Sword, Shield, Zap, Skull, Users, TrendingUp, Wand2, Bell, BellOff, Check, Radio, TriangleAlert } from "lucide-react";
 import { usePlayers, useMatches, usePushSubscribe, useTestPushNotification, useChangePassword } from "@/lib/api";
 import { TIER_HEX, getTier, tierProgress } from "@/lib/tiers";
 import { TierBadge } from "@/components/pickx/TierBadge";
@@ -10,8 +10,7 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { AvatarPicker } from "@/components/pickx/AvatarPicker";
 import { toast } from "sonner";
-import { CompactBox } from "@/components/pickx/CompactBox";
-import { BadgeImage } from "@/components/pickx/BadgeImage";
+
 
 export default function PlayerProfile() {
   const { id = "" } = useParams();
@@ -99,8 +98,13 @@ export default function PlayerProfile() {
     .sort((a,b) => +new Date(b.playedAt) - +new Date(a.playedAt));
   const tier = getTier(player.elo);
   const { percent, pointsToNext, nextLabel } = tierProgress(player.elo);
-  const winRate = Math.round((player.wins / Math.max(1, player.wins + player.losses)) * 100);
+  const totalMatches = player.wins + player.losses;
+  const winRate = Math.round((player.wins / Math.max(1, totalMatches)) * 100);
   const tierColor = TIER_HEX[tier.key];
+  
+  const duprScore = (2.0 + (player.elo - 700) / 200).toFixed(2);
+  const matchesToUnlock = Math.max(0, 5 - totalMatches);
+  const isCalibrating = matchesToUnlock > 0;
 
   return (
     <div className="space-y-6">
@@ -180,7 +184,7 @@ export default function PlayerProfile() {
         {/* Calibration Warning */}
         {isCalibrating && (
           <div className="mt-6 rounded-2xl border border-warning/30 bg-warning/10 p-3 flex items-start gap-3">
-             <div className="rounded-full bg-warning/20 p-2 text-warning"><AlertTriangle className="size-4" /></div>
+             <div className="rounded-full bg-warning/20 p-2 text-warning"><TriangleAlert className="size-4" /></div>
              <div>
                 <p className="text-xs font-bold text-warning uppercase tracking-wider">Đang định chuẩn DUPR</p>
                 <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed">Hệ thống đang theo dõi. Cần thi đấu thêm <strong className="text-foreground">{matchesToUnlock} trận</strong> để xác định trình độ thực.</p>
