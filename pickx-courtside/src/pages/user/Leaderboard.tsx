@@ -154,7 +154,10 @@ function PodiumSpot({ player, place, heightCls, highlight }: PodiumSpotProps) {
       <div className="relative">
         {highlight && (
           <Crown
-            className="absolute -top-5 left-1/2 size-5 -translate-x-1/2"
+            className={cn(
+              "absolute left-1/2 size-5 -translate-x-1/2 z-50 drop-shadow-md transition-all duration-300",
+              (player.streak && player.streak >= 3) ? "-top-9" : "-top-5"
+            )}
             style={{ color: placeColor }}
             fill="currentColor"
           />
