@@ -53,29 +53,25 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno }: { theme: { primary: str
 
       constructor() {
         const angle = Math.random() * Math.PI * 2;
-        // Move slightly further out to avoid covering the face
-        const radius = 44 + Math.random() * 3;
+        // Keep it tightly outside the border
+        const radius = 42 + Math.random() * 4;
         
         this.x = 100 + Math.cos(angle) * radius;
         this.y = 110 + Math.sin(angle) * radius;
 
-        // Narrower spire zone exactly at top center
-        this.isSpire = angle > -1.9 && angle < -1.2;
+        this.isSpire = angle > -1.8 && angle < -1.3;
 
         if (this.isSpire) {
-          // Force spire particles to center horizontally and shoot straight up
-          this.vx = (100 - this.x) * 0.15 + (Math.random() - 0.5) * 0.2;
-          this.vy = -3.5 - Math.random() * 2.5;
-          // Thinner spire
-          this.initialSize = 7 + Math.random() * 6;
-          this.maxLife = 45 + Math.random() * 15;
+          this.vx = (100 - this.x) * 0.12 + (Math.random() - 0.5) * 0.2;
+          // Lower height: reduced velocity and maxLife
+          this.vy = -1.8 - Math.random() * 1.5;
+          this.initialSize = 6 + Math.random() * 6;
+          this.maxLife = 30 + Math.random() * 15;
         } else {
-          // Less inward pull so it stays on the perimeter
-          this.vx = (100 - this.x) * 0.01 + (Math.random() - 0.5) * 0.3;
-          this.vy = -1.2 - Math.random() * 1.5;
-          // Thinner body
-          this.initialSize = 4 + Math.random() * 4;
-          this.maxLife = 25 + Math.random() * 15;
+          this.vx = (100 - this.x) * 0.015 + (Math.random() - 0.5) * 0.3;
+          this.vy = -0.8 - Math.random() * 1.2;
+          this.initialSize = 4 + Math.random() * 3;
+          this.maxLife = 20 + Math.random() * 10;
         }
         this.size = this.initialSize;
         this.life = this.maxLife;
@@ -84,23 +80,18 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno }: { theme: { primary: str
       update() {
         this.x += this.vx;
         this.y += this.vy;
-        
-        // Gentle acceleration upwards
-        this.vy -= 0.03;
-
+        this.vy -= 0.02;
         this.life--;
         
         if (this.isSpire) {
-          // Linear decay for a sharper point
           this.size = this.initialSize * (this.life / this.maxLife);
         } else {
-          // Thicker body that tapers off
-          this.size = this.initialSize * Math.pow(this.life / this.maxLife, 0.7);
+          this.size = this.initialSize * Math.pow(this.life / this.maxLife, 0.8);
         }
       }
 
       draw(ctx: CanvasRenderingContext2D) {
-        if (this.size < 0.5) return;
+        if (this.size < 0.3) return;
         const p = this.life / this.maxLife; 
         
         ctx.beginPath();
@@ -118,11 +109,10 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno }: { theme: { primary: str
           r = colors.edge[0] + (colors.mid[0] - colors.edge[0]) * ratio;
           g = colors.edge[1] + (colors.mid[1] - colors.edge[1]) * ratio;
           b = colors.edge[2] + (colors.mid[2] - colors.edge[2]) * ratio;
-          a = p * 0.8;
+          a = p * 0.7;
         }
 
-        // Slightly lower opacity so it doesn't completely block the background
-        grad.addColorStop(0, `rgba(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)}, ${a * 0.6})`);
+        grad.addColorStop(0, `rgba(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)}, ${a * 0.5})`);
         grad.addColorStop(1, `rgba(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)}, 0)`);
         
         ctx.fillStyle = grad;
@@ -132,13 +122,14 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno }: { theme: { primary: str
     }
 
     const render = () => {
+      // Clean trailing effect: use a very subtle fill to "fade" old frames instead of clearRect
       ctx.globalCompositeOperation = "source-over";
-      ctx.clearRect(0, 0, 200, 200);
+      ctx.fillStyle = "rgba(0, 0, 0, 0.2)"; // Adjust for trailing length
+      ctx.fillRect(0, 0, 200, 200);
       
       ctx.globalCompositeOperation = "lighter";
 
-      // Higher spawn rate for thickness
-      const spawnRate = isGodlike ? 25 : isInferno ? 18 : 12;
+      const spawnRate = isGodlike ? 30 : isInferno ? 20 : 15;
       for (let i = 0; i < spawnRate; i++) {
         particles.push(new Particle());
       }
@@ -146,7 +137,7 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno }: { theme: { primary: str
       for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i];
         p.update();
-        if (p.life <= 0 || p.size < 0.5) {
+        if (p.life <= 0 || p.size < 0.3) {
           particles.splice(i, 1);
         } else {
           p.draw(ctx);
