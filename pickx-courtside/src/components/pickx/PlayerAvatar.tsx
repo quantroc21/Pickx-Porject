@@ -160,7 +160,7 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno, size = "md" }: { theme: a
   }, [theme, isGodlike, isInferno, scale]);
 
   return (
-    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] pointer-events-none z-20 mix-blend-screen">
+    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[48%] w-[200px] h-[200px] pointer-events-none z-20 mix-blend-screen">
       <canvas ref={canvasRef} width={200} height={200} className="w-full h-full" />
     </div>
   );
