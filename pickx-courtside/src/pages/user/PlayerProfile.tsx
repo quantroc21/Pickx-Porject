@@ -215,29 +215,35 @@ export default function PlayerProfile() {
               </div>
 
               {!isCalibrating && (
-                <div className="flex shrink-0 flex-col items-center justify-center pt-1" title="Độ tin cậy của DUPR">
-                  <div className="relative flex size-10 items-center justify-center">
-                    <svg className="size-full -rotate-90 transform" viewBox="0 0 36 36">
-                      <circle cx="18" cy="18" r="14" fill="none" className="stroke-border/50" strokeWidth="3" />
+                <div className="flex shrink-0 flex-col items-center justify-center" title="Độ tin cậy của DUPR">
+                  <div className="relative flex size-14 items-center justify-center">
+                    <svg 
+                      className={cn(
+                        "size-full -rotate-90 transform drop-shadow-sm transition-all duration-1000",
+                        confidence >= 80 ? "drop-shadow-[0_0_6px_rgba(34,197,94,0.4)]" : confidence >= 50 ? "drop-shadow-[0_0_6px_rgba(234,179,8,0.4)]" : "drop-shadow-[0_0_6px_rgba(239,68,68,0.4)]"
+                      )} 
+                      viewBox="0 0 36 36"
+                    >
+                      <circle cx="18" cy="18" r="15" fill="none" className="stroke-muted/20" strokeWidth="3" />
                       <circle 
                         cx="18" 
                         cy="18" 
-                        r="14" 
+                        r="15" 
                         fill="none" 
                         className={confidence >= 80 ? "stroke-success" : confidence >= 50 ? "stroke-warning" : "stroke-danger"} 
                         strokeWidth="3" 
-                        strokeDasharray={2 * Math.PI * 14}
-                        strokeDashoffset={(2 * Math.PI * 14) - (confidence / 100) * (2 * Math.PI * 14)}
+                        strokeDasharray={2 * Math.PI * 15}
+                        strokeDashoffset={(2 * Math.PI * 15) - (confidence / 100) * (2 * Math.PI * 15)}
                         strokeLinecap="round"
                       />
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className={cn("text-[9px] font-bold", confidence >= 80 ? "text-success" : confidence >= 50 ? "text-warning" : "text-danger")}>
+                      <span className={cn("font-display text-[13px] font-bold tracking-tight", confidence >= 80 ? "text-success" : confidence >= 50 ? "text-warning" : "text-danger")}>
                         {confidence}%
                       </span>
                     </div>
                   </div>
-                  <span className="mt-0.5 text-[7px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Độ tin cậy</span>
+                  <span className="mt-1.5 text-[8.5px] font-bold uppercase tracking-[0.2em] text-muted-foreground/80">Độ tin cậy</span>
                 </div>
               )}
             </div>
