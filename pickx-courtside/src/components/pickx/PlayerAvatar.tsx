@@ -109,36 +109,16 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
           <div className="absolute inset-[-2px] rounded-full blur-[2px]"
                style={{ border: `2px solid rgba(${theme.core}, 0.6)` }} />
 
-          {/* 2. THE MAIN SPIRE (Energy convergence point at the crown) */}
-          <div className="absolute -top-[45px] left-1/2 -translate-x-1/2 w-[40px] h-[60px] flex justify-center items-end">
-             {/* Wrapper for vertical scaling flicker */}
-             <div className="w-full h-full animate-flame-flicker origin-bottom flex justify-center items-end drop-shadow-xl" style={{ filter: `drop-shadow(0 0 8px rgba(${theme.primary}, 0.8))` }}>
-                 {/* Outer Glow Flame (Orange/Pink/Cyan) */}
-                 <div className="absolute bottom-0 w-[30px] h-[30px] rounded-[0_50%_50%_50%] rotate-45 blur-[1px]"
-                      style={{ background: `rgba(${theme.primary}, 0.9)`, transform: 'rotate(45deg) scaleY(2.2)' }} />
-                 {/* Inner Core Flame (Bright Yellow/White-hot) */}
-                 <div className="absolute bottom-1 w-[16px] h-[16px] rounded-[0_50%_50%_50%] rotate-45 blur-[0.5px]"
-                      style={{ background: `rgba(${theme.core}, 1)`, transform: 'rotate(45deg) scaleY(2.5)' }} />
-             </div>
+          {/* 2. THE MAIN SPIRE (Tilted energy pill from the mockup) */}
+          {/* A large, soft, glowing ellipse tilted to the right, sitting right behind the crown */}
+          <div className="absolute -top-[35px] left-[55%] -translate-x-1/2 w-[60px] h-[80px] flex justify-center items-center mix-blend-screen">
+             {/* Outer Glow (Orange/Pink/Cyan) - Huge blur */}
+             <div className="absolute w-[35px] h-[85px] rounded-full rotate-[25deg] blur-[10px]"
+                  style={{ background: `rgba(${theme.primary}, 0.9)` }} />
+             {/* Inner Core (Bright Yellow/White-hot) - Medium blur */}
+             <div className="absolute w-[20px] h-[65px] rounded-full rotate-[25deg] blur-[4px]"
+                  style={{ background: `rgba(${theme.core}, 1)` }} />
           </div>
-
-          {/* 3. Secondary Smaller Spires (For higher streaks) */}
-          {isInferno && (
-             <>
-                <div className="absolute -top-[15px] -left-[15px] w-[20px] h-[40px] flex justify-center items-end -rotate-[25deg]">
-                   <div className="w-full h-full animate-flame-flicker origin-bottom flex justify-center items-end delay-75">
-                       <div className="absolute bottom-0 w-[16px] h-[16px] rounded-[0_50%_50%_50%] rotate-45 blur-[1px]"
-                            style={{ background: `rgba(${theme.primary}, 0.8)`, transform: 'rotate(45deg) scaleY(1.8)' }} />
-                   </div>
-                </div>
-                <div className="absolute -top-[15px] -right-[15px] w-[20px] h-[40px] flex justify-center items-end rotate-[25deg]">
-                   <div className="w-full h-full animate-flame-flicker origin-bottom flex justify-center items-end delay-150">
-                       <div className="absolute bottom-0 w-[16px] h-[16px] rounded-[0_50%_50%_50%] rotate-45 blur-[1px]"
-                            style={{ background: `rgba(${theme.primary}, 0.8)`, transform: 'rotate(45deg) scaleY(1.8)' }} />
-                   </div>
-                </div>
-             </>
-          )}
 
           {/* 4. Embers */}
           {embers.map((e, i) => (
