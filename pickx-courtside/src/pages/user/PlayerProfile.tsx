@@ -81,6 +81,8 @@ export default function PlayerProfile() {
   const [pushStatus, setPushStatus] = useState<"default" | "granted" | "denied">(
     typeof Notification !== "undefined" ? Notification.permission : "denied"
   );
+  
+  const [showUsaRating, setShowUsaRating] = useState(false);
 
   function urlBase64ToUint8Array(base64String: string) {
     const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -157,7 +159,6 @@ export default function PlayerProfile() {
 
   // USA approximate rating (round down to nearest 0.5)
   const usaRating = (Math.floor(parseFloat(duprScore) * 2) / 2).toFixed(1);
-  const [showUsaRating, setShowUsaRating] = useState(false);
 
   return (
     <div className="pb-24 pt-8">
