@@ -122,9 +122,10 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno }: { theme: { primary: str
     }
 
     const render = () => {
-      // Clean trailing effect: use a very subtle fill to "fade" old frames instead of clearRect
-      ctx.globalCompositeOperation = "source-over";
-      ctx.fillStyle = "rgba(0, 0, 0, 0.2)"; // Adjust for trailing length
+      // Correct way to do trailing on transparent canvas:
+      // Use 'destination-out' to gradually erase existing pixels instead of filling with black
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
       ctx.fillRect(0, 0, 200, 200);
       
       ctx.globalCompositeOperation = "lighter";
