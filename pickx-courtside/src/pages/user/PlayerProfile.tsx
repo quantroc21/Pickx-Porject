@@ -334,20 +334,122 @@ export default function PlayerProfile() {
         </ol>
       </section>
 
-      {/* Account Settings */}
-      {isMe && (
-        <section className="mt-12 space-y-4 px-4">
-          <div className="rounded-xl border border-border/60 bg-surface/30 p-4">
-             <button
-               onClick={logout}
-               className="flex w-full items-center justify-center gap-2 rounded-xl border border-danger/20 bg-danger/5 py-3.5 text-sm font-bold text-danger transition-all hover:bg-danger/10"
-             >
-               <LogOut className="size-4" />
-               Đăng xuất tài khoản
-             </button>
+      {/* Account Settings Section */}
+      <section className="mt-8 space-y-3 px-4">
+        {isMe && (
+          <div className="space-y-3 rounded-xl border border-border/60 bg-surface/30 p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm font-bold text-foreground/80">
+                <Shield className="size-4" /> Bảo mật tài khoản
+              </div>
+              <button 
+                onClick={() => {
+                  setIsChangingPassword(!isChangingPassword);
+                  setOldPassword("");
+                  setNewPassword("");
+                }} 
+                className="text-[11px] font-semibold text-primary uppercase tracking-wider"
+              >
+                {isChangingPassword ? "Huỷ" : "Đổi mật khẩu"}
+              </button>
+            </div>
+            
+            {isChangingPassword && (
+               <form onSubmit={(e) => {
+                 e.preventDefault();
+                 if (!oldPassword || newPassword.length < 4) {
+                   toast.error("Mật khẩu mới phải từ 4 ký tự trở lên.");
+                   return;
+                 }
+                 changePasswordMutation.mutate({ playerId: player.id, data: { oldPassword, newPassword } }, {
+                    onSuccess: () => {
+                      setIsChangingPassword(false);
+                      setOldPassword("");
+                      setNewPassword("");
+                    }
+                 });
+               }} className="space-y-3 pt-2 animate-in fade-in zoom-in-95">
+                 <input 
+                   type="password" 
+                   value={oldPassword} 
+                   onChange={e => setOldPassword(e.target.value)} 
+                   placeholder="Mật khẩu hiện tại" 
+                   className="h-10 w-full rounded-lg border border-border/60 bg-background px-3 text-sm focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/30" 
+                 />
+                 <input 
+                   type="password" 
+                   value={newPassword} 
+                   onChange={e => setNewPassword(e.target.value)} 
+                   placeholder="Mật khẩu mới (tối thiểu 4 ký tự)" 
+                   className="h-10 w-full rounded-lg border border-border/60 bg-background px-3 text-sm focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/30" 
+                 />
+                 <button 
+                   type="submit" 
+                   disabled={changePasswordMutation.isPending || !oldPassword || !newPassword} 
+                   className="w-full rounded-lg bg-primary/10 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-primary transition-all hover:bg-primary/20 disabled:opacity-50"
+                 >
+                   {changePasswordMutation.isPending ? "Đang xử lý..." : "Xác nhận đổi"}
+                 </button>
+               </form>
+            )}
           </div>
-        </section>
-      )}
+        )}
+
+        {isMe && (
+          <div className="space-y-2">
+            <button
+              onClick={handleSubscribe}
+              disabled={subscribeMutation.isPending}
+              className={cn(
+                "flex w-full items-center justify-center gap-2 rounded-xl border py-3.5 text-sm font-bold transition-all active:scale-[0.98]",
+                pushStatus === "granted" 
+                  ? "border-success/20 bg-success/5 text-success" 
+                  : "border-primary/20 bg-primary/5 text-primary hover:bg-primary/10"
+              )}
+            >
+              {subscribeMutation.isPending ? (
+                <div className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+              ) : pushStatus === "granted" ? (
+                <Check className="size-4" />
+              ) : (
+                <Bell className="size-4" />
+              )}
+              {pushStatus === "granted" ? "Đã bật thông báo" : "Nhận thông báo trận đấu"}
+            </button>
+
+            {pushStatus === "granted" && (
+              <button
+                onClick={() => testPushMutation.mutate()}
+                disabled={testPushMutation.isPending}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-border/60 bg-surface/50 py-3 text-xs font-semibold text-muted-foreground transition-all hover:bg-surface-elevated active:scale-[0.98]"
+              >
+                {testPushMutation.isPending ? (
+                  <div className="size-3 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
+                ) : (
+                  <Radio className="size-3" />
+                )}
+                Gửi thông báo thử (Test)
+              </button>
+            )}
+            
+            {pushStatus === "denied" && (
+              <p className="px-2 text-center text-[10px] text-danger">
+                ⚠ Bạn đã chặn quyền thông báo. Hãy vào cài đặt trình duyệt để cấp lại quyền cho PickX.
+              </p>
+            )}
+          </div>
+        )}
+
+        {isMe && (
+          <button
+            onClick={logout}
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-danger/20 bg-danger/5 py-3.5 text-sm font-bold text-danger transition-all hover:bg-danger/10 active:scale-[0.98]"
+          >
+            <LogOut className="size-4" />
+            Đăng xuất tài khoản
+          </button>
+        )}
+      </section>
 
       <AvatarPicker 
         playerId={player.id} 
