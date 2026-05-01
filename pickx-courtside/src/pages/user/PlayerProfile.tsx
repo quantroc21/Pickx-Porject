@@ -154,9 +154,28 @@ export default function PlayerProfile() {
   const matchesToUnlock = Math.max(0, 10 - totalMatches);
   const isCalibrating = matchesToUnlock > 0;
 
-  // Confidence: 0% at 0 matches, ~70% at 10 matches, ~90% at 20, ~98% at 30+
-  const confidence = Math.min(100, Math.round(100 * (1 - Math.exp(-totalMatches / 10))));
+  // DUPR-inspired Reliability Score Proxy
+  // 1. Volume (Max 50%): ~20 matches to max out
+  const volumeScore = Math.min(50, matches.length * 2.5);
+  
+  // 2. Connectivity/Variety (Max 30%): Unique opponents faced
+  const uniqueOpponents = new Set<string>();
+  matches.forEach(m => {
+    const isTeam1 = m.team1.playerIds.includes(player.id);
+    const oppIds = isTeam1 ? m.team2.playerIds : m.team1.playerIds;
+    oppIds.forEach(id => uniqueOpponents.add(id));
+  });
+  const varietyScore = Math.min(30, uniqueOpponents.size * 3);
 
+  // 3. Recency (Max 20%): Decay over 60 days of inactivity
+  let recencyScore = 0;
+  if (matches.length > 0) {
+    const lastMatchDate = new Date(matches[0].playedAt);
+    const daysSince = (+new Date() - +lastMatchDate) / (1000 * 60 * 60 * 24);
+    recencyScore = Math.max(0, 20 - (daysSince / 3)); 
+  }
+
+  const confidence = Math.round(volumeScore + varietyScore + recencyScore);
   // USA approximate rating (round down to nearest 0.5)
   const usaRating = (Math.floor(parseFloat(duprScore) * 2) / 2).toFixed(1);
 
