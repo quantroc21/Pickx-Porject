@@ -40,7 +40,6 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno, size = "md" }: { theme: a
 
     let animationFrameId: number;
     let particles: any[] = [];
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
     const pRGB = theme.primary.split(',').map(Number);
     const cRGB = theme.core.split(',').map(Number);
@@ -70,19 +69,16 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno, size = "md" }: { theme: a
 
         this.isSpire = angle > -1.8 && angle < -1.3;
 
-        // On mobile, use slightly larger particles to compensate for lower count
-        const mobileBoost = isMobile ? 1.4 : 1.0;
-
         if (this.isSpire) {
           this.vx = (100 - this.x) * 0.12 + (Math.random() - 0.5) * 0.2;
           this.vy = (-2.0 - Math.random() * 2.0) * scale;
-          this.initialSize = (8 + Math.random() * 8) * scale * mobileBoost;
-          this.maxLife = isMobile ? 30 : 35 + Math.random() * 15;
+          this.initialSize = (8 + Math.random() * 8) * scale;
+          this.maxLife = 35 + Math.random() * 15;
         } else {
           this.vx = (100 - this.x) * 0.01 + (Math.random() - 0.5) * 0.3;
           this.vy = (-1.0 - Math.random() * 1.5) * scale;
-          this.initialSize = (5 + Math.random() * 4) * scale * mobileBoost;
-          this.maxLife = isMobile ? 20 : 25 + Math.random() * 10;
+          this.initialSize = (5 + Math.random() * 4) * scale;
+          this.maxLife = 25 + Math.random() * 10;
         }
         this.size = this.initialSize;
         this.life = this.maxLife;
@@ -123,9 +119,7 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno, size = "md" }: { theme: a
           a = p * 0.7;
         }
 
-        // Boost opacity on mobile to maintain intensity with fewer particles
-        const opacityBoost = isMobile ? 0.7 : 0.4;
-        grad.addColorStop(0, `rgba(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)}, ${a * opacityBoost})`);
+        grad.addColorStop(0, `rgba(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)}, ${a * 0.5})`);
         grad.addColorStop(1, `rgba(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)}, 0)`);
         
         ctx.fillStyle = grad;
@@ -141,8 +135,7 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno, size = "md" }: { theme: a
       
       ctx.globalCompositeOperation = "lighter";
 
-      let spawnRate = isGodlike ? 30 : isInferno ? 20 : 15;
-      if (isMobile) spawnRate = Math.ceil(spawnRate * 0.5); // 50% count but boosted intensity
+      const spawnRate = isGodlike ? 30 : isInferno ? 20 : 15;
 
       for (let i = 0; i < spawnRate; i++) {
         particles.push(new Particle());
@@ -184,7 +177,6 @@ const CanvasRainEffect = ({ size = "md" }: { size?: keyof typeof SCALES }) => {
 
     let animationFrameId: number;
     let drops: Drop[] = [];
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
     class Drop {
       x: number;
@@ -225,8 +217,7 @@ const CanvasRainEffect = ({ size = "md" }: { size?: keyof typeof SCALES }) => {
       }
     }
 
-    let dropCount = Math.floor(25 * scale);
-    if (isMobile) dropCount = Math.ceil(dropCount * 0.5);
+    const dropCount = Math.floor(25 * scale);
 
     for (let i = 0; i < dropCount; i++) {
       drops.push(new Drop());
