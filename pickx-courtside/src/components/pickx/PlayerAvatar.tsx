@@ -94,117 +94,53 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
 
     const theme = getFireTheme();
 
-    // Fire system: Halo + Sharp Flame Spires + Embers
+    // Professional CSS Graphic Animation: Sharp Teardrop Flame + Halo
     const renderFireAura = () => {
       if (!isOnFire) return null;
 
-      const displaceScale = isGodlike ? 18 : isInferno ? 15 : 12;
-      const strokeW = isGodlike ? 14 : isInferno ? 12 : 10;
-      const outerGlowW = isGodlike ? 22 : isInferno ? 18 : 14;
       const emberCount = isGodlike ? 9 : isInferno ? 6 : 3;
       const embers = EMBERS.slice(0, emberCount);
-      const animDur = isGodlike ? "4s" : isInferno ? "5s" : "6s";
-
-      // Secondary sharp flames: angle from top, height, delay
-      const secondaryFlames = [
-        { angle: -55, h: 18, delay: 0.3 },   // right of center
-        { angle: -125, h: 16, delay: 0.7 },  // left of center
-        { angle: -35, h: 12, delay: 1.1 },   // far right
-        { angle: -145, h: 11, delay: 0.5 },  // far left
-      ];
-      const secCount = isGodlike ? 4 : isInferno ? 3 : 2;
 
       return (
-        <div className="absolute inset-[-14px] z-20 pointer-events-none">
-          {/* === HALO: SVG Turbulence Ring === */}
-          <svg 
-            className="size-full overflow-visible" 
-            viewBox="0 0 120 120" 
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <defs>
-              <filter id={`${filterId}-fire`} x="-40%" y="-40%" width="180%" height="180%">
-                <feTurbulence 
-                  type="fractalNoise" 
-                  baseFrequency="0.04 0.09" 
-                  numOctaves={3} 
-                  result="noise"
-                >
-                  <animate attributeName="seed" from="0" to="100" dur={animDur} repeatCount="indefinite" />
-                </feTurbulence>
-                <feDisplacementMap in="SourceGraphic" in2="noise" scale={displaceScale} xChannelSelector="R" yChannelSelector="G" result="displaced" />
-                <feGaussianBlur in="displaced" stdDeviation="1.8" result="blurred" />
-                <feColorMatrix in="blurred" type="matrix" values={theme.colorMatrix} />
-              </filter>
+        <div className="absolute inset-0 z-20 pointer-events-none flex justify-center items-center">
+          {/* 1. Core Energy Halo (Smooth Glowing Ring) */}
+          <div className="absolute inset-[-10px] rounded-full blur-[6px] animate-pulse"
+               style={{ border: `4px solid rgba(${theme.primary}, 0.7)` }} />
+          <div className="absolute inset-[-2px] rounded-full blur-[2px]"
+               style={{ border: `2px solid rgba(${theme.core}, 0.6)` }} />
 
-              <filter id={`${filterId}-glow`} x="-50%" y="-50%" width="200%" height="200%">
-                <feTurbulence type="fractalNoise" baseFrequency="0.03 0.07" numOctaves={2} result="gnoise">
-                  <animate attributeName="seed" from="50" to="150" dur={animDur} repeatCount="indefinite" />
-                </feTurbulence>
-                <feDisplacementMap in="SourceGraphic" in2="gnoise" scale={displaceScale * 1.3} xChannelSelector="G" yChannelSelector="R" result="gdisplaced" />
-                <feGaussianBlur in="gdisplaced" stdDeviation="3.5" />
-              </filter>
+          {/* 2. THE MAIN SPIRE (Energy convergence point at the crown) */}
+          <div className="absolute -top-[45px] left-1/2 -translate-x-1/2 w-[40px] h-[60px] flex justify-center items-end">
+             {/* Wrapper for vertical scaling flicker */}
+             <div className="w-full h-full animate-flame-flicker origin-bottom flex justify-center items-end drop-shadow-xl" style={{ filter: `drop-shadow(0 0 8px rgba(${theme.primary}, 0.8))` }}>
+                 {/* Outer Glow Flame (Orange/Pink/Cyan) */}
+                 <div className="absolute bottom-0 w-[30px] h-[30px] rounded-[0_50%_50%_50%] rotate-45 blur-[1px]"
+                      style={{ background: `rgba(${theme.primary}, 0.9)`, transform: 'rotate(45deg) scaleY(2.2)' }} />
+                 {/* Inner Core Flame (Bright Yellow/White-hot) */}
+                 <div className="absolute bottom-1 w-[16px] h-[16px] rounded-[0_50%_50%_50%] rotate-45 blur-[0.5px]"
+                      style={{ background: `rgba(${theme.core}, 1)`, transform: 'rotate(45deg) scaleY(2.5)' }} />
+             </div>
+          </div>
 
-              {/* Gradient for sharp flame spires: core yellow → edge orange */}
-              <linearGradient id={`${filterId}-spire`} x1="0" y1="1" x2="0" y2="0">
-                <stop offset="0%" stopColor={`rgba(${theme.primary},0.6)`} />
-                <stop offset="30%" stopColor={`rgba(${theme.primary},1)`} />
-                <stop offset="65%" stopColor={`rgba(${theme.core},1)`} />
-                <stop offset="100%" stopColor={`rgba(${theme.core},0.7)`} />
-              </linearGradient>
-            </defs>
-            
-            {/* Outer glow halo */}
-            <circle cx="60" cy="60" r="44" fill="none" stroke={`rgba(${theme.primary},0.35)`} strokeWidth={outerGlowW} filter={`url(#${filterId}-glow)`} />
-            {/* Main fire ring */}
-            <circle cx="60" cy="60" r="44" fill="none" stroke={`rgba(${theme.primary},0.85)`} strokeWidth={strokeW} filter={`url(#${filterId}-fire)`} />
-            {/* Inner core ring */}
-            <circle cx="60" cy="60" r="44" fill="none" stroke={`rgba(${theme.primary},0.5)`} strokeWidth={strokeW * 0.5} filter={`url(#${filterId}-fire)`} style={{ mixBlendMode: 'screen' }} />
+          {/* 3. Secondary Smaller Spires (For higher streaks) */}
+          {isInferno && (
+             <>
+                <div className="absolute -top-[15px] -left-[15px] w-[20px] h-[40px] flex justify-center items-end -rotate-[25deg]">
+                   <div className="w-full h-full animate-flame-flicker origin-bottom flex justify-center items-end delay-75">
+                       <div className="absolute bottom-0 w-[16px] h-[16px] rounded-[0_50%_50%_50%] rotate-45 blur-[1px]"
+                            style={{ background: `rgba(${theme.primary}, 0.8)`, transform: 'rotate(45deg) scaleY(1.8)' }} />
+                   </div>
+                </div>
+                <div className="absolute -top-[15px] -right-[15px] w-[20px] h-[40px] flex justify-center items-end rotate-[25deg]">
+                   <div className="w-full h-full animate-flame-flicker origin-bottom flex justify-center items-end delay-150">
+                       <div className="absolute bottom-0 w-[16px] h-[16px] rounded-[0_50%_50%_50%] rotate-45 blur-[1px]"
+                            style={{ background: `rgba(${theme.primary}, 0.8)`, transform: 'rotate(45deg) scaleY(1.8)' }} />
+                   </div>
+                </div>
+             </>
+          )}
 
-            {/* === CENTRAL FLAME SPIRE — sharp dagger rising from top === */}
-            <g className="animate-flame-spire" style={{ transformOrigin: '60px 16px' }}>
-              <path 
-                d="M 60,18 C 55,6 56,-4 60,-22 C 64,-4 65,6 60,18 Z"
-                fill={`url(#${filterId}-spire)`}
-                filter="drop-shadow(0 0 4px rgba(255,200,50,0.8))"
-              />
-              {/* Bright inner core of the spire */}
-              <path 
-                d="M 60,16 C 58,6 58,-2 60,-16 C 62,-2 62,6 60,16 Z"
-                fill={`rgba(${theme.core},0.9)`}
-                style={{ mixBlendMode: 'screen' }}
-              />
-            </g>
-
-            {/* === SECONDARY SHARP FLAMES around the halo === */}
-            {secondaryFlames.slice(0, secCount).map((sf, i) => {
-              const rad = (sf.angle * Math.PI) / 180;
-              const ox = 60 + Math.cos(rad) * 44;
-              const oy = 60 + Math.sin(rad) * 44;
-              // Tip position: extend outward from ring
-              const tx = 60 + Math.cos(rad) * (44 + sf.h);
-              const ty = 60 + Math.sin(rad) * (44 + sf.h);
-              // Control points for the dagger shape
-              const perpAngle = rad + Math.PI / 2;
-              const spread = 3;
-              const bx1 = ox + Math.cos(perpAngle) * spread;
-              const by1 = oy + Math.sin(perpAngle) * spread;
-              const bx2 = ox - Math.cos(perpAngle) * spread;
-              const by2 = oy - Math.sin(perpAngle) * spread;
-
-              return (
-                <g key={`sec-${i}`} className="animate-flame-spire" style={{ transformOrigin: `${ox}px ${oy}px`, animationDelay: `${sf.delay}s` }}>
-                  <path
-                    d={`M ${bx1},${by1} Q ${(bx1+tx)/2},${(by1+ty)/2} ${tx},${ty} Q ${(bx2+tx)/2},${(by2+ty)/2} ${bx2},${by2} Z`}
-                    fill={`url(#${filterId}-spire)`}
-                    filter="drop-shadow(0 0 3px rgba(255,200,50,0.6))"
-                  />
-                </g>
-              );
-            })}
-          </svg>
-
-          {/* === RISING EMBER PARTICLES === */}
+          {/* 4. Embers */}
           {embers.map((e, i) => (
             <div
               key={`ember-${i}`}
