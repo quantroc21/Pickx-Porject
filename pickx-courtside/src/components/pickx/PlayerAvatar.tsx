@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { getTier } from "@/lib/tiers";
 import type { Player } from "@/lib/types";
-import { Flame, Skull } from "lucide-react";
+import { Skull } from "lucide-react";
 
 
 interface PlayerAvatarProps {
@@ -19,6 +19,29 @@ const SIZE = {
   lg: "size-14 text-base",
   xl: "size-20 text-2xl",
 };
+
+// Flame tongue positions around the circle (angle in degrees, scale factor)
+const FLAME_TONGUES = [
+  { angle: -90, scale: 1.1, delay: 0,     h: 14 },  // top-center
+  { angle: -55, scale: 0.9, delay: 0.15,  h: 11 },  // top-right
+  { angle: -125, scale: 0.85, delay: 0.3, h: 10 },  // top-left
+  { angle: -20, scale: 0.7, delay: 0.45,  h: 9 },   // right
+  { angle: -160, scale: 0.65, delay: 0.6, h: 8 },   // left
+  { angle: -70, scale: 0.95, delay: 0.1,  h: 12 },  // between top-center and top-right
+  { angle: -110, scale: 0.9, delay: 0.25, h: 11 },  // between top-center and top-left
+  { angle: -40, scale: 0.75, delay: 0.5,  h: 10 },  // mid-right
+];
+
+// Ember particles that float upward
+const EMBERS = [
+  { x: 20, delay: 0, dur: 1.2, size: 2 },
+  { x: 45, delay: 0.3, dur: 1.5, size: 1.5 },
+  { x: 70, delay: 0.7, dur: 1.0, size: 2.5 },
+  { x: 30, delay: 1.0, dur: 1.3, size: 1 },
+  { x: 60, delay: 0.5, dur: 1.4, size: 2 },
+  { x: 80, delay: 0.2, dur: 1.1, size: 1.5 },
+  { x: 15, delay: 0.8, dur: 1.6, size: 1 },
+];
 
 export function PlayerAvatar({ player, size = "md", ring = false, className }: PlayerAvatarProps) {
   if (!player || !player.name) return <div className={cn("rounded-full bg-muted", SIZE[size])} />;
@@ -58,59 +81,84 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
     // Color logic based on streak
     const getFireTheme = () => {
         if (isGodlike) return {
-            color: "text-cyan-400",
-            fill: "fill-cyan-400",
-            glow: "drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]",
+            primary: "34,211,238",   // cyan
+            secondary: "6,182,212",
             bg: "bg-cyan-500/20",
-            ring: "rgba(34,211,238,0.8)"
+            ring: "rgba(34,211,238,0.8)",
         };
         if (isInferno) return {
-            color: "text-pink-500",
-            fill: "fill-pink-500",
-            glow: "drop-shadow-[0_0_8px_rgba(236,72,153,0.8)]",
+            primary: "236,72,153",   // pink
+            secondary: "219,39,119",
             bg: "bg-pink-500/20",
-            ring: "rgba(236,72,153,0.8)"
+            ring: "rgba(236,72,153,0.8)",
         };
         return {
-            color: "text-orange-500",
-            fill: "fill-orange-500",
-            glow: "drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]",
+            primary: "249,115,22",   // orange
+            secondary: "234,88,12",
             bg: "bg-orange-500/20",
-            ring: "rgba(249,115,22,0.8)"
+            ring: "rgba(249,115,22,0.8)",
         };
     };
 
     const theme = getFireTheme();
 
-    // Fixed 3-flame crown: Fixed pixels for absolute reliability
-    const renderFlames = () => {
+    // TFT-style fire aura: multiple flame tongues around the circle
+    const renderFireAura = () => {
       if (!isOnFire) return null;
       
+      const tongueCount = isGodlike ? 8 : isInferno ? 7 : 6;
+      const tongues = FLAME_TONGUES.slice(0, tongueCount);
+      const emberCount = isGodlike ? 7 : isInferno ? 5 : 3;
+      const embers = EMBERS.slice(0, emberCount);
+
       return (
         <div className="absolute inset-0 z-20 pointer-events-none">
-          {/* Center Flame - Shifted right to avoid crown */}
-          <div 
-            className="absolute left-[65%] -top-3 -translate-x-1/2 animate-fire-flicker"
-            style={{ animationDelay: "0s" }}
-          >
-            <Flame className={cn(theme.color, theme.fill, theme.glow, "size-4")} />
-          </div>
+          {/* Flame tongues positioned around the circle */}
+          {tongues.map((t, i) => {
+            // Calculate position on the circle edge
+            const rad = (t.angle * Math.PI) / 180;
+            const radius = 52; // % from center to edge
+            const cx = 50 + Math.cos(rad) * radius;
+            const cy = 50 + Math.sin(rad) * radius;
+            
+            return (
+              <div
+                key={i}
+                className="absolute animate-flame-tongue"
+                style={{
+                  left: `${cx}%`,
+                  top: `${cy}%`,
+                  width: `${t.h * 0.6}px`,
+                  height: `${t.h}px`,
+                  transform: `translate(-50%, -90%) rotate(${t.angle + 90}deg) scale(${t.scale})`,
+                  animationDelay: `${t.delay}s`,
+                  animationDuration: `${0.6 + Math.random() * 0.4}s`,
+                  background: `linear-gradient(to top, rgba(${theme.primary},0.9), rgba(${theme.primary},0.5) 40%, rgba(${theme.secondary},0.2) 70%, transparent)`,
+                  borderRadius: '50% 50% 20% 20%',
+                  filter: `blur(1px) drop-shadow(0 0 3px rgba(${theme.primary},0.6))`,
+                }}
+              />
+            );
+          })}
 
-          {/* Left Flame - Wide spread */}
-          <div 
-            className="absolute -left-2 top-0 -translate-x-1/2 -rotate-[25deg] animate-fire-flicker"
-            style={{ animationDelay: "0.2s" }}
-          >
-            <Flame className={cn(theme.color, theme.fill, theme.glow, "size-3.5")} />
-          </div>
-
-          {/* Right Flame - Wide spread */}
-          <div 
-            className="absolute -right-2 top-0 translate-x-1/2 rotate-[25deg] animate-fire-flicker"
-            style={{ animationDelay: "0.4s" }}
-          >
-            <Flame className={cn(theme.color, theme.fill, theme.glow, "size-3.5")} />
-          </div>
+          {/* Floating ember particles */}
+          {embers.map((e, i) => (
+            <div
+              key={`ember-${i}`}
+              className="absolute animate-ember-float"
+              style={{
+                left: `${e.x}%`,
+                bottom: '50%',
+                width: `${e.size}px`,
+                height: `${e.size}px`,
+                borderRadius: '50%',
+                background: `rgba(${theme.primary},0.9)`,
+                boxShadow: `0 0 ${e.size + 2}px rgba(${theme.primary},0.6)`,
+                animationDelay: `${e.delay}s`,
+                animationDuration: `${e.dur}s`,
+              }}
+            />
+          ))}
         </div>
       );
     };
@@ -124,7 +172,7 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
               theme.bg
           )} 
           style={{ 
-            inset: "-10px",
+            inset: isInferno ? "-14px" : "-10px",
           }} />
         )}
 
@@ -153,28 +201,16 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
           <span className="leading-none text-muted-foreground">{initials}</span>
         )}
 
-        {/* === THE RING OF FIRE === */}
+        {/* === THE RING OF FIRE (TFT-style) === */}
         {isOnFire && (
           <div 
             className="absolute inset-[-4px] rounded-full border-2 animate-ring-of-fire pointer-events-none z-30" 
-            style={{ borderColor: theme.ring }}
+            style={{ borderColor: `rgba(${theme.primary},0.8)` }}
           />
         )}
 
-        {/* === 3-FLAME CROWN (FIXED SIZE & POS) === */}
-        {renderFlames()}
-
-        {/* Rising Sparks (Only for Inferno+) */}
-        {isInferno && (
-          <>
-            <div className="absolute -top-8 left-1/4 animate-fire-particles">
-              <div className={cn("size-0.5 rounded-full shadow-[0_0_3px_currentColor]", theme.color)} />
-            </div>
-            <div className="absolute -top-10 right-1/3 animate-fire-particles [animation-delay:0.5s]">
-              <div className={cn("size-1 rounded-full shadow-[0_0_3px_currentColor]", theme.color)} />
-            </div>
-          </>
-        )}
+        {/* === TFT-STYLE FIRE AURA === */}
+        {renderFireAura()}
 
         {isBruised && (
           <div className="absolute inset-0 rounded-full bg-accent/20 pointer-events-none mix-blend-multiply flex items-center justify-center">
