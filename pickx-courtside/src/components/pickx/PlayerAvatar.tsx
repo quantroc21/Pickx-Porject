@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { useState, useEffect, useId } from "react";
+import { useState, useEffect, useId, useRef } from "react";
 import { getTier } from "@/lib/tiers";
 import type { Player } from "@/lib/types";
 import { Skull } from "lucide-react";
@@ -20,127 +20,136 @@ const SIZE = {
   xl: "size-20 text-2xl",
 };
 
-// Ember particles config
-const EMBERS = [
-  { x: 15, delay: 0,   dur: 1.2, size: 3 },
-  { x: 40, delay: 0.3, dur: 1.5, size: 2.5 },
-  { x: 70, delay: 0.7, dur: 1.0, size: 4 },
-  { x: 25, delay: 1.0, dur: 1.3, size: 2 },
-  { x: 55, delay: 0.5, dur: 1.4, size: 3.5 },
-  { x: 85, delay: 0.2, dur: 1.1, size: 3 },
-  { x: 10, delay: 0.8, dur: 1.6, size: 2 },
-  { x: 65, delay: 0.4, dur: 1.2, size: 3 },
-  { x: 35, delay: 0.9, dur: 1.0, size: 4 },
-];
+const CanvasFireAura = ({ theme, isGodlike, isInferno }: { theme: { primary: string, core: string, colorMatrix: string, bg: string }, isGodlike: boolean, isInferno: boolean }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-export function PlayerAvatar({ player, size = "md", ring = false, className }: PlayerAvatarProps) {
-  if (!player || !player.name) return <div className={cn("rounded-full bg-muted", SIZE[size])} />;
-  
-  const filterId = useId().replace(/:/g, '');
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
-  const initials = player.name
-    .split(" ")
-    .map((n) => n[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-  const tier = getTier(player.elo ?? 1000);
-    const streak = player.streak || 0;
-    const isOnFire = streak >= 3;
-    const isInferno = streak >= 5;
-    const isGodlike = streak >= 10;
-    const isBruised = streak <= -3;
-    
-    const [showComment, setShowComment] = useState(false);
+    let animationFrameId: number;
+    let particles: Particle[] = [];
 
-    useEffect(() => {
-      if (!player.last_comment || !player.last_comment_time || !player.id) return;
-      
-      const commentAge = Date.now() - new Date(player.last_comment_time).getTime();
-      const isRecent = commentAge < 3 * 60 * 1000;
-      const storageKey = `seen_comment_${player.id}_${player.last_comment_time}`;
-      
-      if (isRecent && !sessionStorage.getItem(storageKey)) {
-        setShowComment(true);
-        const timer = setTimeout(() => {
-          setShowComment(false);
-          sessionStorage.setItem(storageKey, "true");
-        }, 7000);
-        return () => clearTimeout(timer);
+    const pRGB = theme.primary.split(',').map(Number);
+    const cRGB = theme.core.split(',').map(Number);
+    const colors = {
+      core: cRGB,
+      mid: pRGB,
+      edge: pRGB.map((c: number) => Math.max(0, c - 100))
+    };
+
+    class Particle {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      life: number;
+      maxLife: number;
+      size: number;
+      isSpire: boolean;
+
+      constructor() {
+        const angle = Math.random() * Math.PI * 2;
+        const radius = 34 + (Math.random() * 4 - 2);
+        
+        this.x = 100 + Math.cos(angle) * radius;
+        this.y = 110 + Math.sin(angle) * radius;
+
+        this.isSpire = angle > -2.35 && angle < -0.78;
+
+        this.vx = (Math.random() - 0.5) * 1.5;
+        
+        if (this.isSpire) {
+          this.vy = -1.5 - Math.random() * 3.5;
+          this.size = 12 + Math.random() * 12;
+          this.maxLife = 35 + Math.random() * 30;
+          this.vx += (100 - this.x) * 0.03; 
+        } else {
+          this.vy = -0.5 - Math.random() * 1.5;
+          this.size = 6 + Math.random() * 8;
+          this.maxLife = 20 + Math.random() * 15;
+        }
+        this.life = this.maxLife;
       }
-    }, [player.last_comment, player.last_comment_time, player.id]);
 
-    // Color logic based on streak — returns RGB triplet for SVG use
-    const getFireTheme = () => {
-        if (isGodlike) return {
-            primary: "34,211,238",
-            core: "180,255,255",    // white-hot cyan
-            colorMatrix: "0 0 0 0 0.13  0 0 0 0 0.83  0 0 0 0 0.93  0 0 0 1 0",
-            bg: "bg-cyan-500/25",
-        };
-        if (isInferno) return {
-            primary: "236,72,153",
-            core: "255,180,220",    // white-hot pink
-            colorMatrix: "0 0 0 0 0.93  0 0 0 0 0.28  0 0 0 0 0.60  0 0 0 1 0",
-            bg: "bg-pink-500/25",
-        };
-        return {
-            primary: "249,115,22",
-            core: "255,230,80",     // intense yellow
-            colorMatrix: "0 0 0 0 0.98  0 0 0 0 0.45  0 0 0 0 0.09  0 0 0 1 0",
-            bg: "bg-orange-500/25",
-        };
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        
+        if (this.isSpire) {
+          this.vx += Math.sin(this.life * 0.1) * 0.06;
+        }
+
+        this.life--;
+        this.size *= 0.95; 
+      }
+
+      draw(ctx: CanvasRenderingContext2D) {
+        if (this.size < 0.5) return;
+        const p = this.life / this.maxLife; 
+        
+        ctx.beginPath();
+        const grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
+        
+        let r, g, b, a;
+        if (p > 0.6) {
+          const ratio = (p - 0.6) / 0.4;
+          r = colors.mid[0] + (colors.core[0] - colors.mid[0]) * ratio;
+          g = colors.mid[1] + (colors.core[1] - colors.mid[1]) * ratio;
+          b = colors.mid[2] + (colors.core[2] - colors.mid[2]) * ratio;
+          a = p;
+        } else {
+          const ratio = p / 0.6;
+          r = colors.edge[0] + (colors.mid[0] - colors.edge[0]) * ratio;
+          g = colors.edge[1] + (colors.mid[1] - colors.edge[1]) * ratio;
+          b = colors.edge[2] + (colors.mid[2] - colors.edge[2]) * ratio;
+          a = p * 0.8;
+        }
+
+        grad.addColorStop(0, `rgba(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)}, ${a * 0.5})`);
+        grad.addColorStop(1, `rgba(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)}, 0)`);
+        
+        ctx.fillStyle = grad;
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    const render = () => {
+      ctx.clearRect(0, 0, 200, 200);
+      ctx.globalCompositeOperation = "lighter";
+
+      const spawnRate = isGodlike ? 12 : isInferno ? 9 : 6;
+      for (let i = 0; i < spawnRate; i++) {
+        particles.push(new Particle());
+      }
+
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.update();
+        if (p.life <= 0) {
+          particles.splice(i, 1);
+        } else {
+          p.draw(ctx);
+        }
+      }
+
+      animationFrameId = requestAnimationFrame(render);
     };
 
-    const theme = getFireTheme();
+    render();
 
-    // Professional CSS Graphic Animation: Sharp Teardrop Flame + Halo
-    const renderFireAura = () => {
-      if (!isOnFire) return null;
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [theme, isGodlike, isInferno]);
 
-      const emberCount = isGodlike ? 9 : isInferno ? 6 : 3;
-      const embers = EMBERS.slice(0, emberCount);
-
-      return (
-        <div className="absolute inset-0 z-20 pointer-events-none flex justify-center items-center">
-          {/* 1. Core Energy Halo (Smooth Glowing Ring) */}
-          <div className="absolute inset-[-10px] rounded-full blur-[6px] animate-pulse"
-               style={{ border: `4px solid rgba(${theme.primary}, 0.7)` }} />
-          <div className="absolute inset-[-2px] rounded-full blur-[2px]"
-               style={{ border: `2px solid rgba(${theme.core}, 0.6)` }} />
-
-          {/* 2. THE MAIN SPIRE (Tilted energy pill from the mockup) */}
-          {/* A large, soft, glowing ellipse tilted to the right, sitting right behind the crown */}
-          <div className="absolute -top-[35px] left-[55%] -translate-x-1/2 w-[60px] h-[80px] flex justify-center items-center mix-blend-screen">
-             {/* Outer Glow (Orange/Pink/Cyan) - Huge blur */}
-             <div className="absolute w-[35px] h-[85px] rounded-full rotate-[25deg] blur-[10px]"
-                  style={{ background: `rgba(${theme.primary}, 0.9)` }} />
-             {/* Inner Core (Bright Yellow/White-hot) - Medium blur */}
-             <div className="absolute w-[20px] h-[65px] rounded-full rotate-[25deg] blur-[4px]"
-                  style={{ background: `rgba(${theme.core}, 1)` }} />
-          </div>
-
-          {/* 4. Embers */}
-          {embers.map((e, i) => (
-            <div
-              key={`ember-${i}`}
-              className="absolute animate-ember-float"
-              style={{
-                left: `${e.x}%`,
-                bottom: '50%',
-                width: `${e.size}px`,
-                height: `${e.size}px`,
-                borderRadius: '50%',
-                background: `rgba(${theme.core},0.9)`,
-                boxShadow: `0 0 ${e.size + 2}px rgba(${theme.primary},0.7)`,
-                animationDelay: `${e.delay}s`,
-                animationDuration: `${e.dur}s`,
-              }}
-            />
-          ))}
-        </div>
-      );
-    };
+  return (
+    <div className="absolute top-1/2 left-1/2 -ml-[100px] -mt-[110px] w-[200px] h-[200px] pointer-events-none z-20">
+      <canvas ref={canvasRef} width={200} height={200} className="w-full h-full" />
+    </div>
+  );
+};
 
     return (
       <div className="relative inline-flex shrink-0">
