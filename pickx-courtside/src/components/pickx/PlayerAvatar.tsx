@@ -53,15 +53,8 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno }: { theme: { primary: str
 
       constructor() {
         const angle = Math.random() * Math.PI * 2;
-        
-        // Base radius
-        let radius = 44 + Math.random() * 3;
-        
-        // Move bottom particles further out to avoid the face
-        const isBottom = angle > 0 && angle < Math.PI;
-        if (isBottom) {
-          radius += 8;
-        }
+        // Keep it tightly outside the border
+        const radius = 42 + Math.random() * 4;
         
         this.x = 100 + Math.cos(angle) * radius;
         this.y = 110 + Math.sin(angle) * radius;
@@ -70,15 +63,14 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno }: { theme: { primary: str
 
         if (this.isSpire) {
           this.vx = (100 - this.x) * 0.12 + (Math.random() - 0.5) * 0.2;
+          // Lower height: reduced velocity and maxLife
           this.vy = -1.8 - Math.random() * 1.5;
           this.initialSize = 6 + Math.random() * 6;
           this.maxLife = 30 + Math.random() * 15;
         } else {
-          this.vx = (100 - this.x) * 0.01 + (Math.random() - 0.5) * 0.3;
+          this.vx = (100 - this.x) * 0.015 + (Math.random() - 0.5) * 0.3;
           this.vy = -0.8 - Math.random() * 1.2;
-          
-          // Thinner body at the bottom
-          this.initialSize = (4 + Math.random() * 3) * (isBottom ? 0.7 : 1);
+          this.initialSize = 4 + Math.random() * 3;
           this.maxLife = 20 + Math.random() * 10;
         }
         this.size = this.initialSize;
