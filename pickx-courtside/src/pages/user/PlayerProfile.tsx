@@ -15,15 +15,26 @@ function CompactBox({
   label, 
   value, 
   accent, 
-  icon 
+  icon,
+  sublabel,
+  onClick
 }: { 
   label: string; 
   value: string | number; 
   accent?: string;
   icon?: React.ReactNode;
+  sublabel?: React.ReactNode;
+  onClick?: () => void;
 }) {
+  const Tag = onClick ? 'button' : 'div';
   return (
-    <div className="relative rounded-[1.5rem] border border-border/40 bg-background/30 px-1 py-4 text-center transition-transform active:scale-95 hover:bg-background/40">
+    <Tag 
+      onClick={onClick}
+      className={cn(
+        "relative rounded-[1.5rem] border border-border/40 bg-background/30 px-1 py-4 text-center transition-transform active:scale-95 hover:bg-background/40",
+        onClick && "cursor-pointer select-none"
+      )}
+    >
       <p className="font-bold uppercase tracking-[0.2em] text-muted-foreground text-[9px]">{label}</p>
       <div className="mt-1 flex items-center justify-center gap-1">
         {icon && icon}
@@ -31,7 +42,8 @@ function CompactBox({
           {value}
         </p>
       </div>
-    </div>
+      {sublabel && <div className="mt-1.5">{sublabel}</div>}
+    </Tag>
   );
 }
 
@@ -137,8 +149,15 @@ export default function PlayerProfile() {
   const tier = getTier(player.elo);
   const { percent, pointsToNext, nextLabel } = tierProgress(player.elo);
   const tierColor = TIER_HEX[tier.key];
-  const matchesToUnlock = Math.max(0, 5 - totalMatches);
+  const matchesToUnlock = Math.max(0, 10 - totalMatches);
   const isCalibrating = matchesToUnlock > 0;
+
+  // Confidence: 0% at 0 matches, ~70% at 10 matches, ~90% at 20, ~98% at 30+
+  const confidence = Math.min(100, Math.round(100 * (1 - Math.exp(-totalMatches / 10))));
+
+  // USA approximate rating (round down to nearest 0.5)
+  const usaRating = (Math.floor(parseFloat(duprScore) * 2) / 2).toFixed(1);
+  const [showUsaRating, setShowUsaRating] = useState(false);
 
   return (
     <div className="pb-24 pt-8">
@@ -205,7 +224,7 @@ export default function PlayerProfile() {
                   Đang định chuẩn DUPR
                 </p>
                 <p className="text-[10px] leading-relaxed text-muted-foreground/80">
-                  Cần thêm <span className="font-bold text-foreground">{matchesToUnlock} trận đấu</span> để xác thực trình độ thực tế của bạn.
+                  Cần thêm <span className="font-bold text-foreground">{matchesToUnlock} trận đấu</span> để xác thực trình độ thực tế.
                 </p>
               </div>
             </div>
@@ -216,10 +235,25 @@ export default function PlayerProfile() {
         <div className="relative mt-6 grid grid-cols-4 gap-2">
           <CompactBox label="Elo" value={player.elo} accent={tierColor} />
           <CompactBox 
-            label="DUPR" 
-            value={isCalibrating ? "---" : duprScore} 
+            label={showUsaRating ? "USA" : "DUPR"}
+            value={isCalibrating ? "---" : (showUsaRating ? `≈ ${usaRating}` : duprScore)} 
             accent={isCalibrating ? "hsl(var(--muted-foreground)/0.5)" : "hsl(var(--primary))"}
             icon={isCalibrating ? <Lock className="size-3 opacity-40" /> : undefined}
+            onClick={isCalibrating ? undefined : () => setShowUsaRating(!showUsaRating)}
+            sublabel={!isCalibrating ? (
+              <div className="mx-auto w-3/4">
+                <div className="h-[3px] w-full overflow-hidden rounded-full bg-border/30">
+                  <div 
+                    className="h-full rounded-full transition-all duration-700"
+                    style={{ 
+                      width: `${confidence}%`,
+                      background: confidence >= 80 ? 'hsl(var(--success))' : confidence >= 50 ? 'hsl(var(--warning))' : 'hsl(var(--danger))'
+                    }}
+                  />
+                </div>
+                <p className="mt-0.5 text-[7px] text-muted-foreground/60">{confidence}%</p>
+              </div>
+            ) : undefined}
           />
           <CompactBox label="Thắng" value={`${winRate}%`} />
           <CompactBox label="Trận" value={totalMatches} />
