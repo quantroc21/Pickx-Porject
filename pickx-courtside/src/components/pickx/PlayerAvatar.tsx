@@ -30,7 +30,7 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno }: { theme: { primary: str
     if (!ctx) return;
 
     let animationFrameId: number;
-    let particles: any[] = [];
+    let particles: Particle[] = [];
 
     const pRGB = theme.primary.split(',').map(Number);
     const cRGB = theme.core.split(',').map(Number);
@@ -48,42 +48,49 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno }: { theme: { primary: str
       life: number;
       maxLife: number;
       size: number;
+      initialSize: number;
       isSpire: boolean;
+      noiseOffset: number;
 
       constructor() {
         const angle = Math.random() * Math.PI * 2;
-        const radius = 34 + (Math.random() * 4 - 2);
+        const radius = 34 + (Math.random() * 6 - 3);
         
         this.x = 100 + Math.cos(angle) * radius;
         this.y = 110 + Math.sin(angle) * radius;
 
+        // Spire is top center (-PI/2)
         this.isSpire = angle > -2.35 && angle < -0.78;
+        this.noiseOffset = Math.random() * 1000;
 
-        this.vx = (Math.random() - 0.5) * 1.5;
+        this.vx = (Math.random() - 0.5) * 1.2;
         
         if (this.isSpire) {
-          this.vy = -1.5 - Math.random() * 3.5;
-          this.size = 12 + Math.random() * 12;
-          this.maxLife = 35 + Math.random() * 30;
-          this.vx += (100 - this.x) * 0.03; 
+          this.vy = -2.0 - Math.random() * 4.0;
+          this.initialSize = 8 + Math.random() * 12;
+          this.maxLife = 40 + Math.random() * 40;
+          this.vx += (100 - this.x) * 0.04; 
         } else {
-          this.vy = -0.5 - Math.random() * 1.5;
-          this.size = 6 + Math.random() * 8;
-          this.maxLife = 20 + Math.random() * 15;
+          this.vy = -0.8 - Math.random() * 2.0;
+          this.initialSize = 4 + Math.random() * 8;
+          this.maxLife = 15 + Math.random() * 20;
         }
+        this.size = this.initialSize;
         this.life = this.maxLife;
       }
 
       update() {
+        // Organic horizontal wiggling
+        this.vx += Math.sin(this.life * 0.15 + this.noiseOffset) * 0.15;
         this.x += this.vx;
         this.y += this.vy;
         
-        if (this.isSpire) {
-          this.vx += Math.sin(this.life * 0.1) * 0.06;
-        }
+        // Upward pull
+        this.vy -= 0.05;
 
         this.life--;
-        this.size *= 0.95; 
+        // Sharper decay for better texture
+        this.size = this.initialSize * Math.pow(this.life / this.maxLife, 1.5);
       }
 
       draw(ctx: CanvasRenderingContext2D) {
@@ -108,7 +115,7 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno }: { theme: { primary: str
           a = p * 0.8;
         }
 
-        grad.addColorStop(0, `rgba(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)}, ${a * 0.5})`);
+        grad.addColorStop(0, `rgba(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)}, ${a * 0.7})`);
         grad.addColorStop(1, `rgba(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)}, 0)`);
         
         ctx.fillStyle = grad;
@@ -118,10 +125,14 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno }: { theme: { primary: str
     }
 
     const render = () => {
-      ctx.clearRect(0, 0, 200, 200);
+      // Create trailing effect for motion blur
+      ctx.globalCompositeOperation = "source-over";
+      ctx.fillStyle = "rgba(0, 0, 0, 0.15)";
+      ctx.clearRect(0, 0, 200, 200); // We still clear but can use semi-transparent overlay if needed
+      
       ctx.globalCompositeOperation = "lighter";
 
-      const spawnRate = isGodlike ? 12 : isInferno ? 9 : 6;
+      const spawnRate = isGodlike ? 20 : isInferno ? 15 : 10;
       for (let i = 0; i < spawnRate; i++) {
         particles.push(new Particle());
       }
@@ -129,7 +140,7 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno }: { theme: { primary: str
       for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i];
         p.update();
-        if (p.life <= 0) {
+        if (p.life <= 0 || p.size < 0.5) {
           particles.splice(i, 1);
         } else {
           p.draw(ctx);
@@ -145,7 +156,7 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno }: { theme: { primary: str
   }, [theme, isGodlike, isInferno]);
 
   return (
-    <div className="absolute top-1/2 left-1/2 -ml-[100px] -mt-[110px] w-[200px] h-[200px] pointer-events-none z-20">
+    <div className="absolute top-1/2 left-1/2 -ml-[100px] -mt-[110px] w-[200px] h-[200px] pointer-events-none z-20 mix-blend-screen">
       <canvas ref={canvasRef} width={200} height={200} className="w-full h-full" />
     </div>
   );
