@@ -88,9 +88,9 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
       
       return (
         <div className="absolute inset-0 z-20 pointer-events-none">
-          {/* Center Flame - Highest point */}
+          {/* Center Flame - Shifted right to avoid crown */}
           <div 
-            className="absolute left-1/2 -top-4 -translate-x-1/2 animate-fire-flicker"
+            className="absolute left-[65%] -top-3 -translate-x-1/2 animate-fire-flicker"
             style={{ animationDelay: "0s" }}
           >
             <Flame className={cn(theme.color, theme.fill, theme.glow, "size-4")} />
