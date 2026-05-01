@@ -241,10 +241,7 @@ export default function PlayerProfile() {
             <div className="mr-3 flex shrink-0 flex-col items-center justify-center pt-2" title="Độ tin cậy của DUPR">
               <div className="relative flex size-20 items-center justify-center">
                 <svg 
-                  className={cn(
-                    "size-full -rotate-90 transform drop-shadow-md transition-all duration-1000",
-                    confidence >= 80 ? "drop-shadow-[0_0_8px_rgba(34,197,94,0.5)]" : confidence >= 50 ? "drop-shadow-[0_0_8px_rgba(234,179,8,0.5)]" : "drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]"
-                  )} 
+                  className="size-full -rotate-90 transform transition-all duration-1000"
                   viewBox="0 0 36 36"
                 >
                   <circle cx="18" cy="18" r="16" fill="none" className="stroke-muted/20" strokeWidth="3" />
