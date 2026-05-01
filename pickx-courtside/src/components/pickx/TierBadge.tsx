@@ -31,9 +31,9 @@ export function TierBadge({ elo, tier, size = "sm", showLabel = true, className 
     : getTier(elo ?? 1000);
 
   const sizeClasses = {
-    sm: "px-2 py-0.5 text-[10px] gap-1",
-    md: "px-2.5 py-1 text-xs gap-1.5",
-    lg: "px-3 py-1.5 text-sm gap-2",
+    sm: "px-1.5 py-0.5 text-[10px] gap-1",
+    md: "px-2 py-0.5 text-[11px] gap-1",
+    lg: "px-2.5 py-1 text-sm gap-1.5",
   }[size];
 
   return (
@@ -45,7 +45,6 @@ export function TierBadge({ elo, tier, size = "sm", showLabel = true, className 
         className,
       )}
     >
-      <span className="size-1.5 rounded-full bg-current" />
       {showLabel && resolved.label}
     </span>
   );

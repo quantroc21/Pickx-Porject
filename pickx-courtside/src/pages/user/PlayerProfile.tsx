@@ -215,21 +215,21 @@ export default function PlayerProfile() {
               </div>
               <h1 className="truncate font-display text-2xl font-bold leading-tight">{player.name}</h1>
               
-              <div className="mt-1 flex flex-nowrap items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+              <div className="mt-1.5 flex flex-nowrap items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
                 <TierBadge elo={player.elo} size="md" />
                 {player.streak >= 3 && (
-                  <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-warning/15 px-2 py-1 text-[11px] font-semibold text-warning ring-1 ring-warning/30 animate-pulse">
-                    <Flame className="size-3" /> Nhào vô
+                  <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-warning/15 px-1.5 py-0.5 text-[10px] font-bold text-warning ring-1 ring-warning/30 animate-pulse">
+                    <Flame className="size-2.5" /> Nhào vô
                   </span>
                 )}
                 {player.streak === 2 && (
-                  <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-warning/10 px-2 py-1 text-[11px] font-semibold text-warning/80 ring-1 ring-warning/20">
-                    <Zap className="size-3" /> Hưng phấn
+                  <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-warning/10 px-1.5 py-0.5 text-[10px] font-bold text-warning/80 ring-1 ring-warning/20">
+                    <Zap className="size-2.5" /> Hưng phấn
                   </span>
                 )}
                 {player.streak <= -3 && (
-                  <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-accent/15 px-2 py-1 text-[11px] font-semibold text-accent ring-1 ring-accent/30">
-                    <Skull className="size-3" /> Bầm dập
+                  <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-accent/15 px-1.5 py-0.5 text-[10px] font-bold text-accent ring-1 ring-accent/30">
+                    <Skull className="size-2.5" /> Bầm dập
                   </span>
                 )}
               </div>

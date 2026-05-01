@@ -191,17 +191,17 @@ const CanvasRainEffect = ({ size = "md" }: { size?: keyof typeof SCALES }) => {
       }
 
       reset() {
-        const area = 120 * scale;
+        const area = 150 * scale; // Even wider area
         this.x = 100 - area/2 + Math.random() * area;
-        this.y = 100 - area/2 - 40; // Spawn higher up
-        this.speed = (5 + Math.random() * 8) * scale;
-        this.len = (8 + Math.random() * 12) * scale;
-        this.opacity = 0.2 + Math.random() * 0.4; // More visible
+        this.y = 100 - area/2 - 60; // Spawn even higher
+        this.speed = (6 + Math.random() * 10) * scale;
+        this.len = (12 + Math.random() * 20) * scale; // Much longer drops
+        this.opacity = 0.3 + Math.random() * 0.5; // Much more visible
       }
 
       update() {
         this.y += this.speed;
-        const bottom = 100 + (60 * scale);
+        const bottom = 100 + (80 * scale);
         if (this.y > bottom) {
           this.reset();
         }
@@ -209,16 +209,15 @@ const CanvasRainEffect = ({ size = "md" }: { size?: keyof typeof SCALES }) => {
 
       draw(ctx: CanvasRenderingContext2D) {
         ctx.beginPath();
-        ctx.strokeStyle = `rgba(148, 163, 184, ${this.opacity})`;
-        ctx.lineWidth = 1.5 * scale; // Thicker rain
+        ctx.strokeStyle = `rgba(160, 180, 200, ${this.opacity})`;
+        ctx.lineWidth = 2 * scale; // Much thicker rain
         ctx.moveTo(this.x, this.y);
         ctx.lineTo(this.x, this.y + this.len);
         ctx.stroke();
       }
     }
 
-    // More rain drops
-    const dropCount = Math.floor(40 * scale);
+    const dropCount = Math.floor(50 * scale); // Maximum rain
 
     for (let i = 0; i < dropCount; i++) {
       drops.push(new Drop());
@@ -226,7 +225,7 @@ const CanvasRainEffect = ({ size = "md" }: { size?: keyof typeof SCALES }) => {
 
     const render = () => {
       ctx.globalCompositeOperation = "destination-out";
-      ctx.fillStyle = "rgba(255, 255, 255, 0.2)"; // Longer trails
+      ctx.fillStyle = "rgba(255, 255, 255, 0.15)"; // Even longer trails
       ctx.fillRect(0, 0, 200, 200);
 
       ctx.globalCompositeOperation = "source-over";
@@ -243,8 +242,8 @@ const CanvasRainEffect = ({ size = "md" }: { size?: keyof typeof SCALES }) => {
   }, [scale]);
 
   return (
-    <div className="absolute inset-0 rounded-full overflow-hidden pointer-events-none z-10">
-      <canvas ref={canvasRef} width={200} height={200} className="w-full h-full opacity-80" />
+    <div className="absolute inset-0 pointer-events-none z-10">
+      <canvas ref={canvasRef} width={200} height={200} className="w-full h-full opacity-90" />
     </div>
   );
 };
@@ -353,7 +352,7 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
           <div className="absolute inset-0 rounded-full bg-accent/20 pointer-events-none mix-blend-multiply flex items-center justify-center">
              <div className="absolute top-1/4 left-1/4 size-2 rounded-full bg-purple-900/40 blur-[2px]" />
              <div className="absolute top-1/2 right-1/4 size-3 rounded-full bg-blue-900/30 blur-[3px]" />
-             <Skull className="size-1/2 text-accent/40 rotate-12" />
+             <Skull className="size-[65%] text-accent/50 rotate-12" />
           </div>
         )}
         
