@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useId } from "react";
 import { getTier } from "@/lib/tiers";
 import type { Player } from "@/lib/types";
 import { Skull } from "lucide-react";
@@ -20,25 +20,7 @@ const SIZE = {
   xl: "size-20 text-2xl",
 };
 
-// Flame tongue positions around the full circle (angle in degrees, scale factor)
-const FLAME_TONGUES = [
-  { angle: -90, scale: 1.2, delay: 0,     h: 36 },  // top-center (tallest)
-  { angle: -60, scale: 1.0, delay: 0.12,  h: 30 },  // top-right
-  { angle: -120, scale: 1.0, delay: 0.25, h: 30 },  // top-left
-  { angle: -30, scale: 0.85, delay: 0.4,  h: 26 },  // right-upper
-  { angle: -150, scale: 0.85, delay: 0.55, h: 26 },  // left-upper
-  { angle: 0,   scale: 0.75, delay: 0.35, h: 22 },   // right
-  { angle: 180, scale: 0.75, delay: 0.5,  h: 22 },   // left
-  { angle: -75, scale: 1.05, delay: 0.08, h: 32 },   // top-right inner
-  { angle: -105, scale: 1.05, delay: 0.18, h: 32 },  // top-left inner
-  { angle: -45, scale: 0.9, delay: 0.3,   h: 28 },   // diagonal right
-  { angle: -135, scale: 0.9, delay: 0.42, h: 28 },   // diagonal left
-  { angle: 30,  scale: 0.6, delay: 0.6,   h: 18 },   // bottom-right
-  { angle: 150, scale: 0.6, delay: 0.7,   h: 18 },   // bottom-left
-  { angle: 90,  scale: 0.5, delay: 0.65,  h: 14 },   // bottom (smallest)
-];
-
-// Ember particles that float upward
+// Ember particles config
 const EMBERS = [
   { x: 15, delay: 0,   dur: 1.2, size: 3 },
   { x: 40, delay: 0.3, dur: 1.5, size: 2.5 },
@@ -54,6 +36,8 @@ const EMBERS = [
 export function PlayerAvatar({ player, size = "md", ring = false, className }: PlayerAvatarProps) {
   if (!player || !player.name) return <div className={cn("rounded-full bg-muted", SIZE[size])} />;
   
+  const filterId = useId().replace(/:/g, '');
+
   const initials = player.name
     .split(" ")
     .map((n) => n[0])
@@ -86,68 +70,143 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
       }
     }, [player.last_comment, player.last_comment_time, player.id]);
 
-    // Color logic based on streak
+    // Color logic based on streak — returns RGB triplet for SVG use
     const getFireTheme = () => {
         if (isGodlike) return {
-            primary: "34,211,238",   // cyan
-            secondary: "6,182,212",
-            bg: "bg-cyan-500/20",
-            ring: "rgba(34,211,238,0.8)",
+            primary: "34,211,238",
+            // feColorMatrix: boost cyan channel
+            colorMatrix: "0 0 0 0 0.13  0 0 0 0 0.83  0 0 0 0 0.93  0 0 0 1 0",
+            bg: "bg-cyan-500/25",
         };
         if (isInferno) return {
-            primary: "236,72,153",   // pink
-            secondary: "219,39,119",
-            bg: "bg-pink-500/20",
-            ring: "rgba(236,72,153,0.8)",
+            primary: "236,72,153",
+            colorMatrix: "0 0 0 0 0.93  0 0 0 0 0.28  0 0 0 0 0.60  0 0 0 1 0",
+            bg: "bg-pink-500/25",
         };
         return {
-            primary: "249,115,22",   // orange
-            secondary: "234,88,12",
-            bg: "bg-orange-500/20",
-            ring: "rgba(249,115,22,0.8)",
+            primary: "249,115,22",
+            // feColorMatrix: warm orange/yellow fire
+            colorMatrix: "0 0 0 0 0.98  0 0 0 0 0.45  0 0 0 0 0.09  0 0 0 1 0",
+            bg: "bg-orange-500/25",
         };
     };
 
     const theme = getFireTheme();
 
-    // TFT-style fire aura: multiple flame tongues around the circle
+    // SVG Turbulence-based fire ring — organic, flowing, realistic
     const renderFireAura = () => {
       if (!isOnFire) return null;
-      
-      const tongueCount = isGodlike ? 14 : isInferno ? 11 : 8;
-      const tongues = FLAME_TONGUES.slice(0, tongueCount);
-      const emberCount = isGodlike ? 9 : isInferno ? 7 : 4;
+
+      const displaceScale = isGodlike ? 18 : isInferno ? 15 : 12;
+      const strokeW = isGodlike ? 14 : isInferno ? 12 : 10;
+      const outerGlowW = isGodlike ? 22 : isInferno ? 18 : 14;
+      const emberCount = isGodlike ? 9 : isInferno ? 6 : 3;
       const embers = EMBERS.slice(0, emberCount);
+      const animDur = isGodlike ? "1.5s" : isInferno ? "2s" : "2.5s";
 
       return (
-        <div className="absolute inset-[-8px] z-20 pointer-events-none">
-          {/* Flame tongues positioned around the circle */}
-          {tongues.map((t, i) => {
-            // Calculate position on the circle edge
-            const rad = (t.angle * Math.PI) / 180;
-            const radius = 48; // % from center to edge
-            const cx = 50 + Math.cos(rad) * radius;
-            const cy = 50 + Math.sin(rad) * radius;
+        <div className="absolute inset-[-14px] z-20 pointer-events-none">
+          <svg 
+            className="size-full overflow-visible" 
+            viewBox="0 0 120 120" 
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <defs>
+              {/* Fire turbulence filter */}
+              <filter id={`${filterId}-fire`} x="-40%" y="-40%" width="180%" height="180%">
+                <feTurbulence 
+                  type="fractalNoise" 
+                  baseFrequency="0.04 0.09" 
+                  numOctaves={3} 
+                  result="noise"
+                >
+                  <animate 
+                    attributeName="seed" 
+                    from="0" 
+                    to="100" 
+                    dur={animDur}
+                    repeatCount="indefinite" 
+                  />
+                </feTurbulence>
+                <feDisplacementMap 
+                  in="SourceGraphic" 
+                  in2="noise" 
+                  scale={displaceScale} 
+                  xChannelSelector="R" 
+                  yChannelSelector="G" 
+                  result="displaced"
+                />
+                <feGaussianBlur in="displaced" stdDeviation="1.8" result="blurred" />
+                <feColorMatrix 
+                  in="blurred" 
+                  type="matrix" 
+                  values={theme.colorMatrix}
+                  result="colored"
+                />
+              </filter>
+
+              {/* Outer glow filter (softer, bigger) */}
+              <filter id={`${filterId}-glow`} x="-50%" y="-50%" width="200%" height="200%">
+                <feTurbulence 
+                  type="fractalNoise" 
+                  baseFrequency="0.03 0.07" 
+                  numOctaves={2} 
+                  result="gnoise"
+                >
+                  <animate 
+                    attributeName="seed" 
+                    from="50" 
+                    to="150" 
+                    dur={animDur}
+                    repeatCount="indefinite" 
+                  />
+                </feTurbulence>
+                <feDisplacementMap 
+                  in="SourceGraphic" 
+                  in2="gnoise" 
+                  scale={displaceScale * 1.3}
+                  xChannelSelector="G" 
+                  yChannelSelector="R" 
+                  result="gdisplaced"
+                />
+                <feGaussianBlur in="gdisplaced" stdDeviation="3.5" result="gblurred" />
+                <feColorMatrix 
+                  in="gblurred" 
+                  type="matrix" 
+                  values={theme.colorMatrix}
+                  result="gcolored"
+                />
+              </filter>
+            </defs>
             
-            return (
-              <div
-                key={i}
-                className="absolute animate-flame-tongue"
-                style={{
-                  left: `${cx}%`,
-                  top: `${cy}%`,
-                  width: `${t.h * 0.55}px`,
-                  height: `${t.h}px`,
-                  transform: `translate(-50%, -90%) rotate(${t.angle + 90}deg) scale(${t.scale})`,
-                  animationDelay: `${t.delay}s`,
-                  animationDuration: `${0.6 + Math.random() * 0.4}s`,
-                  background: `linear-gradient(to top, rgba(${theme.primary},0.9), rgba(${theme.primary},0.5) 40%, rgba(${theme.secondary},0.2) 70%, transparent)`,
-                  borderRadius: '50% 50% 20% 20%',
-                  filter: `blur(1px) drop-shadow(0 0 3px rgba(${theme.primary},0.6))`,
-                }}
-              />
-            );
-          })}
+            {/* Layer 1: Outer glow — soft wide fire halo */}
+            <circle 
+              cx="60" cy="60" r="44" 
+              fill="none" 
+              stroke={`rgba(${theme.primary},0.35)`}
+              strokeWidth={outerGlowW}
+              filter={`url(#${filterId}-glow)`}
+            />
+
+            {/* Layer 2: Main fire ring — the primary burning ring */}
+            <circle 
+              cx="60" cy="60" r="44" 
+              fill="none" 
+              stroke={`rgba(${theme.primary},0.85)`}
+              strokeWidth={strokeW}
+              filter={`url(#${filterId}-fire)`}
+            />
+
+            {/* Layer 3: Bright inner core ring */}
+            <circle 
+              cx="60" cy="60" r="44" 
+              fill="none" 
+              stroke={`rgba(${theme.primary},0.5)`}
+              strokeWidth={strokeW * 0.5}
+              filter={`url(#${filterId}-fire)`}
+              style={{ mixBlendMode: 'screen' }}
+            />
+          </svg>
 
           {/* Floating ember particles */}
           {embers.map((e, i) => (
@@ -161,7 +220,7 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
                 height: `${e.size}px`,
                 borderRadius: '50%',
                 background: `rgba(${theme.primary},0.9)`,
-                boxShadow: `0 0 ${e.size + 2}px rgba(${theme.primary},0.6)`,
+                boxShadow: `0 0 ${e.size + 2}px rgba(${theme.primary},0.7)`,
                 animationDelay: `${e.delay}s`,
                 animationDuration: `${e.dur}s`,
               }}
@@ -209,15 +268,7 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
           <span className="leading-none text-muted-foreground">{initials}</span>
         )}
 
-        {/* === THE RING OF FIRE (TFT-style) === */}
-        {isOnFire && (
-          <div 
-            className="absolute inset-[-4px] rounded-full border-2 animate-ring-of-fire pointer-events-none z-30" 
-            style={{ borderColor: `rgba(${theme.primary},0.8)` }}
-          />
-        )}
-
-        {/* === TFT-STYLE FIRE AURA === */}
+        {/* === SVG TURBULENCE FIRE AURA === */}
         {renderFireAura()}
 
         {isBruised && (
