@@ -238,7 +238,7 @@ export default function PlayerProfile() {
 
           {/* Right Column: Confidence Score */}
           {!isCalibrating && (
-            <div className="flex shrink-0 flex-col items-center justify-center pt-2" title="Độ tin cậy của DUPR">
+            <div className="mr-3 flex shrink-0 flex-col items-center justify-center pt-2" title="Độ tin cậy của DUPR">
               <div className="relative flex size-20 items-center justify-center">
                 <svg 
                   className={cn(
