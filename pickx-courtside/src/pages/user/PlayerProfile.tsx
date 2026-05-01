@@ -188,84 +188,87 @@ export default function PlayerProfile() {
           style={{ background: `radial-gradient(60% 100% at 50% 0%, ${tierColor}, transparent)` }}
         />
 
-        <div className="relative flex items-start gap-4">
-          <div className="relative group">
-            <PlayerAvatar player={player} size="lg" ring />
-            {isMe && (
-              <button
-                type="button"
-                onClick={() => setIsPickerOpen(true)}
-                className="absolute -bottom-0.5 -right-0.5 grid size-7 place-items-center rounded-full bg-primary/20 text-primary-foreground shadow-sm backdrop-blur-md transition-all hover:bg-primary/40 active:scale-90"
-                title="Đổi diện mạo"
-              >
-                <Wand2 className="size-3.5" />
-              </button>
-            )}
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-                    @{player.handle}
-                  </p>
-                  {isMe && <span className="inline-block shrink-0 rounded bg-primary/20 px-1 py-0.5 text-[9px] font-bold text-primary ring-1 ring-primary/40">BẠN</span>}
-                </div>
-                <h1 className="truncate font-display text-2xl font-bold leading-tight">{player.name}</h1>
-              </div>
+        <div className="relative flex items-center justify-between gap-4">
+          
+          {/* Left Column: Avatar + Info */}
+          <div className="flex min-w-0 items-center gap-4">
+            <div className="relative group shrink-0">
+              <PlayerAvatar player={player} size="lg" ring />
+              {isMe && (
+                <button
+                  type="button"
+                  onClick={() => setIsPickerOpen(true)}
+                  className="absolute -bottom-0.5 -right-0.5 grid size-7 place-items-center rounded-full bg-primary/20 text-primary-foreground shadow-sm backdrop-blur-md transition-all hover:bg-primary/40 active:scale-90"
+                  title="Đổi diện mạo"
+                >
+                  <Wand2 className="size-3.5" />
+                </button>
+              )}
+            </div>
 
-              {!isCalibrating && (
-                <div className="flex shrink-0 flex-col items-center justify-center" title="Độ tin cậy của DUPR">
-                  <div className="relative flex size-14 items-center justify-center">
-                    <svg 
-                      className={cn(
-                        "size-full -rotate-90 transform drop-shadow-sm transition-all duration-1000",
-                        confidence >= 80 ? "drop-shadow-[0_0_6px_rgba(34,197,94,0.4)]" : confidence >= 50 ? "drop-shadow-[0_0_6px_rgba(234,179,8,0.4)]" : "drop-shadow-[0_0_6px_rgba(239,68,68,0.4)]"
-                      )} 
-                      viewBox="0 0 36 36"
-                    >
-                      <circle cx="18" cy="18" r="15" fill="none" className="stroke-muted/20" strokeWidth="3" />
-                      <circle 
-                        cx="18" 
-                        cy="18" 
-                        r="15" 
-                        fill="none" 
-                        className={confidence >= 80 ? "stroke-success" : confidence >= 50 ? "stroke-warning" : "stroke-danger"} 
-                        strokeWidth="3" 
-                        strokeDasharray={2 * Math.PI * 15}
-                        strokeDashoffset={(2 * Math.PI * 15) - (confidence / 100) * (2 * Math.PI * 15)}
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className={cn("font-display text-[13px] font-bold tracking-tight", confidence >= 80 ? "text-success" : confidence >= 50 ? "text-warning" : "text-danger")}>
-                        {confidence}%
-                      </span>
-                    </div>
-                  </div>
-                  <span className="mt-1.5 text-[8.5px] font-bold uppercase tracking-[0.2em] text-muted-foreground/80">Độ tin cậy</span>
-                </div>
-              )}
-            </div>
-            <div className="mt-2 flex flex-wrap items-center gap-2">
-              <TierBadge elo={player.elo} size="md" />
-              {player.streak >= 3 && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-warning/15 px-2 py-1 text-[11px] font-semibold text-warning ring-1 ring-warning/30 animate-pulse">
-                  <Flame className="size-3" /> Nhào vô · Chuỗi {player.streak}
-                </span>
-              )}
-              {player.streak === 2 && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-warning/10 px-2 py-1 text-[11px] font-semibold text-warning/80 ring-1 ring-warning/20">
-                  <Zap className="size-3" /> Hưng phấn
-                </span>
-              )}
-              {player.streak <= -3 && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-accent/15 px-2 py-1 text-[11px] font-semibold text-accent ring-1 ring-accent/30">
-                  <Skull className="size-3" /> Bầm dập · Thua {Math.abs(player.streak)}
-                </span>
-              )}
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+                  @{player.handle}
+                </p>
+                {isMe && <span className="inline-block shrink-0 rounded bg-primary/20 px-1 py-0.5 text-[9px] font-bold text-primary ring-1 ring-primary/40">BẠN</span>}
+              </div>
+              <h1 className="truncate font-display text-2xl font-bold leading-tight">{player.name}</h1>
+              
+              <div className="mt-1 flex flex-wrap items-center gap-2">
+                <TierBadge elo={player.elo} size="md" />
+                {player.streak >= 3 && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-warning/15 px-2 py-1 text-[11px] font-semibold text-warning ring-1 ring-warning/30 animate-pulse">
+                    <Flame className="size-3" /> Nhào vô
+                  </span>
+                )}
+                {player.streak === 2 && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-warning/10 px-2 py-1 text-[11px] font-semibold text-warning/80 ring-1 ring-warning/20">
+                    <Zap className="size-3" /> Hưng phấn
+                  </span>
+                )}
+                {player.streak <= -3 && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-accent/15 px-2 py-1 text-[11px] font-semibold text-accent ring-1 ring-accent/30">
+                    <Skull className="size-3" /> Bầm dập
+                  </span>
+                )}
+              </div>
             </div>
           </div>
+
+          {/* Right Column: Confidence Score */}
+          {!isCalibrating && (
+            <div className="flex shrink-0 flex-col items-center justify-center pt-2" title="Độ tin cậy của DUPR">
+              <div className="relative flex size-20 items-center justify-center">
+                <svg 
+                  className={cn(
+                    "size-full -rotate-90 transform drop-shadow-md transition-all duration-1000",
+                    confidence >= 80 ? "drop-shadow-[0_0_8px_rgba(34,197,94,0.5)]" : confidence >= 50 ? "drop-shadow-[0_0_8px_rgba(234,179,8,0.5)]" : "drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]"
+                  )} 
+                  viewBox="0 0 36 36"
+                >
+                  <circle cx="18" cy="18" r="16" fill="none" className="stroke-muted/20" strokeWidth="3" />
+                  <circle 
+                    cx="18" 
+                    cy="18" 
+                    r="16" 
+                    fill="none" 
+                    className={confidence >= 80 ? "stroke-success" : confidence >= 50 ? "stroke-warning" : "stroke-danger"} 
+                    strokeWidth="3" 
+                    strokeDasharray={2 * Math.PI * 16}
+                    strokeDashoffset={(2 * Math.PI * 16) - (confidence / 100) * (2 * Math.PI * 16)}
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className={cn("font-display text-xl font-bold tracking-tight", confidence >= 80 ? "text-success" : confidence >= 50 ? "text-warning" : "text-danger")}>
+                    {confidence}%
+                  </span>
+                </div>
+              </div>
+              <span className="mt-2 text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Độ tin cậy</span>
+            </div>
+          )}
         </div>
 
         {/* Calibration Banner */}
