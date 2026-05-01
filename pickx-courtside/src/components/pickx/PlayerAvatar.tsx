@@ -20,8 +20,17 @@ const SIZE = {
   xl: "size-20 text-2xl",
 };
 
-const CanvasFireAura = ({ theme, isGodlike, isInferno }: { theme: { primary: string, core: string, colorMatrix: string, bg: string }, isGodlike: boolean, isInferno: boolean }) => {
+const SCALES = {
+  xs: 0.35,
+  sm: 0.45,
+  md: 0.55,
+  lg: 0.8,
+  xl: 1.0,
+};
+
+const CanvasFireAura = ({ theme, isGodlike, isInferno, size = "md" }: { theme: any, isGodlike: boolean, isInferno: boolean, size?: keyof typeof SCALES }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const scale = SCALES[size];
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -53,24 +62,23 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno }: { theme: { primary: str
 
       constructor() {
         const angle = Math.random() * Math.PI * 2;
-        // Keep it tightly outside the border
-        const radius = 42 + Math.random() * 4;
+        const radius = (44 + Math.random() * 3) * scale;
         
+        // Center of 200x200 canvas
         this.x = 100 + Math.cos(angle) * radius;
-        this.y = 110 + Math.sin(angle) * radius;
+        this.y = 100 + Math.sin(angle) * radius;
 
         this.isSpire = angle > -1.8 && angle < -1.3;
 
         if (this.isSpire) {
           this.vx = (100 - this.x) * 0.12 + (Math.random() - 0.5) * 0.2;
-          // Lower height: reduced velocity and maxLife
-          this.vy = -1.8 - Math.random() * 1.5;
-          this.initialSize = 6 + Math.random() * 6;
+          this.vy = (-1.8 - Math.random() * 1.5) * scale;
+          this.initialSize = (6 + Math.random() * 6) * scale;
           this.maxLife = 30 + Math.random() * 15;
         } else {
-          this.vx = (100 - this.x) * 0.015 + (Math.random() - 0.5) * 0.3;
-          this.vy = -0.8 - Math.random() * 1.2;
-          this.initialSize = 4 + Math.random() * 3;
+          this.vx = (100 - this.x) * 0.01 + (Math.random() - 0.5) * 0.3;
+          this.vy = (-0.8 - Math.random() * 1.2) * scale;
+          this.initialSize = (4 + Math.random() * 3) * scale;
           this.maxLife = 20 + Math.random() * 10;
         }
         this.size = this.initialSize;
@@ -80,7 +88,7 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno }: { theme: { primary: str
       update() {
         this.x += this.vx;
         this.y += this.vy;
-        this.vy -= 0.02;
+        this.vy -= 0.02 * scale;
         this.life--;
         
         if (this.isSpire) {
@@ -91,7 +99,7 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno }: { theme: { primary: str
       }
 
       draw(ctx: CanvasRenderingContext2D) {
-        if (this.size < 0.3) return;
+        if (this.size < 0.2) return;
         const p = this.life / this.maxLife; 
         
         ctx.beginPath();
@@ -122,8 +130,6 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno }: { theme: { primary: str
     }
 
     const render = () => {
-      // Correct way to do trailing on transparent canvas:
-      // Use 'destination-out' to gradually erase existing pixels instead of filling with black
       ctx.globalCompositeOperation = "destination-out";
       ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
       ctx.fillRect(0, 0, 200, 200);
@@ -138,7 +144,7 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno }: { theme: { primary: str
       for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i];
         p.update();
-        if (p.life <= 0 || p.size < 0.3) {
+        if (p.life <= 0 || p.size < 0.2) {
           particles.splice(i, 1);
         } else {
           p.draw(ctx);
@@ -149,19 +155,19 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno }: { theme: { primary: str
     };
 
     render();
-
     return () => cancelAnimationFrame(animationFrameId);
-  }, [theme, isGodlike, isInferno]);
+  }, [theme, isGodlike, isInferno, scale]);
 
   return (
-    <div className="absolute top-1/2 left-1/2 -ml-[100px] -mt-[110px] w-[200px] h-[200px] pointer-events-none z-20 mix-blend-screen">
+    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[52%] w-[200px] h-[200px] pointer-events-none z-20 mix-blend-screen">
       <canvas ref={canvasRef} width={200} height={200} className="w-full h-full" />
     </div>
   );
 };
 
-const CanvasRainEffect = () => {
+const CanvasRainEffect = ({ size = "md" }: { size?: keyof typeof SCALES }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const scale = SCALES[size];
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -181,21 +187,23 @@ const CanvasRainEffect = () => {
 
       constructor() {
         this.reset();
-        // Start at random heights for initial variety
         this.y = Math.random() * 200;
       }
 
       reset() {
-        this.x = Math.random() * 200;
-        this.y = -20;
-        this.speed = 4 + Math.random() * 6;
-        this.len = 5 + Math.random() * 10;
+        // Limit rain to the center area based on scale
+        const area = 100 * scale;
+        this.x = 100 - area/2 + Math.random() * area;
+        this.y = 100 - area/2 - 20;
+        this.speed = (4 + Math.random() * 6) * scale;
+        this.len = (5 + Math.random() * 10) * scale;
         this.opacity = 0.1 + Math.random() * 0.3;
       }
 
       update() {
         this.y += this.speed;
-        if (this.y > 200) {
+        const bottom = 100 + (50 * scale);
+        if (this.y > bottom) {
           this.reset();
         }
       }
@@ -203,20 +211,19 @@ const CanvasRainEffect = () => {
       draw(ctx: CanvasRenderingContext2D) {
         ctx.beginPath();
         ctx.strokeStyle = `rgba(148, 163, 184, ${this.opacity})`;
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 1 * scale;
         ctx.moveTo(this.x, this.y);
         ctx.lineTo(this.x, this.y + this.len);
         ctx.stroke();
       }
     }
 
-    // Initialize drops
-    for (let i = 0; i < 25; i++) {
+    const dropCount = Math.floor(25 * scale);
+    for (let i = 0; i < dropCount; i++) {
       drops.push(new Drop());
     }
 
     const render = () => {
-      // Trail effect for rain
       ctx.globalCompositeOperation = "destination-out";
       ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
       ctx.fillRect(0, 0, 200, 200);
@@ -232,7 +239,7 @@ const CanvasRainEffect = () => {
 
     render();
     return () => cancelAnimationFrame(animationFrameId);
-  }, []);
+  }, [scale]);
 
   return (
     <div className="absolute inset-0 rounded-full overflow-hidden pointer-events-none z-10">
@@ -337,9 +344,9 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
           <span className="leading-none text-muted-foreground">{initials}</span>
         )}
 
-        {isOnFire && <CanvasFireAura theme={theme} isGodlike={isGodlike} isInferno={isInferno} />}
+        {isOnFire && <CanvasFireAura theme={theme} isGodlike={isGodlike} isInferno={isInferno} size={size} />}
 
-        {isBruised && <CanvasRainEffect />}
+        {isBruised && <CanvasRainEffect size={size} />}
 
         {isBruised && (
           <div className="absolute inset-0 rounded-full bg-accent/20 pointer-events-none mix-blend-multiply flex items-center justify-center">
