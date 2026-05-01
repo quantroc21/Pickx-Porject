@@ -22,6 +22,24 @@ AVATAR_POOL = [
     f"https://api.dicebear.com/7.x/avataaars/svg?seed=pickx_{i}" for i in range(1, 101)
 ]
 
+def normalize_text(text: str) -> str:
+    import unicodedata
+    import re
+    if not text: return ""
+    # Standardize to decomposed form to separate accents
+    text = unicodedata.normalize('NFKD', text)
+    # Remove accents/diacritics
+    text = "".join([c for c in text if not unicodedata.combining(c)])
+    # Convert special characters manually for better coverage (like đ)
+    text = text.replace('đ', 'd').replace('Đ', 'D')
+    # Lowercase, remove spaces and non-alphanumeric
+    text = text.lower().strip()
+    text = re.sub(r'[^a-z0-9]', '', text)
+    return text
+
+# In-memory cache for load_db (1 second) to prevent hammering MongoDB
+_db_cache = {"data": None, "timestamp": 0}
+
 app = FastAPI()
 
 app.add_middleware(
@@ -47,6 +65,12 @@ def get_mongo_client():
         return None
 
 def load_db():
+    import time
+    global _db_cache
+    now = time.time()
+    if _db_cache["data"] and (now - _db_cache["timestamp"] < 1.0):
+        return _db_cache["data"]
+
     client = get_mongo_client()
     if client:
         try:
@@ -55,8 +79,8 @@ def load_db():
             doc = collection.find_one({"_id": "main_state"})
             client.close()
             if doc:
-                # Remove MongoDB internal _id before returning
                 if "_id" in doc: del doc["_id"]
+                _db_cache = {"data": doc, "timestamp": now}
                 return doc
         except Exception as e:
             print(f"MongoDB Load Error: {e}")
@@ -193,6 +217,22 @@ def get_matches():
     db = load_db()
     return [format_match(m) for m in db["matches"]]
 
+@app.get("/api/players/{player_id}/matches")
+def get_player_matches(player_id: str):
+    db = load_db()
+    player_matches = []
+    for m in db["matches"]:
+        # We need to resolve names to IDs to check if this player was in the match
+        # To avoid doing this for EVERY match, we first check names
+        # But wait, format_match already does this.
+        # Let's do it efficiently.
+        name_to_id = {p["name"]: p.get("id") for p in db["players"]}
+        t1_ids = [name_to_id.get(n, n) for n in m["t1_names"]]
+        t2_ids = [name_to_id.get(n, n) for n in m["t2_names"]]
+        if player_id in t1_ids or player_id in t2_ids:
+            player_matches.append(format_match(m))
+    return player_matches
+
 @app.get("/api/live_courts")
 def get_live_courts():
     db = load_db()
@@ -248,19 +288,20 @@ class UserLoginParams(BaseModel):
 @app.post("/api/login/user")
 def login_user(req: UserLoginParams):
     db = load_db()
-    u = req.username.strip().lower()
+    u = normalize_text(req.username)
     if u.startswith("@"): u = u[1:]
     
     user_found = False
     for p in db["players"]:
-        p_handle = p["name"].lower().replace(" ", "")
-        if p_handle == u:
+        p_handle_normalized = normalize_text(p["name"])
+        # Support both exact name match (normalized) and handle match
+        if p_handle_normalized == u or normalize_text(p.get("name", "")) == u:
             user_found = True
             if p.get("password") == req.password:
                 return {"success": True, "player_id": p.get("id")}
             
     if not user_found:
-        raise HTTPException(status_code=404, detail="Username không tồn tại. Vui lòng Đăng ký tài khoản!")
+        raise HTTPException(status_code=404, detail="Username không tồn tại. Hãy đảm bảo bạn nhập đúng Họ và Tên (có dấu hoặc không dấu đều được)!")
     else:
         raise HTTPException(status_code=401, detail="Sai mật khẩu. Vui lòng thử lại!")
 
@@ -444,8 +485,8 @@ def record_match(req: RecordMatchParams):
     p_t1 = 1 / (1 + 10 ** ((t2_avg_mmr - t1_avg_mmr) / 400))
     bonus_multiplier = 1.08 if req.targetScore == 15 else 1.0
     
-    # Continuous Margin of Victory (MoV) Multiplier — capped at 2.5 to prevent extreme swings
-    mov_mult = min(2.5, math.log2(score_gap + 1))
+    # Continuous Margin of Victory (MoV) Multiplier — capped at 1.5 to prevent extreme swings
+    mov_mult = min(1.5, math.log2(score_gap + 1))
     
     player_deltas = {}
     
@@ -455,40 +496,44 @@ def record_match(req: RecordMatchParams):
         is_t1 = pid in req.team1Ids
         won = (is_t1 and t1_won) or (not is_t1 and not t1_won)
         
-        p_win = p_t1 if is_t1 else (1 - p_t1)
-        aps = aps_t1 if is_t1 else (1 - aps_t1)
+        expected_aps = p_t1 if is_t1 else (1 - p_t1)
+        actual_aps = aps_t1 if is_t1 else (1 - aps_t1)
         w_val = 1.0 if won else 0.0
         
         # 1. Dynamic Confidence Factor (K_effective)
-        # Aggressive decay: K=80 for first match, drops to 32 by match 3
+        # DUPR style: Less volatility. Start at K=40, drop to 16.
         total_games = p["wins"] + p["losses"]
-        k_base = max(32, 80 - (total_games * 16))
+        k_base = max(16, 40 - (total_games * 4))
         
-        # --- Asymmetric Sensitivity for New Players (First 3 games) ---
-        # If they claim to be an expert but lose, punish them more to drop them faster.
-        # If they claim to be a beginner but win big, push them up faster.
+        # --- Asymmetric Sensitivity for New Players ---
         sensitivity_mult = 1.0
         if total_games < 3:
             initial_skill = p.get("initialSkill", "intermediate")
             if initial_skill in ["expert", "advanced"] and not won:
-                sensitivity_mult = 1.5  # Heavy penalty for "bragging" but losing
+                sensitivity_mult = 1.3
             elif initial_skill == "beginner" and won and score_gap >= 5:
-                sensitivity_mult = 1.5  # Fast climb for "understated" players who are good
+                sensitivity_mult = 1.3
         
         k_effective = k_base * mov_mult * sensitivity_mult
         
-        # 2. Update Hidden MMR (60% Win Outcome, 40% Point Share)
-        mmr_change = k_effective * bonus_multiplier * (0.6 * (w_val - p_win) + 0.4 * (aps - p_win))
+        # 2. Update Hidden MMR based on DUPR-style Expected vs Actual Performance
+        # 60% driven by Win/Loss, 40% driven by Point Share Over/Under-performance
+        performance_diff = (0.6 * (w_val - expected_aps)) + (0.4 * (actual_aps - expected_aps))
+        mmr_change = k_effective * bonus_multiplier * performance_diff
+        
         p["mmr"] = p.get("mmr", p["elo"]) + mmr_change
         
         # 3. Update Visible Rating (Elo)
-        base_gain = (k_effective * 0.7) * bonus_multiplier * (w_val - p_win)
         gap = p["mmr"] - p["elo"]
+        base_elo_change = (k_effective * 0.8) * bonus_multiplier * performance_diff
         
+        # DUPR allows you to gain rating even if you lose (if you overperformed significantly against a tough team)
+        # However, to avoid user confusion, we ensure a win is slightly positive and a loss is slightly negative,
+        # unless the performance was extremely anomalous.
         if won:
-            elo_change = max(2.0, base_gain + 0.2 * gap)
+            elo_change = max(1.0, base_elo_change + 0.1 * gap)
         else:
-            elo_change = min(-2.0, base_gain + 0.2 * gap)
+            elo_change = min(-1.0, base_elo_change + 0.1 * gap)
             
         p["elo"] = round(p["elo"] + elo_change)
         player_deltas[p["name"]] = round(elo_change)

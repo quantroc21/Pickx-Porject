@@ -1,33 +1,36 @@
-import os
-from pymongo import MongoClient
 import json
 
-MONGO_URI = "mongodb+srv://quanle2212_db_user:eDxVWzCSeYYHrv7N@pickxdb.3hafbwh.mongodb.net/?appName=PickxDb"
-
-def reset():
-    print("Connecting to MongoDB...")
-    client = MongoClient(MONGO_URI)
-    db = client["pickx_db"]
-    collection = db["state"]
-    
-    empty_state = {
-        "players": [],
-        "matches": [],
-        "live_schedule": [],
-        "live_rest": []
-    }
-    
-    print("Resetting state to empty...")
-    collection.replace_one({"_id": "main_state"}, empty_state, upsert=True)
-    
-    # Also reset local file if exists
-    if os.path.exists("pickx_database.db"):
-        with open("pickx_database.db", "w") as f:
-            json.dump(empty_state, f, indent=4)
-        print("Local backup reset.")
+def reset_db():
+    db_path = '/Users/lehoangquan/.gemini/antigravity/scratch/pickx/pickx_database.db'
+    with open(db_path, 'r') as f:
+        db = json.load(f)
         
-    client.close()
-    print("Database reset SUCCESSFUL.")
-
-if __name__ == "__main__":
-    reset()
+    for p in db['players']:
+        skill = p.get('initialSkill', 'intermediate')
+        if skill == 'beginner':
+            elo = 700
+        elif skill == 'intermediate':
+            elo = 900
+        elif skill == 'advanced':
+            elo = 1000
+        elif skill == 'expert':
+            elo = 1200
+        else:
+            elo = 1000
+            
+        p['elo'] = elo
+        p['mmr'] = elo
+        p['wins'] = 0
+        p['losses'] = 0
+        p['streak'] = 0
+        p['last_comment'] = "Sẵn sàng định chuẩn DUPR! 🚀"
+        p['last_comment_time'] = ""
+        
+    db['matches'] = []
+    
+    with open(db_path, 'w') as f:
+        json.dump(db, f, indent=2)
+        
+if __name__ == '__main__':
+    reset_db()
+    print("Database reset successfully for DUPR calibration.")
