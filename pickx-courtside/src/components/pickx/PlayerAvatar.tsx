@@ -22,9 +22,9 @@ const SIZE = {
 
 const SCALES = {
   xs: 0.35,
-  sm: 0.45,
-  md: 0.55,
-  lg: 0.8,
+  sm: 0.4,
+  md: 0.5,
+  lg: 0.7,
   xl: 1.0,
 };
 
@@ -62,24 +62,25 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno, size = "md" }: { theme: a
 
       constructor() {
         const angle = Math.random() * Math.PI * 2;
-        const radius = (44 + Math.random() * 3) * scale;
+        // Adjusted base radius to be more accurate across sizes
+        const radius = (45 + Math.random() * 4) * scale;
         
-        // Center of 200x200 canvas
+        // Use 100, 110 as the center to give slightly more room for the spire at the top
         this.x = 100 + Math.cos(angle) * radius;
-        this.y = 100 + Math.sin(angle) * radius;
+        this.y = 110 + Math.sin(angle) * radius;
 
         this.isSpire = angle > -1.8 && angle < -1.3;
 
         if (this.isSpire) {
           this.vx = (100 - this.x) * 0.12 + (Math.random() - 0.5) * 0.2;
-          this.vy = (-1.8 - Math.random() * 1.5) * scale;
-          this.initialSize = (6 + Math.random() * 6) * scale;
-          this.maxLife = 30 + Math.random() * 15;
+          this.vy = (-2.0 - Math.random() * 2.0) * scale;
+          this.initialSize = (8 + Math.random() * 8) * scale;
+          this.maxLife = 35 + Math.random() * 15;
         } else {
           this.vx = (100 - this.x) * 0.01 + (Math.random() - 0.5) * 0.3;
-          this.vy = (-0.8 - Math.random() * 1.2) * scale;
-          this.initialSize = (4 + Math.random() * 3) * scale;
-          this.maxLife = 20 + Math.random() * 10;
+          this.vy = (-1.0 - Math.random() * 1.5) * scale;
+          this.initialSize = (5 + Math.random() * 4) * scale;
+          this.maxLife = 25 + Math.random() * 10;
         }
         this.size = this.initialSize;
         this.life = this.maxLife;
@@ -132,7 +133,7 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno, size = "md" }: { theme: a
     const render = () => {
       ctx.globalCompositeOperation = "destination-out";
       ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
-      ctx.fillRect(0, 0, 200, 200);
+      ctx.fillRect(0, 0, 200, 220);
       
       ctx.globalCompositeOperation = "lighter";
 
@@ -159,8 +160,8 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno, size = "md" }: { theme: a
   }, [theme, isGodlike, isInferno, scale]);
 
   return (
-    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[52%] w-[200px] h-[200px] pointer-events-none z-20 mix-blend-screen">
-      <canvas ref={canvasRef} width={200} height={200} className="w-full h-full" />
+    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[55%] w-[200px] h-[220px] pointer-events-none z-20 mix-blend-screen">
+      <canvas ref={canvasRef} width={200} height={220} className="w-full h-full" />
     </div>
   );
 };
@@ -191,7 +192,6 @@ const CanvasRainEffect = ({ size = "md" }: { size?: keyof typeof SCALES }) => {
       }
 
       reset() {
-        // Limit rain to the center area based on scale
         const area = 100 * scale;
         this.x = 100 - area/2 + Math.random() * area;
         this.y = 100 - area/2 - 20;
