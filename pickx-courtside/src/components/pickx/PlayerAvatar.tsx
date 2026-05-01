@@ -31,10 +31,6 @@ const SCALES = {
 const CanvasFireAura = ({ theme, isGodlike, isInferno, size = "md" }: { theme: any, isGodlike: boolean, isInferno: boolean, size?: keyof typeof SCALES }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const scale = SCALES[size];
-  
-  // Use smaller canvas for smaller avatars to save performance
-  const canvasSize = size === "xs" || size === "sm" || size === "md" ? 100 : 200;
-  const internalScale = canvasSize / 200;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -44,9 +40,7 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno, size = "md" }: { theme: a
 
     let animationFrameId: number;
     let particles: any[] = [];
-    
-    // Performance optimization: Check if mobile
-    const isMobile = window.innerWidth < 768;
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
     const pRGB = theme.primary.split(',').map(Number);
     const cRGB = theme.core.split(',').map(Number);
@@ -69,27 +63,22 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno, size = "md" }: { theme: a
 
       constructor() {
         const angle = Math.random() * Math.PI * 2;
-        const radius = (45 + Math.random() * 4) * scale * 200; // Use logical 200 as base
+        const radius = (45 + Math.random() * 4) * scale;
         
-        this.x = 100 + Math.cos(angle) * radius / 200 * 200;
-        this.y = 100 + Math.sin(angle) * radius / 200 * 200;
-        
-        // Adjust for internal scaling
-        this.x *= internalScale;
-        this.y *= internalScale;
+        this.x = 100 + Math.cos(angle) * radius;
+        this.y = 100 + Math.sin(angle) * radius;
 
         this.isSpire = angle > -1.8 && angle < -1.3;
 
-        const s = scale * internalScale;
         if (this.isSpire) {
-          this.vx = ( (100 * internalScale) - this.x) * 0.12 + (Math.random() - 0.5) * 0.2 * internalScale;
-          this.vy = (-2.0 - Math.random() * 2.0) * s;
-          this.initialSize = (8 + Math.random() * 8) * s;
+          this.vx = (100 - this.x) * 0.12 + (Math.random() - 0.5) * 0.2;
+          this.vy = (-2.0 - Math.random() * 2.0) * scale;
+          this.initialSize = (8 + Math.random() * 8) * scale;
           this.maxLife = isMobile ? 25 : 35 + Math.random() * 15;
         } else {
-          this.vx = ( (100 * internalScale) - this.x) * 0.01 + (Math.random() - 0.5) * 0.3 * internalScale;
-          this.vy = (-1.0 - Math.random() * 1.5) * s;
-          this.initialSize = (5 + Math.random() * 4) * s;
+          this.vx = (100 - this.x) * 0.01 + (Math.random() - 0.5) * 0.3;
+          this.vy = (-1.0 - Math.random() * 1.5) * scale;
+          this.initialSize = (5 + Math.random() * 4) * scale;
           this.maxLife = isMobile ? 15 : 25 + Math.random() * 10;
         }
         this.size = this.initialSize;
@@ -99,7 +88,7 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno, size = "md" }: { theme: a
       update() {
         this.x += this.vx;
         this.y += this.vy;
-        this.vy -= 0.02 * scale * internalScale;
+        this.vy -= 0.02 * scale;
         this.life--;
         
         if (this.isSpire) {
@@ -142,13 +131,13 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno, size = "md" }: { theme: a
 
     const render = () => {
       ctx.globalCompositeOperation = "destination-out";
-      ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
-      ctx.fillRect(0, 0, canvasSize, canvasSize);
+      ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
+      ctx.fillRect(0, 0, 200, 200);
       
       ctx.globalCompositeOperation = "lighter";
 
       let spawnRate = isGodlike ? 30 : isInferno ? 20 : 15;
-      if (isMobile) spawnRate = Math.ceil(spawnRate * 0.4); // 60% reduction on mobile
+      if (isMobile) spawnRate = Math.ceil(spawnRate * 0.4);
 
       for (let i = 0; i < spawnRate; i++) {
         particles.push(new Particle());
@@ -169,12 +158,11 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno, size = "md" }: { theme: a
 
     render();
     return () => cancelAnimationFrame(animationFrameId);
-  }, [theme, isGodlike, isInferno, scale, canvasSize, internalScale]);
+  }, [theme, isGodlike, isInferno, scale]);
 
   return (
-    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[48%] pointer-events-none z-20 mix-blend-screen" 
-         style={{ width: canvasSize, height: canvasSize }}>
-      <canvas ref={canvasRef} width={canvasSize} height={canvasSize} className="w-full h-full" />
+    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[48%] w-[200px] h-[200px] pointer-events-none z-20 mix-blend-screen">
+      <canvas ref={canvasRef} width={200} height={200} className="w-full h-full" />
     </div>
   );
 };
@@ -182,8 +170,6 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno, size = "md" }: { theme: a
 const CanvasRainEffect = ({ size = "md" }: { size?: keyof typeof SCALES }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const scale = SCALES[size];
-  const canvasSize = size === "xs" || size === "sm" || size === "md" ? 80 : 160;
-  const internalScale = canvasSize / 200;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -193,7 +179,7 @@ const CanvasRainEffect = ({ size = "md" }: { size?: keyof typeof SCALES }) => {
 
     let animationFrameId: number;
     let drops: Drop[] = [];
-    const isMobile = window.innerWidth < 768;
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
     class Drop {
       x: number;
@@ -204,21 +190,21 @@ const CanvasRainEffect = ({ size = "md" }: { size?: keyof typeof SCALES }) => {
 
       constructor() {
         this.reset();
-        this.y = Math.random() * canvasSize;
+        this.y = Math.random() * 200;
       }
 
       reset() {
-        const area = 100 * scale * 200 * internalScale / 200;
-        this.x = (canvasSize/2) - area/2 + Math.random() * area;
-        this.y = (canvasSize/2) - area/2 - 20 * internalScale;
-        this.speed = (4 + Math.random() * 6) * scale * internalScale;
-        this.len = (5 + Math.random() * 10) * scale * internalScale;
-        this.opacity = 0.1 + Math.random() * 0.2;
+        const area = 100 * scale;
+        this.x = 100 - area/2 + Math.random() * area;
+        this.y = 100 - area/2 - 20;
+        this.speed = (4 + Math.random() * 6) * scale;
+        this.len = (5 + Math.random() * 10) * scale;
+        this.opacity = 0.1 + Math.random() * 0.3;
       }
 
       update() {
         this.y += this.speed;
-        const bottom = (canvasSize/2) + (50 * scale * 200 * internalScale / 200);
+        const bottom = 100 + (50 * scale);
         if (this.y > bottom) {
           this.reset();
         }
@@ -227,7 +213,7 @@ const CanvasRainEffect = ({ size = "md" }: { size?: keyof typeof SCALES }) => {
       draw(ctx: CanvasRenderingContext2D) {
         ctx.beginPath();
         ctx.strokeStyle = `rgba(148, 163, 184, ${this.opacity})`;
-        ctx.lineWidth = 1 * scale * internalScale;
+        ctx.lineWidth = 1 * scale;
         ctx.moveTo(this.x, this.y);
         ctx.lineTo(this.x, this.y + this.len);
         ctx.stroke();
@@ -244,7 +230,7 @@ const CanvasRainEffect = ({ size = "md" }: { size?: keyof typeof SCALES }) => {
     const render = () => {
       ctx.globalCompositeOperation = "destination-out";
       ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
-      ctx.fillRect(0, 0, canvasSize, canvasSize);
+      ctx.fillRect(0, 0, 200, 200);
 
       ctx.globalCompositeOperation = "source-over";
       drops.forEach(drop => {
@@ -257,11 +243,11 @@ const CanvasRainEffect = ({ size = "md" }: { size?: keyof typeof SCALES }) => {
 
     render();
     return () => cancelAnimationFrame(animationFrameId);
-  }, [scale, canvasSize, internalScale]);
+  }, [scale]);
 
   return (
     <div className="absolute inset-0 rounded-full overflow-hidden pointer-events-none z-10">
-      <canvas ref={canvasRef} width={canvasSize} height={canvasSize} className="w-full h-full opacity-50" />
+      <canvas ref={canvasRef} width={200} height={200} className="w-full h-full opacity-60" />
     </div>
   );
 };
