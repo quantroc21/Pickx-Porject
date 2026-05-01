@@ -3,7 +3,7 @@ import { useState, useEffect, useId, useRef } from "react";
 import { getTier } from "@/lib/tiers";
 import type { Player } from "@/lib/types";
 import { Skull } from "lucide-react";
-
+import React from "react";
 
 interface PlayerAvatarProps {
   player: Pick<Player, "name" | "elo" | "avatar_url" | "streak" | "id"> & Partial<Pick<Player, "last_comment" | "last_comment_time">>;
@@ -14,9 +14,9 @@ interface PlayerAvatarProps {
 
 const SIZE = {
   xs: "size-7 text-[10px]",
-  sm: "size-9 text-xs",
-  md: "size-11 text-sm",
-  lg: "size-14 text-base",
+  sm: "size-8 text-xs",
+  md: "size-10 text-sm",
+  lg: "size-14 text-xl",
   xl: "size-20 text-2xl",
 };
 
@@ -30,7 +30,7 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno }: { theme: { primary: str
     if (!ctx) return;
 
     let animationFrameId: number;
-    let particles: Particle[] = [];
+    let particles: any[] = [];
 
     const pRGB = theme.primary.split(',').map(Number);
     const cRGB = theme.core.split(',').map(Number);
@@ -151,22 +151,80 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno }: { theme: { primary: str
   );
 };
 
-    return (
-      <div className="relative inline-flex shrink-0">
-        {/* HEAT GLOW BACKGROUND */}
-        {isOnFire && (
-          <div className={cn(
-              "absolute rounded-full blur-xl animate-pulse pointer-events-none z-0 transition-all duration-700",
-              theme.bg
-          )} 
-          style={{ 
-            inset: isInferno ? "-22px" : "-16px",
-          }} />
-        )}
+export function PlayerAvatar({ player, size = "md", ring = false, className }: PlayerAvatarProps) {
+  if (!player || !player.name) return <div className={cn("rounded-full bg-muted", SIZE[size])} />;
+  
+  const initials = player.name
+    .split(" ")
+    .map((n) => n[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+    
+  const tier = getTier(player.elo ?? 1000);
+  const streak = player.streak || 0;
+  const isOnFire = streak >= 3;
+  const isInferno = streak >= 5;
+  const isGodlike = streak >= 10;
+  const isBruised = streak <= -3;
+    
+  const [showComment, setShowComment] = useState(false);
 
-        <div
-          className={cn(
-            "relative inline-flex shrink-0 items-center justify-center rounded-full font-display font-bold transition-all duration-500",
+  useEffect(() => {
+    if (!player.last_comment || !player.last_comment_time || !player.id) return;
+      
+    const commentAge = Date.now() - new Date(player.last_comment_time).getTime();
+    const isRecent = commentAge < 3 * 60 * 1000;
+    const storageKey = `seen_comment_${player.id}_${player.last_comment_time}`;
+      
+    if (isRecent && !sessionStorage.getItem(storageKey)) {
+      setShowComment(true);
+      const timer = setTimeout(() => {
+        setShowComment(false);
+        sessionStorage.setItem(storageKey, "true");
+      }, 7000);
+      return () => clearTimeout(timer);
+    }
+  }, [player.last_comment, player.last_comment_time, player.id]);
+
+  const getFireTheme = () => {
+    if (isGodlike) return {
+      primary: "34,211,238",
+      core: "180,255,255",
+      colorMatrix: "0 0 0 0 0.13  0 0 0 0 0.83  0 0 0 0 0.93  0 0 0 1 0",
+      bg: "bg-cyan-500/25",
+    };
+    if (isInferno) return {
+      primary: "236,72,153",
+      core: "255,180,220",
+      colorMatrix: "0 0 0 0 0.93  0 0 0 0 0.28  0 0 0 0 0.60  0 0 0 1 0",
+      bg: "bg-pink-500/25",
+    };
+    return {
+      primary: "249,115,22",
+      core: "255,230,80",
+      colorMatrix: "0 0 0 0 0.98  0 0 0 0 0.45  0 0 0 0 0.09  0 0 0 1 0",
+      bg: "bg-orange-500/25",
+    };
+  };
+
+  const theme = getFireTheme();
+
+  return (
+    <div className="relative inline-flex shrink-0">
+      {isOnFire && (
+        <div className={cn(
+          "absolute rounded-full blur-xl animate-pulse pointer-events-none z-0 transition-all duration-700",
+          theme.bg
+        )} 
+        style={{ 
+          inset: isInferno ? "-22px" : "-16px",
+        }} />
+      )}
+
+      <div
+        className={cn(
+          "relative inline-flex shrink-0 items-center justify-center rounded-full font-display font-bold transition-all duration-500",
           SIZE[size],
           isGodlike && "scale-110 z-10",
           isInferno && !isGodlike && "scale-105 z-10",
@@ -189,7 +247,6 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno }: { theme: { primary: str
           <span className="leading-none text-muted-foreground">{initials}</span>
         )}
 
-        {/* === CANVAS PARTICLE FIRE AURA === */}
         {isOnFire && <CanvasFireAura theme={theme} isGodlike={isGodlike} isInferno={isInferno} />}
 
         {isBruised && (
@@ -200,7 +257,6 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno }: { theme: { primary: str
           </div>
         )}
         
-        {/* Duolingo-style Speech Bubble */}
         {showComment && player.last_comment && (
           <div className="absolute -top-12 left-1/2 -translate-x-1/2 z-50 animate-bounce-in drop-shadow-xl min-w-max pointer-events-none">
             <div className="relative rounded-2xl bg-white px-4 py-2 font-display text-sm font-bold text-slate-800 border-2 border-slate-200">
@@ -211,6 +267,6 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno }: { theme: { primary: str
           </div>
         )}
       </div>
-      </div>
-    );
+    </div>
+  );
 }
