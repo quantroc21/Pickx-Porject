@@ -93,7 +93,7 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
 
     const theme = getFireTheme();
 
-    // SVG Turbulence-based fire ring — organic, flowing, realistic
+    // SVG Turbulence-based fire ring + rising flame wisps
     const renderFireAura = () => {
       if (!isOnFire) return null;
 
@@ -102,17 +102,31 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
       const outerGlowW = isGodlike ? 22 : isInferno ? 18 : 14;
       const emberCount = isGodlike ? 9 : isInferno ? 6 : 3;
       const embers = EMBERS.slice(0, emberCount);
-      const animDur = isGodlike ? "1.5s" : isInferno ? "2s" : "2.5s";
+      // SLOWER turbulence for natural fire feel
+      const animDur = isGodlike ? "4s" : isInferno ? "5s" : "6s";
+
+      // Rising flame wisps — positioned around the top arc
+      const risingFlames = [
+        { angle: -90, w: 14, h: 30, delay: 0, dur: 1.8 },      // top center
+        { angle: -65, w: 11, h: 26, delay: 0.4, dur: 1.6 },    // top-right
+        { angle: -115, w: 11, h: 26, delay: 0.8, dur: 1.7 },   // top-left
+        { angle: -40, w: 9, h: 22, delay: 1.2, dur: 1.5 },     // right
+        { angle: -140, w: 9, h: 22, delay: 0.6, dur: 1.5 },    // left
+        { angle: -78, w: 10, h: 24, delay: 0.2, dur: 1.9 },    // near top-right
+        { angle: -102, w: 10, h: 24, delay: 1.0, dur: 1.8 },   // near top-left
+      ];
+      const flameCount = isGodlike ? 7 : isInferno ? 6 : 5;
+      const flames = risingFlames.slice(0, flameCount);
 
       return (
         <div className="absolute inset-[-14px] z-20 pointer-events-none">
+          {/* SVG Turbulence ring — organic distortion */}
           <svg 
             className="size-full overflow-visible" 
             viewBox="0 0 120 120" 
             xmlns="http://www.w3.org/2000/svg"
           >
             <defs>
-              {/* Fire turbulence filter */}
               <filter id={`${filterId}-fire`} x="-40%" y="-40%" width="180%" height="180%">
                 <feTurbulence 
                   type="fractalNoise" 
@@ -145,7 +159,6 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
                 />
               </filter>
 
-              {/* Outer glow filter (softer, bigger) */}
               <filter id={`${filterId}-glow`} x="-50%" y="-50%" width="200%" height="200%">
                 <feTurbulence 
                   type="fractalNoise" 
@@ -179,7 +192,7 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
               </filter>
             </defs>
             
-            {/* Layer 1: Outer glow — soft wide fire halo */}
+            {/* Outer glow */}
             <circle 
               cx="60" cy="60" r="44" 
               fill="none" 
@@ -188,7 +201,7 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
               filter={`url(#${filterId}-glow)`}
             />
 
-            {/* Layer 2: Main fire ring — the primary burning ring */}
+            {/* Main fire ring */}
             <circle 
               cx="60" cy="60" r="44" 
               fill="none" 
@@ -197,7 +210,7 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
               filter={`url(#${filterId}-fire)`}
             />
 
-            {/* Layer 3: Bright inner core ring */}
+            {/* Inner core */}
             <circle 
               cx="60" cy="60" r="44" 
               fill="none" 
@@ -207,6 +220,33 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
               style={{ mixBlendMode: 'screen' }}
             />
           </svg>
+
+          {/* === RISING FLAME WISPS — fire that rises upward === */}
+          {flames.map((f, i) => {
+            const rad = (f.angle * Math.PI) / 180;
+            const r = 48;
+            const cx = 50 + Math.cos(rad) * r;
+            const cy = 50 + Math.sin(rad) * r;
+
+            return (
+              <div
+                key={`flame-${i}`}
+                className="absolute animate-flame-rise"
+                style={{
+                  left: `${cx}%`,
+                  top: `${cy}%`,
+                  width: `${f.w}px`,
+                  height: `${f.h}px`,
+                  background: `radial-gradient(ellipse at 50% 100%, rgba(${theme.primary},0.9) 0%, rgba(${theme.primary},0.4) 50%, transparent 100%)`,
+                  borderRadius: '50% 50% 30% 30%',
+                  filter: `blur(2.5px)`,
+                  transformOrigin: 'center bottom',
+                  animationDelay: `${f.delay}s`,
+                  animationDuration: `${f.dur}s`,
+                }}
+              />
+            );
+          })}
 
           {/* Floating ember particles */}
           {embers.map((e, i) => (
