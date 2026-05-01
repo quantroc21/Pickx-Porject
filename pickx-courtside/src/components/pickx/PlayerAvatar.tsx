@@ -191,17 +191,17 @@ const CanvasRainEffect = ({ size = "md" }: { size?: keyof typeof SCALES }) => {
       }
 
       reset() {
-        const area = 100 * scale;
+        const area = 120 * scale;
         this.x = 100 - area/2 + Math.random() * area;
-        this.y = 100 - area/2 - 20;
-        this.speed = (4 + Math.random() * 6) * scale;
-        this.len = (5 + Math.random() * 10) * scale;
-        this.opacity = 0.1 + Math.random() * 0.3;
+        this.y = 100 - area/2 - 40; // Spawn higher up
+        this.speed = (5 + Math.random() * 8) * scale;
+        this.len = (8 + Math.random() * 12) * scale;
+        this.opacity = 0.2 + Math.random() * 0.4; // More visible
       }
 
       update() {
         this.y += this.speed;
-        const bottom = 100 + (50 * scale);
+        const bottom = 100 + (60 * scale);
         if (this.y > bottom) {
           this.reset();
         }
@@ -210,14 +210,15 @@ const CanvasRainEffect = ({ size = "md" }: { size?: keyof typeof SCALES }) => {
       draw(ctx: CanvasRenderingContext2D) {
         ctx.beginPath();
         ctx.strokeStyle = `rgba(148, 163, 184, ${this.opacity})`;
-        ctx.lineWidth = 1 * scale;
+        ctx.lineWidth = 1.5 * scale; // Thicker rain
         ctx.moveTo(this.x, this.y);
         ctx.lineTo(this.x, this.y + this.len);
         ctx.stroke();
       }
     }
 
-    const dropCount = Math.floor(25 * scale);
+    // More rain drops
+    const dropCount = Math.floor(40 * scale);
 
     for (let i = 0; i < dropCount; i++) {
       drops.push(new Drop());
@@ -225,7 +226,7 @@ const CanvasRainEffect = ({ size = "md" }: { size?: keyof typeof SCALES }) => {
 
     const render = () => {
       ctx.globalCompositeOperation = "destination-out";
-      ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+      ctx.fillStyle = "rgba(255, 255, 255, 0.2)"; // Longer trails
       ctx.fillRect(0, 0, 200, 200);
 
       ctx.globalCompositeOperation = "source-over";
@@ -243,7 +244,7 @@ const CanvasRainEffect = ({ size = "md" }: { size?: keyof typeof SCALES }) => {
 
   return (
     <div className="absolute inset-0 rounded-full overflow-hidden pointer-events-none z-10">
-      <canvas ref={canvasRef} width={200} height={200} className="w-full h-full opacity-60" />
+      <canvas ref={canvasRef} width={200} height={200} className="w-full h-full opacity-80" />
     </div>
   );
 };
@@ -352,7 +353,7 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
           <div className="absolute inset-0 rounded-full bg-accent/20 pointer-events-none mix-blend-multiply flex items-center justify-center">
              <div className="absolute top-1/4 left-1/4 size-2 rounded-full bg-purple-900/40 blur-[2px]" />
              <div className="absolute top-1/2 right-1/4 size-3 rounded-full bg-blue-900/30 blur-[3px]" />
-             <Skull className="size-1/2 text-accent/30 rotate-12" />
+             <Skull className="size-1/2 text-accent/40 rotate-12" />
           </div>
         )}
         
