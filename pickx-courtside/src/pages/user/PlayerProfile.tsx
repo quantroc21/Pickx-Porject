@@ -477,7 +477,10 @@ export default function PlayerProfile() {
 
         {isMe && (
           <button
-            onClick={logout}
+            onClick={() => {
+              logout();
+              navigate("/login");
+            }}
             className="flex w-full items-center justify-center gap-2 rounded-xl border border-danger/20 bg-danger/5 py-3.5 text-sm font-bold text-danger transition-all hover:bg-danger/10 active:scale-[0.98]"
           >
             <LogOut className="size-4" />
