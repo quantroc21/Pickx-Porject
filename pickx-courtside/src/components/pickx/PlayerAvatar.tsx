@@ -160,6 +160,87 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno }: { theme: { primary: str
   );
 };
 
+const CanvasRainEffect = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let animationFrameId: number;
+    let drops: Drop[] = [];
+
+    class Drop {
+      x: number;
+      y: number;
+      speed: number;
+      len: number;
+      opacity: number;
+
+      constructor() {
+        this.reset();
+        // Start at random heights for initial variety
+        this.y = Math.random() * 200;
+      }
+
+      reset() {
+        this.x = Math.random() * 200;
+        this.y = -20;
+        this.speed = 4 + Math.random() * 6;
+        this.len = 5 + Math.random() * 10;
+        this.opacity = 0.1 + Math.random() * 0.3;
+      }
+
+      update() {
+        this.y += this.speed;
+        if (this.y > 200) {
+          this.reset();
+        }
+      }
+
+      draw(ctx: CanvasRenderingContext2D) {
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(148, 163, 184, ${this.opacity})`;
+        ctx.lineWidth = 1;
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(this.x, this.y + this.len);
+        ctx.stroke();
+      }
+    }
+
+    // Initialize drops
+    for (let i = 0; i < 25; i++) {
+      drops.push(new Drop());
+    }
+
+    const render = () => {
+      // Trail effect for rain
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+      ctx.fillRect(0, 0, 200, 200);
+
+      ctx.globalCompositeOperation = "source-over";
+      drops.forEach(drop => {
+        drop.update();
+        drop.draw(ctx);
+      });
+
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    render();
+    return () => cancelAnimationFrame(animationFrameId);
+  }, []);
+
+  return (
+    <div className="absolute inset-0 rounded-full overflow-hidden pointer-events-none z-10">
+      <canvas ref={canvasRef} width={200} height={200} className="w-full h-full opacity-60" />
+    </div>
+  );
+};
+
 export function PlayerAvatar({ player, size = "md", ring = false, className }: PlayerAvatarProps) {
   if (!player || !player.name) return <div className={cn("rounded-full bg-muted", SIZE[size])} />;
   
@@ -257,6 +338,8 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
         )}
 
         {isOnFire && <CanvasFireAura theme={theme} isGodlike={isGodlike} isInferno={isInferno} />}
+
+        {isBruised && <CanvasRainEffect />}
 
         {isBruised && (
           <div className="absolute inset-0 rounded-full bg-accent/20 pointer-events-none mix-blend-multiply flex items-center justify-center">
