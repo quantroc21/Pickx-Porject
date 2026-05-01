@@ -1,6 +1,6 @@
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Calendar, Flame, Trophy, LogOut, Sword, Shield, Zap, Skull, Users, TrendingUp, Wand2, Bell, BellOff, Check, Radio, TriangleAlert, Lock } from "lucide-react";
-import { usePlayers, useMatches, usePushSubscribe, useTestPushNotification, useChangePassword } from "@/lib/api";
+import { usePlayers, usePlayerMatches, usePushSubscribe, useTestPushNotification, useChangePassword } from "@/lib/api";
 import { TIER_HEX, getTier, tierProgress } from "@/lib/tiers";
 import { TierBadge } from "@/components/pickx/TierBadge";
 import { PlayerAvatar } from "@/components/pickx/PlayerAvatar";
@@ -67,7 +67,7 @@ export default function PlayerProfile() {
   const isMe = userId === id;
 
   const { data: players = [], isLoading: pLoading } = usePlayers();
-  const { data: allMatches = [], isLoading: mLoading } = useMatches();
+  const { data: matchesData = [], isLoading: mLoading } = usePlayerMatches(id);
   const player = players.find(p => p.id === id);
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const subscribeMutation = usePushSubscribe(id);
@@ -141,9 +141,7 @@ export default function PlayerProfile() {
     );
   }
 
-  const matches = allMatches
-    .filter(m => m && m.team1 && m.team2 && (m.team1.playerIds?.includes(player.id) || m.team2.playerIds?.includes(player.id)))
-    .sort((a,b) => +new Date(b.playedAt) - +new Date(a.playedAt));
+  const matches = [...matchesData].sort((a,b) => +new Date(b.playedAt) - +new Date(a.playedAt));
   
   const duprScore = (2.0 + (player.elo - 700) / 200).toFixed(2);
   const totalMatches = player.wins + player.losses;

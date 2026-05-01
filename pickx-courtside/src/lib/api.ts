@@ -26,6 +26,19 @@ export function useMatches() {
   });
 }
 
+export function usePlayerMatches(playerId?: string) {
+  return useQuery({
+    queryKey: ["matches", "player", playerId],
+    queryFn: async () => {
+      if (!playerId) return [];
+      const res = await fetch(`${API_URL}/players/${playerId}/matches`);
+      if (!res.ok) throw new Error("Failed to fetch player matches");
+      return (await res.json()) as Match[];
+    },
+    enabled: !!playerId,
+  });
+}
+
 export function useLiveCourts() {
   return useQuery({
     queryKey: ["live_courts"],
