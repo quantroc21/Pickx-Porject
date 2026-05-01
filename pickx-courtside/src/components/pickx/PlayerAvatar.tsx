@@ -189,8 +189,8 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno }: { theme: { primary: str
           <span className="leading-none text-muted-foreground">{initials}</span>
         )}
 
-        {/* === SVG TURBULENCE FIRE AURA === */}
-        {renderFireAura()}
+        {/* === CANVAS PARTICLE FIRE AURA === */}
+        {isOnFire && <CanvasFireAura theme={theme} isGodlike={isGodlike} isInferno={isInferno} />}
 
         {isBruised && (
           <div className="absolute inset-0 rounded-full bg-accent/20 pointer-events-none mix-blend-multiply flex items-center justify-center">
