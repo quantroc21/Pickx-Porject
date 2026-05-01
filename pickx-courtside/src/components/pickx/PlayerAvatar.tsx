@@ -50,46 +50,51 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno }: { theme: { primary: str
       size: number;
       initialSize: number;
       isSpire: boolean;
-      noiseOffset: number;
 
       constructor() {
         const angle = Math.random() * Math.PI * 2;
-        // Radius moved further outside to wrap around the border
-        const radius = 48 + (Math.random() * 8 - 4);
+        // Hug the border closely
+        const radius = 42 + Math.random() * 4;
         
         this.x = 100 + Math.cos(angle) * radius;
         this.y = 110 + Math.sin(angle) * radius;
 
-        this.isSpire = angle > -2.35 && angle < -0.78;
-        this.noiseOffset = Math.random() * 1000;
+        // Narrower spire zone exactly at top center
+        this.isSpire = angle > -1.9 && angle < -1.2;
 
-        // Slower movement
-        this.vx = (Math.random() - 0.5) * 0.8;
-        
         if (this.isSpire) {
-          this.vy = -1.5 - Math.random() * 2.0;
-          this.initialSize = 12 + Math.random() * 15;
-          this.maxLife = 50 + Math.random() * 50;
-          this.vx += (100 - this.x) * 0.02; 
+          // Force spire particles to center horizontally and shoot straight up
+          this.vx = (100 - this.x) * 0.15 + (Math.random() - 0.5) * 0.2;
+          this.vy = -3.5 - Math.random() * 2.5;
+          this.initialSize = 10 + Math.random() * 10;
+          this.maxLife = 45 + Math.random() * 15;
         } else {
-          this.vy = -0.4 - Math.random() * 1.2;
-          this.initialSize = 6 + Math.random() * 10;
-          this.maxLife = 20 + Math.random() * 30;
+          // Base/side particles flow smoothly upwards and slightly inwards
+          this.vx = (100 - this.x) * 0.02 + (Math.random() - 0.5) * 0.4;
+          this.vy = -1.2 - Math.random() * 1.5;
+          this.initialSize = 7 + Math.random() * 6;
+          this.maxLife = 25 + Math.random() * 15;
         }
         this.size = this.initialSize;
         this.life = this.maxLife;
       }
 
       update() {
-        this.vx += Math.sin(this.life * 0.1 + this.noiseOffset) * 0.1;
         this.x += this.vx;
         this.y += this.vy;
         
-        // Gentle upward pull
-        this.vy -= 0.02;
+        // Gentle acceleration upwards
+        this.vy -= 0.03;
 
         this.life--;
-        this.size = this.initialSize * Math.pow(this.life / this.maxLife, 1.2);
+        
+        if (this.isSpire) {
+          // Linear decay for a sharper point
+          this.size = this.initialSize * (this.life / this.maxLife);
+        } else {
+          // Thicker body that tapers off
+          this.size = this.initialSize * Math.pow(this.life / this.maxLife, 0.7);
+        }
       }
 
       draw(ctx: CanvasRenderingContext2D) {
