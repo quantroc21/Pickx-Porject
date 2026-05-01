@@ -20,27 +20,35 @@ const SIZE = {
   xl: "size-20 text-2xl",
 };
 
-// Flame tongue positions around the circle (angle in degrees, scale factor)
+// Flame tongue positions around the full circle (angle in degrees, scale factor)
 const FLAME_TONGUES = [
-  { angle: -90, scale: 1.1, delay: 0,     h: 14 },  // top-center
-  { angle: -55, scale: 0.9, delay: 0.15,  h: 11 },  // top-right
-  { angle: -125, scale: 0.85, delay: 0.3, h: 10 },  // top-left
-  { angle: -20, scale: 0.7, delay: 0.45,  h: 9 },   // right
-  { angle: -160, scale: 0.65, delay: 0.6, h: 8 },   // left
-  { angle: -70, scale: 0.95, delay: 0.1,  h: 12 },  // between top-center and top-right
-  { angle: -110, scale: 0.9, delay: 0.25, h: 11 },  // between top-center and top-left
-  { angle: -40, scale: 0.75, delay: 0.5,  h: 10 },  // mid-right
+  { angle: -90, scale: 1.2, delay: 0,     h: 36 },  // top-center (tallest)
+  { angle: -60, scale: 1.0, delay: 0.12,  h: 30 },  // top-right
+  { angle: -120, scale: 1.0, delay: 0.25, h: 30 },  // top-left
+  { angle: -30, scale: 0.85, delay: 0.4,  h: 26 },  // right-upper
+  { angle: -150, scale: 0.85, delay: 0.55, h: 26 },  // left-upper
+  { angle: 0,   scale: 0.75, delay: 0.35, h: 22 },   // right
+  { angle: 180, scale: 0.75, delay: 0.5,  h: 22 },   // left
+  { angle: -75, scale: 1.05, delay: 0.08, h: 32 },   // top-right inner
+  { angle: -105, scale: 1.05, delay: 0.18, h: 32 },  // top-left inner
+  { angle: -45, scale: 0.9, delay: 0.3,   h: 28 },   // diagonal right
+  { angle: -135, scale: 0.9, delay: 0.42, h: 28 },   // diagonal left
+  { angle: 30,  scale: 0.6, delay: 0.6,   h: 18 },   // bottom-right
+  { angle: 150, scale: 0.6, delay: 0.7,   h: 18 },   // bottom-left
+  { angle: 90,  scale: 0.5, delay: 0.65,  h: 14 },   // bottom (smallest)
 ];
 
 // Ember particles that float upward
 const EMBERS = [
-  { x: 20, delay: 0, dur: 1.2, size: 2 },
-  { x: 45, delay: 0.3, dur: 1.5, size: 1.5 },
-  { x: 70, delay: 0.7, dur: 1.0, size: 2.5 },
-  { x: 30, delay: 1.0, dur: 1.3, size: 1 },
-  { x: 60, delay: 0.5, dur: 1.4, size: 2 },
-  { x: 80, delay: 0.2, dur: 1.1, size: 1.5 },
-  { x: 15, delay: 0.8, dur: 1.6, size: 1 },
+  { x: 15, delay: 0,   dur: 1.2, size: 3 },
+  { x: 40, delay: 0.3, dur: 1.5, size: 2.5 },
+  { x: 70, delay: 0.7, dur: 1.0, size: 4 },
+  { x: 25, delay: 1.0, dur: 1.3, size: 2 },
+  { x: 55, delay: 0.5, dur: 1.4, size: 3.5 },
+  { x: 85, delay: 0.2, dur: 1.1, size: 3 },
+  { x: 10, delay: 0.8, dur: 1.6, size: 2 },
+  { x: 65, delay: 0.4, dur: 1.2, size: 3 },
+  { x: 35, delay: 0.9, dur: 1.0, size: 4 },
 ];
 
 export function PlayerAvatar({ player, size = "md", ring = false, className }: PlayerAvatarProps) {
@@ -106,18 +114,18 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
     const renderFireAura = () => {
       if (!isOnFire) return null;
       
-      const tongueCount = isGodlike ? 8 : isInferno ? 7 : 6;
+      const tongueCount = isGodlike ? 14 : isInferno ? 11 : 8;
       const tongues = FLAME_TONGUES.slice(0, tongueCount);
-      const emberCount = isGodlike ? 7 : isInferno ? 5 : 3;
+      const emberCount = isGodlike ? 9 : isInferno ? 7 : 4;
       const embers = EMBERS.slice(0, emberCount);
 
       return (
-        <div className="absolute inset-0 z-20 pointer-events-none">
+        <div className="absolute inset-[-8px] z-20 pointer-events-none">
           {/* Flame tongues positioned around the circle */}
           {tongues.map((t, i) => {
             // Calculate position on the circle edge
             const rad = (t.angle * Math.PI) / 180;
-            const radius = 52; // % from center to edge
+            const radius = 48; // % from center to edge
             const cx = 50 + Math.cos(rad) * radius;
             const cy = 50 + Math.sin(rad) * radius;
             
@@ -128,7 +136,7 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
                 style={{
                   left: `${cx}%`,
                   top: `${cy}%`,
-                  width: `${t.h * 0.6}px`,
+                  width: `${t.h * 0.55}px`,
                   height: `${t.h}px`,
                   transform: `translate(-50%, -90%) rotate(${t.angle + 90}deg) scale(${t.scale})`,
                   animationDelay: `${t.delay}s`,
@@ -172,7 +180,7 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
               theme.bg
           )} 
           style={{ 
-            inset: isInferno ? "-14px" : "-10px",
+            inset: isInferno ? "-22px" : "-16px",
           }} />
         )}
 
