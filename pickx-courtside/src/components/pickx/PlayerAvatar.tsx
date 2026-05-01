@@ -74,18 +74,19 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
     const getFireTheme = () => {
         if (isGodlike) return {
             primary: "34,211,238",
-            // feColorMatrix: boost cyan channel
+            core: "180,255,255",    // white-hot cyan
             colorMatrix: "0 0 0 0 0.13  0 0 0 0 0.83  0 0 0 0 0.93  0 0 0 1 0",
             bg: "bg-cyan-500/25",
         };
         if (isInferno) return {
             primary: "236,72,153",
+            core: "255,180,220",    // white-hot pink
             colorMatrix: "0 0 0 0 0.93  0 0 0 0 0.28  0 0 0 0 0.60  0 0 0 1 0",
             bg: "bg-pink-500/25",
         };
         return {
             primary: "249,115,22",
-            // feColorMatrix: warm orange/yellow fire
+            core: "255,230,80",     // intense yellow
             colorMatrix: "0 0 0 0 0.98  0 0 0 0 0.45  0 0 0 0 0.09  0 0 0 1 0",
             bg: "bg-orange-500/25",
         };
@@ -93,7 +94,7 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
 
     const theme = getFireTheme();
 
-    // SVG Turbulence-based fire ring + rising flame wisps
+    // Fire system: Halo + Sharp Flame Spires + Embers
     const renderFireAura = () => {
       if (!isOnFire) return null;
 
@@ -102,25 +103,20 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
       const outerGlowW = isGodlike ? 22 : isInferno ? 18 : 14;
       const emberCount = isGodlike ? 9 : isInferno ? 6 : 3;
       const embers = EMBERS.slice(0, emberCount);
-      // SLOWER turbulence for natural fire feel
       const animDur = isGodlike ? "4s" : isInferno ? "5s" : "6s";
 
-      // Rising flame wisps — positioned around the top arc
-      const risingFlames = [
-        { angle: -90, w: 14, h: 30, delay: 0, dur: 1.8 },      // top center
-        { angle: -65, w: 11, h: 26, delay: 0.4, dur: 1.6 },    // top-right
-        { angle: -115, w: 11, h: 26, delay: 0.8, dur: 1.7 },   // top-left
-        { angle: -40, w: 9, h: 22, delay: 1.2, dur: 1.5 },     // right
-        { angle: -140, w: 9, h: 22, delay: 0.6, dur: 1.5 },    // left
-        { angle: -78, w: 10, h: 24, delay: 0.2, dur: 1.9 },    // near top-right
-        { angle: -102, w: 10, h: 24, delay: 1.0, dur: 1.8 },   // near top-left
+      // Secondary sharp flames: angle from top, height, delay
+      const secondaryFlames = [
+        { angle: -55, h: 18, delay: 0.3 },   // right of center
+        { angle: -125, h: 16, delay: 0.7 },  // left of center
+        { angle: -35, h: 12, delay: 1.1 },   // far right
+        { angle: -145, h: 11, delay: 0.5 },  // far left
       ];
-      const flameCount = isGodlike ? 7 : isInferno ? 6 : 5;
-      const flames = risingFlames.slice(0, flameCount);
+      const secCount = isGodlike ? 4 : isInferno ? 3 : 2;
 
       return (
         <div className="absolute inset-[-14px] z-20 pointer-events-none">
-          {/* SVG Turbulence ring — organic distortion */}
+          {/* === HALO: SVG Turbulence Ring === */}
           <svg 
             className="size-full overflow-visible" 
             viewBox="0 0 120 120" 
@@ -134,121 +130,81 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
                   numOctaves={3} 
                   result="noise"
                 >
-                  <animate 
-                    attributeName="seed" 
-                    from="0" 
-                    to="100" 
-                    dur={animDur}
-                    repeatCount="indefinite" 
-                  />
+                  <animate attributeName="seed" from="0" to="100" dur={animDur} repeatCount="indefinite" />
                 </feTurbulence>
-                <feDisplacementMap 
-                  in="SourceGraphic" 
-                  in2="noise" 
-                  scale={displaceScale} 
-                  xChannelSelector="R" 
-                  yChannelSelector="G" 
-                  result="displaced"
-                />
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale={displaceScale} xChannelSelector="R" yChannelSelector="G" result="displaced" />
                 <feGaussianBlur in="displaced" stdDeviation="1.8" result="blurred" />
-                <feColorMatrix 
-                  in="blurred" 
-                  type="matrix" 
-                  values={theme.colorMatrix}
-                  result="colored"
-                />
+                <feColorMatrix in="blurred" type="matrix" values={theme.colorMatrix} />
               </filter>
 
               <filter id={`${filterId}-glow`} x="-50%" y="-50%" width="200%" height="200%">
-                <feTurbulence 
-                  type="fractalNoise" 
-                  baseFrequency="0.03 0.07" 
-                  numOctaves={2} 
-                  result="gnoise"
-                >
-                  <animate 
-                    attributeName="seed" 
-                    from="50" 
-                    to="150" 
-                    dur={animDur}
-                    repeatCount="indefinite" 
-                  />
+                <feTurbulence type="fractalNoise" baseFrequency="0.03 0.07" numOctaves={2} result="gnoise">
+                  <animate attributeName="seed" from="50" to="150" dur={animDur} repeatCount="indefinite" />
                 </feTurbulence>
-                <feDisplacementMap 
-                  in="SourceGraphic" 
-                  in2="gnoise" 
-                  scale={displaceScale * 1.3}
-                  xChannelSelector="G" 
-                  yChannelSelector="R" 
-                  result="gdisplaced"
-                />
-                <feGaussianBlur in="gdisplaced" stdDeviation="3.5" result="gblurred" />
-                <feColorMatrix 
-                  in="gblurred" 
-                  type="matrix" 
-                  values={theme.colorMatrix}
-                  result="gcolored"
-                />
+                <feDisplacementMap in="SourceGraphic" in2="gnoise" scale={displaceScale * 1.3} xChannelSelector="G" yChannelSelector="R" result="gdisplaced" />
+                <feGaussianBlur in="gdisplaced" stdDeviation="3.5" />
               </filter>
+
+              {/* Gradient for sharp flame spires: core yellow → edge orange */}
+              <linearGradient id={`${filterId}-spire`} x1="0" y1="1" x2="0" y2="0">
+                <stop offset="0%" stopColor={`rgba(${theme.primary},0.6)`} />
+                <stop offset="30%" stopColor={`rgba(${theme.primary},1)`} />
+                <stop offset="65%" stopColor={`rgba(${theme.core},1)`} />
+                <stop offset="100%" stopColor={`rgba(${theme.core},0.7)`} />
+              </linearGradient>
             </defs>
             
-            {/* Outer glow */}
-            <circle 
-              cx="60" cy="60" r="44" 
-              fill="none" 
-              stroke={`rgba(${theme.primary},0.35)`}
-              strokeWidth={outerGlowW}
-              filter={`url(#${filterId}-glow)`}
-            />
-
+            {/* Outer glow halo */}
+            <circle cx="60" cy="60" r="44" fill="none" stroke={`rgba(${theme.primary},0.35)`} strokeWidth={outerGlowW} filter={`url(#${filterId}-glow)`} />
             {/* Main fire ring */}
-            <circle 
-              cx="60" cy="60" r="44" 
-              fill="none" 
-              stroke={`rgba(${theme.primary},0.85)`}
-              strokeWidth={strokeW}
-              filter={`url(#${filterId}-fire)`}
-            />
+            <circle cx="60" cy="60" r="44" fill="none" stroke={`rgba(${theme.primary},0.85)`} strokeWidth={strokeW} filter={`url(#${filterId}-fire)`} />
+            {/* Inner core ring */}
+            <circle cx="60" cy="60" r="44" fill="none" stroke={`rgba(${theme.primary},0.5)`} strokeWidth={strokeW * 0.5} filter={`url(#${filterId}-fire)`} style={{ mixBlendMode: 'screen' }} />
 
-            {/* Inner core */}
-            <circle 
-              cx="60" cy="60" r="44" 
-              fill="none" 
-              stroke={`rgba(${theme.primary},0.5)`}
-              strokeWidth={strokeW * 0.5}
-              filter={`url(#${filterId}-fire)`}
-              style={{ mixBlendMode: 'screen' }}
-            />
+            {/* === CENTRAL FLAME SPIRE — sharp dagger rising from top === */}
+            <g className="animate-flame-spire" style={{ transformOrigin: '60px 16px' }}>
+              <path 
+                d="M 60,18 C 55,6 56,-4 60,-22 C 64,-4 65,6 60,18 Z"
+                fill={`url(#${filterId}-spire)`}
+                filter="drop-shadow(0 0 4px rgba(255,200,50,0.8))"
+              />
+              {/* Bright inner core of the spire */}
+              <path 
+                d="M 60,16 C 58,6 58,-2 60,-16 C 62,-2 62,6 60,16 Z"
+                fill={`rgba(${theme.core},0.9)`}
+                style={{ mixBlendMode: 'screen' }}
+              />
+            </g>
+
+            {/* === SECONDARY SHARP FLAMES around the halo === */}
+            {secondaryFlames.slice(0, secCount).map((sf, i) => {
+              const rad = (sf.angle * Math.PI) / 180;
+              const ox = 60 + Math.cos(rad) * 44;
+              const oy = 60 + Math.sin(rad) * 44;
+              // Tip position: extend outward from ring
+              const tx = 60 + Math.cos(rad) * (44 + sf.h);
+              const ty = 60 + Math.sin(rad) * (44 + sf.h);
+              // Control points for the dagger shape
+              const perpAngle = rad + Math.PI / 2;
+              const spread = 3;
+              const bx1 = ox + Math.cos(perpAngle) * spread;
+              const by1 = oy + Math.sin(perpAngle) * spread;
+              const bx2 = ox - Math.cos(perpAngle) * spread;
+              const by2 = oy - Math.sin(perpAngle) * spread;
+
+              return (
+                <g key={`sec-${i}`} className="animate-flame-spire" style={{ transformOrigin: `${ox}px ${oy}px`, animationDelay: `${sf.delay}s` }}>
+                  <path
+                    d={`M ${bx1},${by1} Q ${(bx1+tx)/2},${(by1+ty)/2} ${tx},${ty} Q ${(bx2+tx)/2},${(by2+ty)/2} ${bx2},${by2} Z`}
+                    fill={`url(#${filterId}-spire)`}
+                    filter="drop-shadow(0 0 3px rgba(255,200,50,0.6))"
+                  />
+                </g>
+              );
+            })}
           </svg>
 
-          {/* === RISING FLAME WISPS — fire that rises upward === */}
-          {flames.map((f, i) => {
-            const rad = (f.angle * Math.PI) / 180;
-            const r = 48;
-            const cx = 50 + Math.cos(rad) * r;
-            const cy = 50 + Math.sin(rad) * r;
-
-            return (
-              <div
-                key={`flame-${i}`}
-                className="absolute animate-flame-rise"
-                style={{
-                  left: `${cx}%`,
-                  top: `${cy}%`,
-                  width: `${f.w}px`,
-                  height: `${f.h}px`,
-                  background: `radial-gradient(ellipse at 50% 100%, rgba(${theme.primary},0.9) 0%, rgba(${theme.primary},0.4) 50%, transparent 100%)`,
-                  borderRadius: '50% 50% 30% 30%',
-                  filter: `blur(2.5px)`,
-                  transformOrigin: 'center bottom',
-                  animationDelay: `${f.delay}s`,
-                  animationDuration: `${f.dur}s`,
-                }}
-              />
-            );
-          })}
-
-          {/* Floating ember particles */}
+          {/* === RISING EMBER PARTICLES === */}
           {embers.map((e, i) => (
             <div
               key={`ember-${i}`}
@@ -259,7 +215,7 @@ export function PlayerAvatar({ player, size = "md", ring = false, className }: P
                 width: `${e.size}px`,
                 height: `${e.size}px`,
                 borderRadius: '50%',
-                background: `rgba(${theme.primary},0.9)`,
+                background: `rgba(${theme.core},0.9)`,
                 boxShadow: `0 0 ${e.size + 2}px rgba(${theme.primary},0.7)`,
                 animationDelay: `${e.delay}s`,
                 animationDuration: `${e.dur}s`,
