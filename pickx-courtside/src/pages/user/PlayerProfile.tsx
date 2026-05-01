@@ -203,13 +203,44 @@ export default function PlayerProfile() {
             )}
           </div>
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-                @{player.handle}
-              </p>
-              {isMe && <span className="inline-block rounded bg-primary/20 px-1 py-0.5 text-[9px] font-bold text-primary ring-1 ring-primary/40">BẠN</span>}
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+                    @{player.handle}
+                  </p>
+                  {isMe && <span className="inline-block shrink-0 rounded bg-primary/20 px-1 py-0.5 text-[9px] font-bold text-primary ring-1 ring-primary/40">BẠN</span>}
+                </div>
+                <h1 className="truncate font-display text-2xl font-bold leading-tight">{player.name}</h1>
+              </div>
+
+              {!isCalibrating && (
+                <div className="flex shrink-0 flex-col items-center justify-center pt-1" title="Độ tin cậy của DUPR">
+                  <div className="relative flex size-10 items-center justify-center">
+                    <svg className="size-full -rotate-90 transform" viewBox="0 0 36 36">
+                      <circle cx="18" cy="18" r="14" fill="none" className="stroke-border/50" strokeWidth="3" />
+                      <circle 
+                        cx="18" 
+                        cy="18" 
+                        r="14" 
+                        fill="none" 
+                        className={confidence >= 80 ? "stroke-success" : confidence >= 50 ? "stroke-warning" : "stroke-danger"} 
+                        strokeWidth="3" 
+                        strokeDasharray={2 * Math.PI * 14}
+                        strokeDashoffset={(2 * Math.PI * 14) - (confidence / 100) * (2 * Math.PI * 14)}
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className={cn("text-[9px] font-bold", confidence >= 80 ? "text-success" : confidence >= 50 ? "text-warning" : "text-danger")}>
+                        {confidence}%
+                      </span>
+                    </div>
+                  </div>
+                  <span className="mt-0.5 text-[7px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Độ tin cậy</span>
+                </div>
+              )}
             </div>
-            <h1 className="truncate font-display text-2xl font-bold leading-tight">{player.name}</h1>
             <div className="mt-2 flex flex-wrap items-center gap-2">
               <TierBadge elo={player.elo} size="md" />
               {player.streak >= 3 && (
@@ -260,20 +291,6 @@ export default function PlayerProfile() {
             accent={isCalibrating ? "hsl(var(--muted-foreground)/0.5)" : "hsl(var(--primary))"}
             icon={isCalibrating ? <Lock className="size-3 opacity-40" /> : undefined}
             onClick={isCalibrating ? undefined : () => setShowUsaRating(!showUsaRating)}
-            sublabel={!isCalibrating ? (
-              <div className="mx-auto w-3/4">
-                <div className="h-[3px] w-full overflow-hidden rounded-full bg-border/30">
-                  <div 
-                    className="h-full rounded-full transition-all duration-700"
-                    style={{ 
-                      width: `${confidence}%`,
-                      background: confidence >= 80 ? 'hsl(var(--success))' : confidence >= 50 ? 'hsl(var(--warning))' : 'hsl(var(--danger))'
-                    }}
-                  />
-                </div>
-                <p className="mt-0.5 text-[7px] text-muted-foreground/60">{confidence}%</p>
-              </div>
-            ) : undefined}
           />
           <CompactBox label="Thắng" value={`${winRate}%`} />
           <CompactBox label="Trận" value={totalMatches} />
