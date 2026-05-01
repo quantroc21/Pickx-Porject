@@ -53,8 +53,8 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno }: { theme: { primary: str
 
       constructor() {
         const angle = Math.random() * Math.PI * 2;
-        // Hug the border closely
-        const radius = 42 + Math.random() * 4;
+        // Move slightly further out to avoid covering the face
+        const radius = 44 + Math.random() * 3;
         
         this.x = 100 + Math.cos(angle) * radius;
         this.y = 110 + Math.sin(angle) * radius;
@@ -66,13 +66,15 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno }: { theme: { primary: str
           // Force spire particles to center horizontally and shoot straight up
           this.vx = (100 - this.x) * 0.15 + (Math.random() - 0.5) * 0.2;
           this.vy = -3.5 - Math.random() * 2.5;
-          this.initialSize = 10 + Math.random() * 10;
+          // Thinner spire
+          this.initialSize = 7 + Math.random() * 6;
           this.maxLife = 45 + Math.random() * 15;
         } else {
-          // Base/side particles flow smoothly upwards and slightly inwards
-          this.vx = (100 - this.x) * 0.02 + (Math.random() - 0.5) * 0.4;
+          // Less inward pull so it stays on the perimeter
+          this.vx = (100 - this.x) * 0.01 + (Math.random() - 0.5) * 0.3;
           this.vy = -1.2 - Math.random() * 1.5;
-          this.initialSize = 7 + Math.random() * 6;
+          // Thinner body
+          this.initialSize = 4 + Math.random() * 4;
           this.maxLife = 25 + Math.random() * 15;
         }
         this.size = this.initialSize;
@@ -119,8 +121,8 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno }: { theme: { primary: str
           a = p * 0.8;
         }
 
-        // Higher opacity for "thicker" look
-        grad.addColorStop(0, `rgba(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)}, ${a * 0.8})`);
+        // Slightly lower opacity so it doesn't completely block the background
+        grad.addColorStop(0, `rgba(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)}, ${a * 0.6})`);
         grad.addColorStop(1, `rgba(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)}, 0)`);
         
         ctx.fillStyle = grad;
