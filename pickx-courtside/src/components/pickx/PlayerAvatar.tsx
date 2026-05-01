@@ -65,9 +65,9 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno, size = "md" }: { theme: a
         // Adjusted base radius to be more accurate across sizes
         const radius = (45 + Math.random() * 4) * scale;
         
-        // Use 100, 110 as the center to give slightly more room for the spire at the top
+        // Exact center of 200x200 canvas
         this.x = 100 + Math.cos(angle) * radius;
-        this.y = 110 + Math.sin(angle) * radius;
+        this.y = 100 + Math.sin(angle) * radius;
 
         this.isSpire = angle > -1.8 && angle < -1.3;
 
@@ -133,7 +133,7 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno, size = "md" }: { theme: a
     const render = () => {
       ctx.globalCompositeOperation = "destination-out";
       ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
-      ctx.fillRect(0, 0, 200, 220);
+      ctx.fillRect(0, 0, 200, 200);
       
       ctx.globalCompositeOperation = "lighter";
 
@@ -160,8 +160,8 @@ const CanvasFireAura = ({ theme, isGodlike, isInferno, size = "md" }: { theme: a
   }, [theme, isGodlike, isInferno, scale]);
 
   return (
-    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[55%] w-[200px] h-[220px] pointer-events-none z-20 mix-blend-screen">
-      <canvas ref={canvasRef} width={200} height={220} className="w-full h-full" />
+    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] pointer-events-none z-20 mix-blend-screen">
+      <canvas ref={canvasRef} width={200} height={200} className="w-full h-full" />
     </div>
   );
 };
