@@ -130,7 +130,7 @@ export default function PlayerProfile() {
     }
   }
 
-  if (pLoading || mLoading) return <div className="p-8 text-center text-muted-foreground animate-pulse">Đang tải biểu mẫu phân tích...</div>;
+  if (pLoading) return <div className="p-8 text-center text-muted-foreground animate-pulse">Đang chuẩn bị hồ sơ...</div>;
 
   if (!player) {
     return (
@@ -155,10 +155,7 @@ export default function PlayerProfile() {
   const isCalibrating = matchesToUnlock > 0;
 
   // DUPR-inspired Reliability Score Proxy
-  // 1. Volume (Max 50%): ~20 matches to max out
   const volumeScore = Math.min(50, matches.length * 2.5);
-  
-  // 2. Connectivity/Variety (Max 30%): Unique opponents faced
   const uniqueOpponents = new Set<string>();
   matches.forEach(m => {
     const isTeam1 = m.team1.playerIds.includes(player.id);
@@ -167,7 +164,6 @@ export default function PlayerProfile() {
   });
   const varietyScore = Math.min(30, uniqueOpponents.size * 3);
 
-  // 3. Recency (Max 20%): Decay over 60 days of inactivity
   let recencyScore = 0;
   if (matches.length > 0) {
     const lastMatchDate = new Date(matches[0].playedAt);
@@ -176,7 +172,6 @@ export default function PlayerProfile() {
   }
 
   const confidence = Math.round(volumeScore + varietyScore + recencyScore);
-  // USA approximate rating (round down to nearest 0.5)
   const usaRating = (Math.floor(parseFloat(duprScore) * 2) / 2).toFixed(1);
 
   return (
@@ -191,7 +186,7 @@ export default function PlayerProfile() {
         <div className="relative flex items-center justify-between gap-4">
           
           {/* Left Column: Avatar + Info */}
-          <div className="flex min-w-0 items-center gap-4">
+          <div className="flex min-w-0 flex-1 items-center gap-4">
             <div className="relative group shrink-0">
               <PlayerAvatar player={player} size="lg" ring />
               {isMe && (
@@ -206,7 +201,7 @@ export default function PlayerProfile() {
               )}
             </div>
 
-            <div className="min-w-0 flex-1">
+            <div className="min-w-0 flex-1 overflow-hidden">
               <div className="flex items-center gap-2">
                 <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
                   @{player.handle}
@@ -215,7 +210,7 @@ export default function PlayerProfile() {
               </div>
               <h1 className="truncate font-display text-2xl font-bold leading-tight">{player.name}</h1>
               
-              <div className="mt-1.5 flex flex-nowrap items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+              <div className="mt-1.5 flex flex-nowrap items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar pr-4">
                 <TierBadge elo={player.elo} size="md" />
                 {player.streak >= 3 && (
                   <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-warning/15 px-1.5 py-0.5 text-[10px] font-bold text-warning ring-1 ring-warning/30 animate-pulse">
@@ -232,6 +227,8 @@ export default function PlayerProfile() {
                     <Skull className="size-2.5" /> Bầm dập
                   </span>
                 )}
+                {/* Spacer to prevent clipping */}
+                <div className="w-2 shrink-0 h-1" />
               </div>
             </div>
           </div>
@@ -253,13 +250,13 @@ export default function PlayerProfile() {
                     className={confidence >= 80 ? "stroke-success" : confidence >= 50 ? "stroke-warning" : "stroke-danger"} 
                     strokeWidth="3" 
                     strokeDasharray={2 * Math.PI * 16}
-                    strokeDashoffset={(2 * Math.PI * 16) - (confidence / 100) * (2 * Math.PI * 16)}
+                    strokeDashoffset={(2 * Math.PI * 16) - (mLoading ? 0 : (confidence / 100) * (2 * Math.PI * 16))}
                     strokeLinecap="round"
                   />
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className={cn("font-display text-xl font-bold tracking-tight", confidence >= 80 ? "text-success" : confidence >= 50 ? "text-warning" : "text-danger")}>
-                    {confidence}%
+                  <span className={cn("font-display text-xl font-bold tracking-tight", mLoading ? "animate-pulse opacity-40" : (confidence >= 80 ? "text-success" : confidence >= 50 ? "text-warning" : "text-danger"))}>
+                    {mLoading ? "--" : confidence}%
                   </span>
                 </div>
               </div>
@@ -363,51 +360,56 @@ export default function PlayerProfile() {
         </div>
 
         <ol className="relative space-y-2 border-l border-border/50 pl-4">
-          {matches.map((m) => {
-            const onTeam1 = m.team1.playerIds.includes(player.id);
-            const won = (m.winner === 1 && onTeam1) || (m.winner === 2 && !onTeam1);
-            const myScore = onTeam1 ? m.team1.score : m.team2.score;
-            const oppScore = onTeam1 ? m.team2.score : m.team1.score;
-            const partnerId = (onTeam1 ? m.team1.playerIds : m.team2.playerIds).find((p) => p !== player.id)!;
-            const opps = onTeam1 ? m.team2.playerIds : m.team1.playerIds;
-            const partner = players.find((p) => p.id === partnerId);
-            const oppPlayers = opps.map((o) => players.find((p) => p.id === o)!).filter(Boolean);
-            const delta = m.eloDelta[player.id] ?? 0;
-            const date = new Date(m.playedAt);
+          {mLoading ? (
+             <div className="py-8 text-center">
+               <div className="inline-block size-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+               <p className="mt-2 text-[10px] text-muted-foreground animate-pulse">Đang tải lịch sử thi đấu...</p>
+             </div>
+          ) : matches.length === 0 ? (
+            <div className="py-8 text-center text-xs text-muted-foreground">Chưa có trận đấu nào được ghi nhận</div>
+          ) : (
+            matches.map((m) => {
+              const onTeam1 = m.team1.playerIds.includes(player.id);
+              const won = (m.winner === 1 && onTeam1) || (m.winner === 2 && !onTeam1);
+              const myScore = onTeam1 ? m.team1.score : m.team2.score;
+              const oppScore = onTeam1 ? m.team2.score : m.team1.score;
+              const delta = m.eloDelta[player.id] ?? 0;
+              const date = new Date(m.playedAt);
 
-            return (
-              <li key={m.id} className="relative">
-                <span
-                  className="absolute -left-[22px] top-4 size-3 rounded-full ring-2 ring-background"
-                  style={{ backgroundColor: won ? "hsl(var(--success))" : "hsl(var(--danger))" }}
-                />
-                <div className="rounded-xl border border-border/60 bg-surface p-3.5">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="grid size-7 place-items-center rounded-lg font-display text-[11px] font-bold uppercase"
-                        style={{
-                          backgroundColor: won ? "hsl(var(--success) / 0.15)" : "hsl(var(--danger) / 0.15)",
-                          color: won ? "hsl(var(--success))" : "hsl(var(--danger))",
-                        }}
-                      >
-                        {won ? "T" : "B"}
-                      </span>
-                      <div className="leading-tight">
-                        <p className="text-lg font-bold">
-                          {myScore} <span className="text-muted-foreground">–</span> {oppScore}
-                        </p>
-                        <p className="text-[11px] text-muted-foreground">
-                          {date.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" })}
-                        </p>
+              return (
+                <li key={m.id} className="relative">
+                  <span
+                    className="absolute -left-[22px] top-4 size-3 rounded-full ring-2 ring-background"
+                    style={{ backgroundColor: won ? "hsl(var(--success))" : "hsl(var(--danger))" }}
+                  />
+                  <div className="rounded-xl border border-border/60 bg-surface p-3.5 transition-all active:scale-[0.98]">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="grid size-7 place-items-center rounded-lg font-display text-[11px] font-bold uppercase"
+                          style={{
+                            backgroundColor: won ? "hsl(var(--success) / 0.15)" : "hsl(var(--danger) / 0.15)",
+                            color: won ? "hsl(var(--success))" : "hsl(var(--danger))",
+                          }}
+                        >
+                          {won ? "T" : "B"}
+                        </span>
+                        <div className="leading-tight">
+                          <p className="text-lg font-bold">
+                            {myScore} <span className="text-muted-foreground">–</span> {oppScore}
+                          </p>
+                          <p className="text-[11px] text-muted-foreground">
+                            {date.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" })}
+                          </p>
+                        </div>
                       </div>
+                      <EloDelta delta={delta} />
                     </div>
-                    <EloDelta delta={delta} />
                   </div>
-                </div>
-              </li>
-            );
-          })}
+                </li>
+              );
+            })
+          )}
         </ol>
       </section>
 
